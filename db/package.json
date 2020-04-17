@@ -1,0 +1,16 @@
+{
+  "name": "existence-database",
+  "version": "1.0.0",
+  "description": "The core database for existence.",
+  "main": "server.js",
+  "scripts": {
+    "deploy": "sls deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mysql2": "^2.1.0",
+    "sequelize": "^5.8.7"
+  }
+}
