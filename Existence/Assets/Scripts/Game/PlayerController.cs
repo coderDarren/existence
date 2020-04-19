@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(Animator))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : GameSystem
 {
 
     public float runSpeed = 6.0f;
@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     public float turnSpeed = 20.0f;
     public float jumpSpeed = 8.0f;
     public float gravity = 20.0f;
+    public float groundedBias = 0.1f;
 
     private CharacterController m_Controller;
     private Animator m_Animator;
@@ -29,14 +30,12 @@ public class PlayerController : MonoBehaviour
     private float m_VerticalAxisRaw;
     private float m_HorizontalAxis;
     private float m_HorizontalAxisRaw;
+    private bool m_Grounded;
+    private float m_GroundBiasTimer;
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
-    public bool grounded { 
-        get {
-            return m_Controller && m_Controller.isGrounded;
-        }
-    }
+    public bool grounded { get { return m_Grounded; } }
 
 #region Unity Functions
     private void Start()
@@ -71,6 +70,8 @@ public class PlayerController : MonoBehaviour
     }
 
     private void Move() {
+        m_Controller.Move(m_MoveDirection * Time.deltaTime);
+        CheckGrounded();
         if (grounded)
         {
             // calculate forward speed
@@ -82,10 +83,9 @@ public class PlayerController : MonoBehaviour
 
             if (m_JumpInput)
                 m_MoveDirection.y = jumpSpeed;
-        }
-
+        } 
+        
         m_MoveDirection.y -= gravity * Time.deltaTime;
-        m_Controller.Move(m_MoveDirection * Time.deltaTime);
     }
 
     private void DetectWalking() {
@@ -109,6 +109,22 @@ public class PlayerController : MonoBehaviour
 
     private void Turn() {
         transform.rotation *= Quaternion.Euler(0.0f, m_TurnInput * turnSpeed * Time.deltaTime, 0.0f);
+    }
+
+    private void CheckGrounded() {
+        m_Grounded = m_Controller.isGrounded;
+        return;
+        if (!m_Controller.isGrounded) {
+            // when character controller says it isnt grounded, wait for bias to confirm
+            if (m_GroundBiasTimer > groundedBias && m_Grounded) {
+                m_Grounded = false;
+            } else {
+                m_GroundBiasTimer += Time.deltaTime;
+            }
+        } else {
+            m_Grounded = true;
+            m_GroundBiasTimer = 0;
+        }
     }
 
     private float ApproachZero(float _val) {
