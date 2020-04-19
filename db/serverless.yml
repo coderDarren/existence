@@ -7,11 +7,11 @@ provider:
   region: us-east-1
 
 functions:
-  getPlayer:
-    handler: index.getPlayer
+  api:
+    handler: index.api
     memorySize: 128
-    description: Grab info about the player
+    description: Generic api
     events:
       - http:
-          path: getPlayer
+          path: api
           method: get
