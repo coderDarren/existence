@@ -36,6 +36,7 @@ public class NetworkPlayer : GameSystem
     private float m_InitialStrafing;
     private float m_TargetStrafing;
     private float m_Strafing;
+    private bool m_Grounded;
     private float m_UpdateTimer;
     private float m_IdleTimer;
     private long m_LastUpdateMillis;
@@ -105,6 +106,7 @@ public class NetworkPlayer : GameSystem
         m_TargetRunning = _data.input.running;
         m_InitialStrafing = m_Strafing;
         m_TargetStrafing = _data.input.strafing;
+        m_Grounded = _data.input.grounded;
         m_UpdateTimer = 0;
 
         m_LastFrameData = _data;
@@ -130,6 +132,7 @@ public class NetworkPlayer : GameSystem
         m_ClientData.rot.z = transform.eulerAngles.z;
         m_ClientData.input.running = m_PlayerController.runAnimation;
         m_ClientData.input.strafing = m_PlayerController.strafeAnimation;
+        m_ClientData.input.grounded = m_PlayerController.grounded;
 
         m_UpdateTimer += Time.deltaTime;
         if (m_UpdateTimer >= sendRate && m_IdleTimer < idleDetectionSeconds) {
@@ -157,6 +160,7 @@ public class NetworkPlayer : GameSystem
         m_Strafing = Mathf.Lerp(m_InitialStrafing, m_TargetStrafing, m_UpdateTimer / m_Smooth);
         m_Animator.SetFloat("running", m_Running);
         m_Animator.SetFloat("strafing", m_Strafing);
+        m_Animator.SetBool("grounded", m_Grounded);
     }
 
     private void PollPredictiveSmoothing() {
