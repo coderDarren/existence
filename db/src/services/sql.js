@@ -181,14 +181,6 @@ class SQLController {
             timestamps: false
         });
 
-        // PLAYER SKILLS
-        this._playerSkill = this._sql.define('playerSkill', {
-            playerID: DataTypes.INTEGER,
-            statsID: DataTypes.INTEGER
-        }, {
-            timestamps: false
-        });
-
         // PROSTHETIC SLOT TYPES
         this._prostheticSlotType = this._sql.define('prostheticSlotType', {
             name: DataTypes.CHAR(255),
