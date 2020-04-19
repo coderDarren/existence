@@ -156,7 +156,7 @@ public class PlayerController : GameSystem
             m_Grounded = true;
             m_GroundBiasTimer = 0;
             Vector3 _avgNormal = _normalAggregate / _hits;
-            m_ForwardVec = Vector3.Lerp(m_ForwardVec, Vector3.Cross(transform.right, _avgNormal), 8 * Time.deltaTime);
+            m_ForwardVec = Vector3.Cross(transform.right, _avgNormal);
             m_RightVec = Vector3.Cross(_avgNormal, m_ForwardVec);
         } else {
             // Don't "unground" until bias is reached
