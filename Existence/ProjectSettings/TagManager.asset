@@ -7,6 +7,8 @@ TagManager:
   - Terrain
   - NPC
   - ParticleCamera
+  - Particles
+  - Dust
   layers:
   - Default
   - TransparentFX
@@ -18,9 +20,7 @@ TagManager:
   - 
   - PostProcessing
   - Player
-
-  - Particles
-
+  - 
   - 
   - 
   - 
@@ -45,7 +45,4 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: Ignore
-    uniqueID: 1563668365
     locked: 0
