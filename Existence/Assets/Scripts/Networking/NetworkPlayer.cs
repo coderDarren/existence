@@ -11,7 +11,7 @@ public class NetworkPlayer : GameSystem
 {
     [Header("Generic Settings")]
     public Text nameLabel;
-
+    
     [Header("Client Settings")]
     public bool isClient;
     public float sendRate = 0.15f;
@@ -57,10 +57,8 @@ public class NetworkPlayer : GameSystem
 #region Unity Functions
     private void Start() {
         if (isClient) {
-            nameLabel.text = session.playerName;
             m_ClientData = new NetworkPlayerData();
             m_PlayerController = GetComponent<PlayerController>();
-            m_ClientData.name = session.playerName;
         } else {
             m_Animator = GetComponent<Animator>();
         }
