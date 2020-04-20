@@ -1,4 +1,4 @@
 #insert into players (accountID, serverID, `name`)
-#values (3, 1, "playername");
-#delete from players where id = 12;
+#values (4, 1, "kyle");
+
 select * from players
