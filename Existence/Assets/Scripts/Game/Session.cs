@@ -7,6 +7,7 @@ public class Session : GameSystem
     public GameObject networkPlayerObject;
     public Player player;
 
+    private PlayerController m_PlayerController;
     private NetworkController m_Network;
     private Hashtable m_Players;
     private PlayerData m_PlayerData;
@@ -33,6 +34,7 @@ public class Session : GameSystem
     private async void Start() {
         m_PlayerData = player.data;
         m_Players = new Hashtable();
+        m_PlayerController = player.GetComponent<PlayerController>();
 
         if (network) {
             network.OnConnect += OnServerConnect;
@@ -63,6 +65,14 @@ public class Session : GameSystem
         if (!network) return;
         m_PlayerData = _player;
         network.Connect();
+    }
+
+    public void FreezePlayerInput() {
+        m_PlayerController.FreezeInput();
+    }
+
+    public void FreePlayerInput() {
+        m_PlayerController.FreeInput();
     }
 #endregion
 

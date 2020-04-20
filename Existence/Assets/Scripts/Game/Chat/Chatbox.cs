@@ -49,10 +49,17 @@ public class Chatbox : GameSystem
 #endregion
 
 #region Public Functions
+    public void OnInputChanged() {
+        // tell session to stop the player
+        session.FreezePlayerInput();
+    }
+
     public void OnInputEntered() {
         string _in = chat.text;
         // clear input
         chat.text = string.Empty;
+        // tell session to free up the player
+        session.FreePlayerInput();
 
         if (_in.Equals(string.Empty)) return;
         if (_in.StartsWith("/")) {
@@ -92,7 +99,7 @@ public class Chatbox : GameSystem
         if (_data != null) {
             session.ConnectPlayer(_data);
         } else {
-            chatBox.text += "No account for "+_playerName+" exists. Create one first.";
+            chatBox.text += "No account for "+_playerName+" exists. Create one first.\n";
         }
     }
 
