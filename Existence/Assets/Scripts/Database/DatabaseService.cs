@@ -32,6 +32,7 @@ public class DatabaseService
             case 200:
                 try {
                     PlayerData _data = NetworkModel.FromJsonStr<PlayerData>(_resp.message);
+                    Log("[GetPlayer]: raw"+_resp.message);
                     return _data;
                 } catch (System.Exception _err) {
                     Log("[GetPlayer]: "+_err.Message);

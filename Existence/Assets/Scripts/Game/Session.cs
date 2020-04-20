@@ -1,21 +1,21 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
-using SocketIO;
 
 public class Session : GameSystem
 {
-    public GameObject playerObject;
-    public Text chatBox;
-    public InputField input;
+    public GameObject networkPlayerObject;
+    public Player player;
 
     private NetworkController m_Network;
     private Hashtable m_Players;
-    private string m_PlayerName;
+    private PlayerData m_PlayerData;
 
-    public string playerName { get{return m_PlayerName;} }
+    public PlayerData playerData {
+        get {
+            return m_PlayerData;
+        }
+    }
 
     private NetworkController network {
         get {
@@ -29,25 +29,47 @@ public class Session : GameSystem
         }
     }
 
-    private void Awake() {
-        m_PlayerName = RandomString(12);
-    }
-
+#region Unity Functions
     private async void Start() {
-        if (!network) return;
-
+        m_PlayerData = player.data;
         m_Players = new Hashtable();
-        network.OnConnect += OnServerConnect;
-        network.OnDisconnect += OnServerDisconnect;
-        network.OnHandshake += OnServerHandshake;
-        network.OnPlayerJoined += OnPlayerJoined;
-        network.OnPlayerLeft += OnPlayerLeft;
-        network.OnInstanceUpdated += OnInstanceUpdated;
-        network.OnChat += OnChat;
+
+        if (network) {
+            network.OnConnect += OnServerConnect;
+            network.OnDisconnect += OnServerDisconnect;
+            network.OnHandshake += OnServerHandshake;
+            network.OnPlayerJoined += OnPlayerJoined;
+            network.OnPlayerLeft += OnPlayerLeft;
+            network.OnInstanceUpdated += OnInstanceUpdated;
+        }
     }
 
+    private void OnDisable() {
+        if (!network) return;
+        network.OnConnect -= OnServerConnect;
+        network.OnDisconnect -= OnServerDisconnect;
+        network.OnHandshake -= OnServerHandshake;
+        network.OnPlayerJoined -= OnPlayerJoined;
+        network.OnPlayerLeft -= OnPlayerLeft;
+        network.OnInstanceUpdated -= OnInstanceUpdated;
+    }
+#endregion
+
+#region Public Functions
+    /// <summary>
+    /// Should be called by ChatBox when user logs in
+    /// </summary>
+    public void ConnectPlayer(PlayerData _player) {
+        if (!network) return;
+        m_PlayerData = _player;
+        network.Connect();
+    }
+#endregion
+
+#region Private Functions
     private void OnServerConnect() {
-        network.SendHandshake(m_PlayerName);
+        player.ConnectWithData(m_PlayerData);
+        network.SendHandshake(m_PlayerData.player.name);
     }
 
     private void OnServerDisconnect() {
@@ -55,7 +77,6 @@ public class Session : GameSystem
     }
 
     private void OnServerHandshake(NetworkInstanceData _instance) {
-        chatBox.text += "<color=#0f0>Welcome to the Server.</color>\n";
         foreach(NetworkPlayerData _player in _instance.players) {
             SpawnPlayer(_player);
         }
@@ -68,31 +89,18 @@ public class Session : GameSystem
     }
 
     private void OnPlayerJoined(NetworkPlayerData _player) {
-        chatBox.text += "<color=#0f0>"+_player.name+" joined.</color>\n";
         SpawnPlayer(_player);
     }
     
     private void OnPlayerLeft(NetworkPlayerData _player) {
-        chatBox.text += "<color=#f00>"+_player.name+" left.</color>\n";
         RemovePlayer(_player);
-    }
-
-    private void OnChat(string _msg) {
-        chatBox.text += _msg+"\n";
-    }
-
-    public void SendChatMessage() {
-        if (!network) return;
-        if (input.text.Equals(string.Empty)) return;
-        network.SendChat(m_PlayerName+": "+input.text);
-        input.text = string.Empty;
     }
 
     private void SpawnPlayer(NetworkPlayerData _data) {
         string _name = _data.name;
-        if (_name == m_PlayerName) return; //this is you..
+        if (_name == m_PlayerData.player.name) return; //this is you..
         if (m_Players.ContainsKey(_name)) return; // player already exists
-        GameObject _obj = Instantiate(playerObject);
+        GameObject _obj = Instantiate(networkPlayerObject);
         NetworkPlayer _player = _obj.GetComponent<NetworkPlayer>();
         _player.Init(_data);
         m_Players.Add(_name, _player);
@@ -100,7 +108,7 @@ public class Session : GameSystem
 
     private void RemovePlayer(NetworkPlayerData _data) {
         string _playerName = _data.name;
-        if (_playerName == m_PlayerName) return; //this is you..
+        if (_playerName == m_PlayerData.player.name) return; //this is you..
         if (!m_Players.ContainsKey(_playerName)) return;
         NetworkPlayer _player = (NetworkPlayer)m_Players[_playerName];
         m_Players.Remove(_playerName);
@@ -109,34 +117,10 @@ public class Session : GameSystem
 
     private void MovePlayer(NetworkPlayerData _data) {
         string _name = _data.name;
-        if (_name == m_PlayerName) return; //this is you..
+        if (_name == m_PlayerData.player.name) return; //this is you..
         if (!m_Players.ContainsKey(_name)) return; // could not find player
         NetworkPlayer _player = (NetworkPlayer)m_Players[_name];
         _player.UpdatePosition(_data);
     }
-
-    private void OnDisable() {
-        if (!network) return;
-        network.OnConnect -= OnServerConnect;
-        network.OnDisconnect -= OnServerDisconnect;
-        network.OnHandshake -= OnServerHandshake;
-        network.OnPlayerJoined -= OnPlayerJoined;
-        network.OnPlayerLeft -= OnPlayerLeft;
-        network.OnInstanceUpdated -= OnInstanceUpdated;
-        network.OnChat -= OnChat;
-    }
-
-    public static string RandomString(int length)
-    {
-        var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        var stringChars = new char[length];
-
-        for (int i = 0; i < stringChars.Length; i++)
-        {
-            stringChars[i] = chars[Random.Range(0,chars.Length)];
-        }
-
-        return new string(stringChars);
-    }
-
+#endregion
 }

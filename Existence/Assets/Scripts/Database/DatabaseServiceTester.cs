@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class DatabaseServiceTester : GameSystem
 {
-    [Header("/api/getPlayer")]
+    [Header("GET /api/getPlayer")]
     public string playerName;
 
     private DatabaseService m_Service;

@@ -2,41 +2,54 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Hold data about the player
+/// </summary>
 public class Player : MonoBehaviour
 {
     public Text nameLabel;
-    public float moveSmooth=3;
-    public bool isClient=false;
     public Session session;
+    
+    private PlayerData m_Data;
 
-    private Vector3 m_TargetPos;
-    private Vector3 m_Velocity;
-
-#region Unity Functions
-    private void Start() {
-        if (isClient) {
-            // initialize the player
-            nameLabel.text = session.playerName;
+    public PlayerData data {
+        get {
+            return m_Data;
         }
     }
 
-    private void Update() {
-        if (isClient) return;
-        transform.position = Vector3.SmoothDamp(transform.position, m_TargetPos, ref m_Velocity, moveSmooth);
+#region Unity Functions
+    private void Awake() {
+        // start with default name
+        m_Data = new PlayerData();
+        m_Data.player = new PlayerInfo();
+        m_Data.stats = new StatData();
+        m_Data.player.name = RandomString(12);
     }
 #endregion
 
 #region Public Functions
-    public void Init(string _name, Vector3 _pos) {
-        if (isClient) return;
-        nameLabel.text = _name;
-        m_TargetPos = _pos;
-        transform.position = m_TargetPos;
+    /// <summary>
+    /// Call from session when network connects
+    /// </summary>
+    public void ConnectWithData(PlayerData _data) {
+        m_Data = _data;
+        nameLabel.text = _data.player.name;
     }
+#endregion
 
-    public void UpdatePosition(Vector3 _pos) {
-        //if (isClient) return;
-        m_TargetPos = _pos;
+#region Private Functions
+    private string RandomString(int length)
+    {
+        var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var stringChars = new char[length];
+
+        for (int i = 0; i < stringChars.Length; i++)
+        {
+            stringChars[i] = chars[Random.Range(0,chars.Length)];
+        }
+
+        return new string(stringChars);
     }
 #endregion
 }
