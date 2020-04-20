@@ -4,7 +4,7 @@ const response = function(_status, _message)
 {
     const _resp = {
         body: JSON.stringify({
-            message: _message,
+            message: JSON.stringify(_message),
             statusCode: _status,
         }),
         headers: {

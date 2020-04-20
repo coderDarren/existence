@@ -5,9 +5,11 @@ const validateParams = function(_body)
 {
     if (!_body) return -1;
     const _name = _body.name;
-    if (!_name) return -1;
+    const _account = _body.account;
+    if (!_name || !_account) return -1;
     return {
-        name: _name
+        name: _name,
+        account: _account
     };
 }
 
@@ -28,7 +30,7 @@ const createPlayer = async function(_body) {
         }
     }
     
-    const _result = await _sql.createPlayer(_params.name);
+    const _result = await _sql.createPlayer(_params.account, _params.name);
     if (_result.error) {
         return _result;
     }

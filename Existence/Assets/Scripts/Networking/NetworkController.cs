@@ -53,7 +53,6 @@ public class NetworkController : GameSystem
         m_Network.On(NETWORK_MESSAGE_PLAYER_JOINED, OnNetworkPlayerJoined);
         m_Network.On(NETWORK_MESSAGE_PLAYER_LEFT, OnNetworkPlayerLeft);
         m_Network.On(NETWORK_MESSAGE_CHAT, OnNetworkChat);
-        m_Network.Connect();
     }
 #endregion
 
@@ -133,6 +132,10 @@ public class NetworkController : GameSystem
 #endregion
 
 #region Public Functions
+    public void Connect() {
+        m_Network.Connect();
+    }
+
     public void SendHandshake(string _data) {
         SendString(NETWORK_MESSAGE_HANDSHAKE, _data);
     }

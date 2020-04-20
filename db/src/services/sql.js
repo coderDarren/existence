@@ -73,7 +73,7 @@ class SQLController {
         }
     }
 
-    async createPlayer(_playerName) {
+    async createPlayer(_account, _playerName) {
         try {
             const _playerExists = (await this.getPlayer(_playerName)).error == null;
             if (_playerExists) {
@@ -89,7 +89,7 @@ class SQLController {
                 }
             }
 
-            const _player = await this._player.create({name: _playerName, serverID: 1, accountID: 3, statsID: _stats.id});
+            const _player = await this._player.create({name: _playerName, serverID: 1, accountID: _account, statsID: _stats.id});
             return {
                 data: {
                     player: _player,
@@ -176,14 +176,6 @@ class SQLController {
             name: DataTypes.CHAR(255),
             accountID: DataTypes.INTEGER,
             serverID: DataTypes.INTEGER,
-            statsID: DataTypes.INTEGER
-        }, {
-            timestamps: false
-        });
-
-        // PLAYER SKILLS
-        this._playerSkill = this._sql.define('playerSkill', {
-            playerID: DataTypes.INTEGER,
             statsID: DataTypes.INTEGER
         }, {
             timestamps: false
