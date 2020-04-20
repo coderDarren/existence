@@ -49,6 +49,7 @@ public class PlayerController : GameSystem
     private float m_HorizontalAxisRaw;
     private bool m_Grounded;
     private float m_GroundBiasTimer;
+    private bool m_InputIsFrozen;
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
@@ -71,8 +72,35 @@ public class PlayerController : GameSystem
 
 #endregion
 
+#region Public Functions
+    public void FreezeInput() {
+        m_InputIsFrozen = true;
+    }
+
+    public void FreeInput() {
+        m_InputIsFrozen = false;
+    }
+#endregion
+
 #region Private Functions
+    private void DecayInput() {
+        m_VerticalAxis = Mathf.Lerp(m_VerticalAxis, 0, 5*Time.deltaTime);
+        m_VerticalAxisRaw = Mathf.Lerp(m_VerticalAxisRaw, 0, 5*Time.deltaTime);
+        m_HorizontalAxis = Mathf.Lerp(m_HorizontalAxis, 0, 5*Time.deltaTime);
+        m_HorizontalAxisRaw = Mathf.Lerp(m_HorizontalAxisRaw, 0, 5*Time.deltaTime);
+        m_TurnInput = Mathf.Lerp(m_TurnInput, 0, 5*Time.deltaTime);
+        m_StrafeInput = Mathf.Lerp(m_StrafeInput, 0, 5*Time.deltaTime);
+        m_ForwardInput = Mathf.Lerp(m_ForwardInput, 0, 5*Time.deltaTime);
+        m_RightMouseDown = false;
+        m_ShiftIsDown = false;
+        m_JumpInput = false;
+    }
+
     private void GetInput() {
+        if (m_InputIsFrozen) {
+            DecayInput();
+            return;
+        }
         m_VerticalAxisRaw = Input.GetAxisRaw("Vertical");
         m_VerticalAxis = Input.GetAxis("Vertical");
         m_HorizontalAxis = Input.GetAxis("Horizontal");

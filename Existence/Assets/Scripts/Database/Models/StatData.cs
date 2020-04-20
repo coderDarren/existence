@@ -1,6 +1,7 @@
 ﻿
 public class StatData : NetworkModel
 {
+    public int ID;
     public int strength;
     public int dexterity;
     public int intelligence;

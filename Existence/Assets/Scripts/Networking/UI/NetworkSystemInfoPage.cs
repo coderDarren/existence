@@ -83,6 +83,7 @@ public class NetworkSystemInfoPage : GameSystem
 
 #region Private Functions
     private void OnServerConnect() {
+        Log("SERVER CONNECT");
         m_ActivePage = 1;
         if (!m_Minimized) {
             OpenCPUPage();
@@ -90,11 +91,12 @@ public class NetworkSystemInfoPage : GameSystem
     }
 
     private void OnInstanceUpdated(NetworkInstanceData _instance) {
+        Log("INSTANCE UPDATED");
         var _sys = _instance.system;
         // General
         serverName.text = _sys.serverName;
         serverVersion.text = _sys.serverVersion;
-
+        
         SetLabel("Players Online", playersOnline, _instance.gameInfo.playerCount.ToString());
 
         // CPU

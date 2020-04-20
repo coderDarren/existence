@@ -68,7 +68,7 @@ class SQLController {
             }
         } catch (_err) {
             return {
-                error: err
+                error: _err
             }
         }
     }
@@ -95,6 +95,20 @@ class SQLController {
                     player: _player,
                     stats: _stats
                 }
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
+    async updateStats(_stats) {
+        try {
+            const _resp = await this._stat.update(_stats, {where: {id: _stats.ID}})
+            console.log(JSON.stringify(_resp));
+            return {
+                data: _resp
             }
         } catch (_err) {
             return {
