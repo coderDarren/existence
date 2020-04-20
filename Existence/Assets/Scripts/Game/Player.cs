@@ -25,6 +25,7 @@ public class Player : MonoBehaviour
         m_Data.player = new PlayerInfo();
         m_Data.stats = new StatData();
         m_Data.player.name = RandomString(12);
+        nameLabel.text = m_Data.player.name;
     }
 #endregion
 
