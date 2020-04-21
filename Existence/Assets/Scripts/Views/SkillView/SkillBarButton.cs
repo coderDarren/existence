@@ -13,32 +13,43 @@ public class SkillBarButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
     public SkillBar skillBar;
     public ModType modType;
 
-    private YieldInstruction m_InitialIncrement;
+    private YieldInstruction m_BaseIncrement;
     private YieldInstruction m_SpeedIncrement;
+    private bool m_ShiftIsDown;
 
 #region Unity Functions
     private void OnEnable() {
-        m_InitialIncrement = new WaitForSeconds(0.5f);
-        m_SpeedIncrement = new WaitForSeconds(0.075f);
+        m_BaseIncrement = new WaitForSeconds(0.5f);
+        m_SpeedIncrement = new WaitForSeconds(0.015f);
     }
 
     private void OnDisable() {
         StopCoroutine("Press");
     }
+
+    private void Update() {
+        m_ShiftIsDown = Input.GetKey(KeyCode.LeftShift);
+    }
 #endregion
 
 #region Private Functions
-    private bool Add() {
-        int _diff = modType == ModType.ADD ? 1 : -1;
+    private bool Add(int _amount=1) {
+        int _diff = modType == ModType.ADD ? 1*_amount : -1*_amount;
         return skillBar.Add(_diff);
     }
 
     private IEnumerator Press() {
+        int _factor = 1;
         Add();
-        yield return m_InitialIncrement;
+        yield return m_BaseIncrement;
         Add();
-        yield return m_InitialIncrement;
-        while (Add()) {
+        yield return m_BaseIncrement;
+        while (Add(_factor)) {
+            if (m_ShiftIsDown) {
+                _factor = 10;
+            } else {
+                _factor = 1;
+            }
             yield return m_SpeedIncrement;
         }
     }

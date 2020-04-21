@@ -317,13 +317,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 1
-  runSpeed: 50
+  runSpeed: 5
   walkSpeed: 3
   backwardSpeed: 0.45
   walkStrafeSpeed: 1.5
   runStrafeSpeed: 3
   turnSpeed: 150
-  jumpSpeed: 25
+  jumpSpeed: 7
   gravity: 20
   groundCheckDensity: 12
   groundCheckRadius: 0.3
@@ -3397,25 +3397,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 903746291109695242, guid: 88492c86bdbd98c4aad481f444011171,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 903746291109695242, guid: 88492c86bdbd98c4aad481f444011171,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 903746291109695242, guid: 88492c86bdbd98c4aad481f444011171,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 903746291179499892, guid: 88492c86bdbd98c4aad481f444011171,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -104.35002
+      value: 5.6999907
       objectReference: {fileID: 0}
     - target: {fileID: 903746291644905418, guid: 88492c86bdbd98c4aad481f444011171,
         type: 3}

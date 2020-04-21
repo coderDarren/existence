@@ -34,6 +34,7 @@ public class SkillsPage : Page
         Log("[Save]: Sending request...");
         long _start = NetworkTimestamp.NowMilliseconds();
         saveButton.interactable = false;
+        Log("[Save]: saving run speed: "+m_Skills.runSpeed);
         bool _res = await DatabaseService.GetService(debug).UpdateStats(m_Skills);
         saveButton.interactable = true;
         Log("["+(NetworkTimestamp.NowMilliseconds()-_start)+"ms] [Save]: "+_res);

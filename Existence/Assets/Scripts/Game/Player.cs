@@ -16,6 +16,9 @@ public class Player : GameSystem
         get {
             return m_Data;
         }
+        set {
+            m_Data = value;
+        }
     }
 
     // get Session with integrity
