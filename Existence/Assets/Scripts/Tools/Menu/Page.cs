@@ -107,6 +107,10 @@ namespace UnityCore {
             protected void LogWarning(string _msg) {
                 Debug.LogWarning("[Page]: "+_msg);
             }
+
+            protected void LogError(string _msg) {
+                Debug.LogError("[Page]: "+_msg);
+            }
 #endregion
 
 #region Override Functions

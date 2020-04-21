@@ -6,7 +6,8 @@
             None,
             Splash,
             Loading,
-            MainMenu
+            MainMenu,
+            Skills
         }
     }
 }

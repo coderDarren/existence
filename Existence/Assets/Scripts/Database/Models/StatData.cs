@@ -24,4 +24,6 @@ public class StatData : NetworkModel
     public int quantumMechanics;
     public int symbiotics;
     public int processing;
+    public int runSpeed;
+    public int melee;
 }
