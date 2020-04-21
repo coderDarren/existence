@@ -1,4 +1,5 @@
 ﻿
+[System.Serializable]
 public class StatData : NetworkModel
 {
     public int ID;

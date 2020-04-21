@@ -20,15 +20,15 @@ public class RestService
 		return m_Service;
 	}
 
-	public async UniTask<RestResponse> Post(string _url, string _body) {
+	public async UniTask<APIResponse> Post(string _url, string _body) {
 		try {
 			var _content = new StringContent(_body, System.Text.Encoding.UTF8, "application/json");
 			HttpResponseMessage _response = await m_Http.PostAsync(_url, _content);
 			_response.EnsureSuccessStatusCode();
 			string _responseBody = await _response.Content.ReadAsStringAsync();
-			return new RestResponse(200, _responseBody);
+			return APIResponse.FromJson(_responseBody);
 		} catch (HttpRequestException _err) {
-			return new RestResponse(502, _err.Message);
+			return new APIResponse(502, "Internal Server Error.");
 		}
 		/*try {
 			UnityWebRequest request = UnityWebRequest.Post(_url);

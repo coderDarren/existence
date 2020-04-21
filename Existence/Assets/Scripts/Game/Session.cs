@@ -4,6 +4,9 @@ using UnityEngine.UI;
 
 public class Session : GameSystem
 {
+
+    public static Session instance;
+
     public GameObject networkPlayerObject;
     public Player player;
 
@@ -31,6 +34,12 @@ public class Session : GameSystem
     }
 
 #region Unity Functions
+    private void Awake() {
+        if (!instance) {
+            instance = this;
+        }
+    }
+
     private async void Start() {
         m_PlayerData = player.data;
         m_Players = new Hashtable();

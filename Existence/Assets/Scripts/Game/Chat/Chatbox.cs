@@ -4,12 +4,25 @@ using UnityEngine.UI;
 
 public class Chatbox : GameSystem
 {
-    public Session session;
     public InputField chat;
     public Text chatBox;
 
+    private Session m_Session;
     private ChatCommandParser m_CommandParser;
     private NetworkController m_Network;
+
+    // get Session with integrity
+    private Session session {
+        get {
+            if (!m_Session) {
+                m_Session = Session.instance;
+            }
+            if (!m_Session) {
+                LogError("Trying to use Session, but no instance could be found.");
+            }
+            return m_Session;
+        }
+    }
 
     private NetworkController network {
         get {
