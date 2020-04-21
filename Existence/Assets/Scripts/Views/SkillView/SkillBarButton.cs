@@ -18,8 +18,8 @@ public class SkillBarButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
 
 #region Unity Functions
     private void OnEnable() {
-        m_InitialIncrement = new WaitForSeconds(1);
-        m_SpeedIncrement = new WaitForSeconds(0.1f);
+        m_InitialIncrement = new WaitForSeconds(0.5f);
+        m_SpeedIncrement = new WaitForSeconds(0.075f);
     }
 
     private void OnDisable() {

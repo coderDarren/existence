@@ -4,6 +4,12 @@ using UnityEngine.UI;
 
 public class Chatbox : GameSystem
 {
+    public delegate void BasicAction();
+    public event BasicAction OnChatStarted;
+    public event BasicAction OnChatEnded;
+
+    public static Chatbox instance;
+
     public InputField chat;
     public Text chatBox;
 
@@ -37,6 +43,12 @@ public class Chatbox : GameSystem
     }
 
 #region Unity Functions
+    private void Awake() {
+        if (!instance) {
+            instance = this;
+        }
+    }
+
     private void Start() {
         m_CommandParser = new ChatCommandParser();
 
@@ -71,11 +83,13 @@ public class Chatbox : GameSystem
     public void OnInputChanged() {
         // tell session to stop the player
         session.FreezePlayerInput();
+        TryRunAction(OnChatStarted);
     }
 
     public void OnInputEntered() {
         // tell session to free up the player
         session.FreePlayerInput();
+        TryRunAction(OnChatEnded);
     }
 #endregion
 
@@ -149,6 +163,12 @@ public class Chatbox : GameSystem
 
     private void OnChat(string _msg) {
         chatBox.text += _msg+"\n";
+    }
+
+    private void TryRunAction(BasicAction _action) {
+        try {
+            _action();
+        } catch (System.Exception) {}
     }
 #endregion
 }

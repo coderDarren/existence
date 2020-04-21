@@ -19,6 +19,9 @@ public class Session : GameSystem
         get {
             return m_PlayerData;
         }
+        set {
+            m_PlayerData = value;
+        }
     }
 
     private NetworkController network {

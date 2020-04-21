@@ -5,7 +5,7 @@ namespace UnityCore {
     
     namespace Menu {
 
-        public class Page : MonoBehaviour
+        public class Page : GameSystem
         {
             
             public static readonly string FLAG_ON = "On";
