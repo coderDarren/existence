@@ -190,7 +190,8 @@ class SQLController {
             name: DataTypes.CHAR(255),
             accountID: DataTypes.INTEGER,
             serverID: DataTypes.INTEGER,
-            statsID: DataTypes.INTEGER
+            statsID: DataTypes.INTEGER,
+            level: DataTypes.INTEGER
         }, {
             timestamps: false
         });
@@ -238,7 +239,9 @@ class SQLController {
             programming: DataTypes.INTEGER,
             quantumMechanics: DataTypes.INTEGER,
             symbiotics: DataTypes.INTEGER,
-            processing: DataTypes.INTEGER
+            processing: DataTypes.INTEGER,
+            runSpeed: DataTypes.INTEGER,
+            melee: DataTypes.INTEGER
         }, {
             timestamps: false
         }); 

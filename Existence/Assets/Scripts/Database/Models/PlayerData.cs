@@ -3,6 +3,7 @@ public class PlayerInfo : NetworkModel
 {
     public int ID;
     public string name;
+    public int level;
 }
 
 public class PlayerData : NetworkModel
