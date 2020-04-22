@@ -1,4 +1,4 @@
-﻿
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityCore.Menu;
@@ -16,7 +16,8 @@ public class SkillsPage : Page
 
     private Session m_Session;
     private StatData m_Skills;
-    private GameObject[] pages;
+    private Hashtable m_Pages;
+    private Hashtable m_State;
 
     public StatData skills {
         get {
@@ -53,11 +54,24 @@ public class SkillsPage : Page
         }
     }
 
-    public void OpenPage(int _index) {
-        for (int i = 0; i < pages.Length; i++) {
-            pages[i].SetActive(false);
+    public void OpenSection(int _section) {
+        OpenSection((SkillSection)_section);
+    }
+
+    public void OpenSection(SkillSection _section) {
+        foreach(DictionaryEntry _entry in m_Pages) {
+            var _k = (SkillSection)_entry.Key;
+            var _v = (GameObject)_entry.Value;
+            _v.SetActive(false);
+            if (_k == _section) {
+                _v.SetActive(true);
+                m_State[_k] = true;
+            }
         }
-        pages[_index].SetActive(true);
+    }
+
+    public bool SectionDidInit(SkillSection _section) {
+        return (bool)m_State[_section];
     }
 #endregion
 
@@ -65,21 +79,27 @@ public class SkillsPage : Page
     protected override void OnPageEnabled() {
         base.OnPageEnabled();
         loadingGraphic.SetActive(false);
-        pages = new GameObject[]{
-            coreSection,
-            healthSection,
-            weaponsSection,
-            combatSection,
-            tradeSection,
-            exploringSection
-        };
-        m_Skills = StatData.Copy(session.playerData.stats);
-        OpenPage(0);
-    }
 
-    protected override void OnPageDisabled() {
-        base.OnPageDisabled();
-        
+        // page hash
+        m_Pages = new Hashtable();
+        m_Pages.Add(SkillSection.CORE, coreSection);
+        m_Pages.Add(SkillSection.HEALTH, healthSection);
+        m_Pages.Add(SkillSection.WEAPONS, weaponsSection);
+        m_Pages.Add(SkillSection.COMBAT, combatSection);
+        m_Pages.Add(SkillSection.TRADE, tradeSection);
+        m_Pages.Add(SkillSection.EXPLORING, exploringSection);
+
+        // state hash
+        m_State = new Hashtable();
+        m_State.Add(SkillSection.CORE, false);
+        m_State.Add(SkillSection.HEALTH, false);
+        m_State.Add(SkillSection.WEAPONS, false);
+        m_State.Add(SkillSection.COMBAT, false);
+        m_State.Add(SkillSection.TRADE, false);
+        m_State.Add(SkillSection.EXPLORING, false);
+
+        m_Skills = StatData.Copy(session.playerData.stats);
+        OpenSection(SkillSection.CORE);
     }
 #endregion
 }

@@ -57,6 +57,7 @@ public class SkillBarButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
 
 #region Interface Functions
     public void OnPointerDown(PointerEventData _ped) {
+        StopCoroutine("Press");
         StartCoroutine("Press");
     }
 

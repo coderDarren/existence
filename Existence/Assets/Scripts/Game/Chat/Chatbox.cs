@@ -116,20 +116,20 @@ public class Chatbox : GameSystem
         switch (_cmd) {
             case ChatCommand.LOGIN:
                 if (_args.Count != 2) {
-                    chatBox.text += "Command arguments were not understood.\n";
+                    chatBox.text += "\nCommand arguments were not understood.";
                     return;
                 }
                 Login(_args[1]);
                 break;
             case ChatCommand.UNKNOWN:
-                chatBox.text += "Command not recognized.\n";
+                chatBox.text += "\nCommand not recognized.";
                 break;
         }
     }
 
     private async void Login(string _playerName) {
         Log("[Login]: Sending request...");
-        chatBox.text += "Logging in as "+_playerName+"..\n";
+        chatBox.text += "\nLogging in as "+_playerName+"..";
         long _start = NetworkTimestamp.NowMilliseconds();
         PlayerData _data = await DatabaseService.GetService(true).GetPlayer(_playerName);
         Log("[Login]: ["+(NetworkTimestamp.NowMilliseconds()-_start)+"ms]: "+_data);
@@ -137,7 +137,7 @@ public class Chatbox : GameSystem
         if (_data != null) {
             session.ConnectPlayer(_data);
         } else {
-            chatBox.text += "No account for "+_playerName+" exists. Create one first.\n";
+            chatBox.text += "\nNo account for "+_playerName+" exists. Create one first.";
         }
     }
 
@@ -150,19 +150,19 @@ public class Chatbox : GameSystem
     }
 
     private void OnServerHandshake(NetworkInstanceData _instance) {
-        chatBox.text += "<color=#0f0>Welcome to the Server.</color>\n";
+        chatBox.text += "\n<color=#0f0>Welcome to the Server.</color>";
     }
 
     private void OnPlayerJoined(NetworkPlayerData _player) {
-        chatBox.text += "<color=#0f0>"+_player.name+" joined.</color>\n";
+        chatBox.text += "\n<color=#0f0>"+_player.name+" joined.</color>";
     }
     
     private void OnPlayerLeft(NetworkPlayerData _player) {
-        chatBox.text += "<color=#f00>"+_player.name+" left.</color>\n";
+        chatBox.text += "\n<color=#f00>"+_player.name+" left.</color>";
     }
 
     private void OnChat(string _msg) {
-        chatBox.text += _msg+"\n";
+        chatBox.text += "\n"+_msg;
     }
 
     private void TryRunAction(BasicAction _action) {
