@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,7 @@ public class Chatbox : GameSystem
     private Session m_Session;
     private ChatCommandParser m_CommandParser;
     private NetworkController m_Network;
+    private bool m_Active;
 
     // get Session with integrity
     private Session session {
@@ -64,7 +66,13 @@ public class Chatbox : GameSystem
 
     private void Update() {
         if (Input.GetKeyDown(KeyCode.Return)) {
-            EnterInput();
+            if (m_Active) {
+                EnterInput();
+            } else {
+                chat.ActivateInputField();
+                m_Active = true;
+                OnInputChanged();
+            }
         }
     }
 
@@ -90,10 +98,16 @@ public class Chatbox : GameSystem
         // tell session to free up the player
         session.FreePlayerInput();
         TryRunAction(OnChatEnded);
+        StartCoroutine(CloseChatAtEndOfFrame());
     }
 #endregion
 
 #region Private Functions
+    private IEnumerator CloseChatAtEndOfFrame() {
+        yield return new WaitForEndOfFrame();
+        m_Active = false;
+    }
+
     private void EnterInput() {
         string _in = chat.text;
         // clear input
