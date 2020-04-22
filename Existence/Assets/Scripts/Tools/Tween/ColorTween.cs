@@ -11,7 +11,7 @@ namespace Tween {
     public abstract class ColorTween : MonoBehaviour
     {
 
-        public Keyframe<Color>[] keys;
+        public ColorKeyframe[] keys;
         public float duration;
         public float delay;
         public bool wrap;
@@ -42,7 +42,12 @@ namespace Tween {
 
 #region Override Functions
         protected virtual void Init() {
-            m_Tween = new Tweener<Color>(keys, duration, delay, wrap);
+            Keyframe<Color>[] _keys = new Keyframe<Color>[keys.Length];
+            for (int i = 0; i < _keys.Length; i++) {
+                _keys[i] = new Keyframe<Color>(keys[i].value, keys[i].nTime);
+            }
+
+            m_Tween = new Tweener<Color>(_keys, duration, delay, wrap);
             if (m_Tween.Loop != null) {
                 m_Tween.OnSetValue += OnSetValue;
                 m_Tween.OnMoveValue += OnMoveValue;
