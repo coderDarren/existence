@@ -16,11 +16,11 @@ public class NetworkPlayer : GameSystem
     public bool isClient;
     public float sendRate = 0.15f;
     public float idleDetectionSeconds = 2;
-    public Session session;
     
     [Header("Network Player Settings")]
     public float moveSmooth=0.1f;
 
+    private Session m_Session;
     private NetworkController m_Network;
     private Vector3 m_InitialPos;
     private Vector3 m_TargetPos;
@@ -41,6 +41,19 @@ public class NetworkPlayer : GameSystem
     private float m_IdleTimer;
     private long m_LastUpdateMillis;
     private float m_Smooth;
+
+    // get Session with integrity
+    private Session session {
+        get {
+            if (!m_Session) {
+                m_Session = Session.instance;
+            }
+            if (!m_Session) {
+                LogError("Trying to use Session, but no instance could be found.");
+            }
+            return m_Session;
+        }
+    }
 
     private NetworkController network {
         get {

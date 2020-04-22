@@ -5,16 +5,32 @@ using UnityEngine.UI;
 /// <summary>
 /// Hold data about the player
 /// </summary>
-public class Player : MonoBehaviour
+public class Player : GameSystem
 {
     public Text nameLabel;
-    public Session session;
     
     private PlayerData m_Data;
+    private Session m_Session;
 
     public PlayerData data {
         get {
             return m_Data;
+        }
+        set {
+            m_Data = value;
+        }
+    }
+
+    // get Session with integrity
+    private Session session {
+        get {
+            if (!m_Session) {
+                m_Session = Session.instance;
+            }
+            if (!m_Session) {
+                LogError("Trying to use Session, but no instance could be found.");
+            }
+            return m_Session;
         }
     }
 

@@ -6,6 +6,7 @@ const {
 } = require('../util/response.js');
 const getPlayer = require('./getPlayer.js');
 const createPlayer = require('./createPlayer.js');
+const updateStats = require('./updateStats.js');
 
 const versionCode = 0.1;
 const api = async function(_event, _context) {
@@ -38,6 +39,9 @@ const handleRoute = async function(_req) {
             break;
         case "/api/createPlayer":
             _resp = await createPlayer(_req.body);
+            break;
+        case "/api/updateStats":
+            _resp = await updateStats(_req.body);
             break;
     }
 

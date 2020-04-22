@@ -3,6 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(Player))]
 public class PlayerController : GameSystem
 {
 
@@ -30,6 +31,7 @@ public class PlayerController : GameSystem
     public float groundCheckBias = 0.1f;
     public LayerMask groundLayer;
 
+    private Player m_Player;
     private CharacterController m_Controller;
     private Animator m_Animator;
     private Vector3 m_MoveDirection;
@@ -50,6 +52,7 @@ public class PlayerController : GameSystem
     private bool m_Grounded;
     private float m_GroundBiasTimer;
     private bool m_InputIsFrozen;
+    private float m_AnimationSpeed;
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
@@ -58,6 +61,7 @@ public class PlayerController : GameSystem
 #region Unity Functions
     private void Start()
     {
+        m_Player = GetComponent<Player>();
         m_Controller = GetComponent<CharacterController>();
         m_Animator = GetComponent<Animator>();
     }
@@ -119,12 +123,15 @@ public class PlayerController : GameSystem
         if (m_Controller.isGrounded)
         {
             // calculate forward speed
-            float _forwardSpeed = m_ForwardInput < 0 ? backwardSpeed : m_ShiftIsDown ? walkSpeed : runSpeed;
+            m_AnimationSpeed = m_ForwardInput <= 0 || m_ShiftIsDown ? 1 : (0.75f + 0.00045f*m_Player.data.stats.runSpeed);
+            m_AnimationSpeed = Mathf.Clamp(m_AnimationSpeed, 0.25f, 3);
+            float _forwardSpeed = m_ForwardInput < 0 ? backwardSpeed : m_ShiftIsDown ? walkSpeed : (runSpeed+0.01f*m_Player.data.stats.runSpeed);
+            _forwardSpeed = Mathf.Clamp(_forwardSpeed, 0.25f, Mathf.Infinity);
             float _strafeSpeed = m_ShiftIsDown || m_VerticalAxisRaw < 0 ? walkStrafeSpeed : runStrafeSpeed;
             m_MoveDirection = m_ForwardVec * m_ForwardInput * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed;
 
             if (m_JumpInput)
-                m_MoveDirection.y = jumpSpeed;
+                m_MoveDirection.y = jumpSpeed + 0.01f*m_Player.data.stats.strength;
         } 
         m_MoveDirection.y -= gravity * Time.deltaTime;
         m_Controller.Move(m_MoveDirection * Time.deltaTime);
@@ -214,6 +221,7 @@ public class PlayerController : GameSystem
         m_Animator.SetFloat("running", m_ForwardInput);
         m_Animator.SetFloat("strafing", m_StrafeAnimation);
         m_Animator.SetBool("grounded", grounded);
+        m_Animator.speed = m_AnimationSpeed;
     }
 #endregion
 }
