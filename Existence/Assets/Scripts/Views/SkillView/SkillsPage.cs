@@ -17,10 +17,17 @@ public class SkillsPage : Page
     private Session m_Session;
     private StatData m_Skills;
     private GameObject[] pages;
+    private bool m_DidInit;
 
     public StatData skills {
         get {
             return m_Skills;
+        }
+    }
+
+    public bool didInit {
+        get {
+            return m_DidInit;
         }
     }
     
@@ -62,8 +69,14 @@ public class SkillsPage : Page
 #endregion
 
 #region Override Functions
+    protected override void OnPageEnter() {
+        base.OnPageEnter();
+        m_DidInit = true;
+    }
+
     protected override void OnPageEnabled() {
         base.OnPageEnabled();
+        if (m_DidInit) return;
         loadingGraphic.SetActive(false);
         pages = new GameObject[]{
             coreSection,
@@ -79,7 +92,7 @@ public class SkillsPage : Page
 
     protected override void OnPageDisabled() {
         base.OnPageDisabled();
-        
+        m_DidInit = false;
     }
 #endregion
 }

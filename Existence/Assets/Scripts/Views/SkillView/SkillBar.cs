@@ -11,7 +11,8 @@ public class SkillBar : GameSystem
     public Text valLabel;
 
     private Session m_Session;
-    private int m_SkillMax=50000;
+    private int m_SkillMax=10000;
+    private bool m_DidInit;
 
     // get Session with integrity
     private Session session {
@@ -29,7 +30,14 @@ public class SkillBar : GameSystem
 #region Unity Functions
     private void OnEnable() {
         if (!session) return;
+        if (!page.didInit) m_DidInit = false;
+        if (m_DidInit && page.didInit) return;
+        m_DidInit = true;
         AddBar(session.playerData.stats, 0);
+    }
+
+    private void OnDisable() {
+        
     }
 #endregion
 
