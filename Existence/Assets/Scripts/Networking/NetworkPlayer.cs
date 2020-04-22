@@ -122,6 +122,7 @@ public class NetworkPlayer : GameSystem
             m_IdleTimer = 0;
         }
 
+        m_ClientData.name = session.playerData.player.name;
         m_ClientData.pos.x = transform.position.x;
         m_ClientData.pos.y = transform.position.y;
         m_ClientData.pos.z = transform.position.z;

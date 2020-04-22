@@ -1,6 +1,7 @@
 ﻿
 public class PlayerInfo : NetworkModel
 {
+    public int ID;
     public string name;
 }
 

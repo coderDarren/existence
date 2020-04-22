@@ -37,6 +37,12 @@ public class Chatbox : GameSystem
         }
     }
 
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.Return)) {
+            EnterInput();
+        }
+    }
+
     private void OnDisable() {
         if (!network) return;
         network.OnConnect -= OnServerConnect;
@@ -49,10 +55,23 @@ public class Chatbox : GameSystem
 #endregion
 
 #region Public Functions
+    public void OnInputChanged() {
+        // tell session to stop the player
+        session.FreezePlayerInput();
+    }
+
     public void OnInputEntered() {
+        // tell session to free up the player
+        session.FreePlayerInput();
+    }
+#endregion
+
+#region Private Functions
+    private void EnterInput() {
         string _in = chat.text;
         // clear input
         chat.text = string.Empty;
+        OnInputEntered();
 
         if (_in.Equals(string.Empty)) return;
         if (_in.StartsWith("/")) {
@@ -62,9 +81,7 @@ public class Chatbox : GameSystem
         // send input..
         network.SendChat(session.playerData.player.name+": "+_in);
     }
-#endregion
 
-#region Private Functions
     private void ProcessPotentialCommand(string _in) {
         List<string> _args = null;
         ChatCommand _cmd = m_CommandParser.ParseCommand(_in, out _args);
@@ -85,6 +102,7 @@ public class Chatbox : GameSystem
 
     private async void Login(string _playerName) {
         Log("[Login]: Sending request...");
+        chatBox.text += "Logging in as "+_playerName+"..\n";
         long _start = NetworkTimestamp.NowMilliseconds();
         PlayerData _data = await DatabaseService.GetService(true).GetPlayer(_playerName);
         Log("[Login]: ["+(NetworkTimestamp.NowMilliseconds()-_start)+"ms]: "+_data);
@@ -92,7 +110,7 @@ public class Chatbox : GameSystem
         if (_data != null) {
             session.ConnectPlayer(_data);
         } else {
-            chatBox.text += "No account for "+_playerName+" exists. Create one first.";
+            chatBox.text += "No account for "+_playerName+" exists. Create one first.\n";
         }
     }
 

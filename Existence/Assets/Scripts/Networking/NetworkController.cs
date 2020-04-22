@@ -54,6 +54,10 @@ public class NetworkController : GameSystem
         m_Network.On(NETWORK_MESSAGE_PLAYER_LEFT, OnNetworkPlayerLeft);
         m_Network.On(NETWORK_MESSAGE_CHAT, OnNetworkChat);
     }
+
+    private void OnDisable() {
+        m_Network.Close();
+    }
 #endregion
 
 #region Private Functions
@@ -134,6 +138,10 @@ public class NetworkController : GameSystem
 #region Public Functions
     public void Connect() {
         m_Network.Connect();
+    }
+
+    public void Close() {
+        m_Network.Close();
     }
 
     public void SendHandshake(string _data) {
