@@ -1644,7 +1644,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 846861989}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33267601d3c1ea140a18ab4597278930, type: 3}
   m_Name: 
@@ -1678,6 +1678,12 @@ MonoBehaviour:
     runSpeed: 0
     melee: 0
   updateStatsKeyCode: 117
+  playerInfo:
+    ID: 11
+    name: testPlayer
+    level: 1
+    xp: 5
+  updatePlayerKeyCode: 107
 --- !u!1 &850639409
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 ﻿
+[System.Serializable]
 public class PlayerInfo : NetworkModel
 {
     public int ID;

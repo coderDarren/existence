@@ -90,8 +90,8 @@ public class Player : GameSystem
         return _out.Combine(m_TrickleStats);
     }
 
-    public void AddXp(int _xp) {
-        
+    public async void AddXp(int _xp) {
+        bool _res = await DatabaseService.GetService(debug).UpdatePlayer(m_Data.player);
     }
 #endregion
 
