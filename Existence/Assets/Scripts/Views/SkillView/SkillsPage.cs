@@ -15,13 +15,19 @@ public class SkillsPage : Page
     public GameObject loadingGraphic;
 
     private Session m_Session;
-    private StatData m_Skills;
+    private Hashtable m_Stats;
+    private Hashtable m_OtherStats;
     private Hashtable m_Pages;
-    private Hashtable m_State;
 
-    public StatData skills {
+    public Hashtable stats {
         get {
-            return m_Skills;
+            return m_Stats;
+        }
+    }
+
+    public Hashtable otherStats {
+        get {
+            return m_OtherStats;
         }
     }
     
@@ -44,13 +50,14 @@ public class SkillsPage : Page
         long _start = NetworkTimestamp.NowMilliseconds();
         saveButton.interactable = false;
         loadingGraphic.SetActive(true);
-        bool _res = await DatabaseService.GetService(debug).UpdateStats(m_Skills);
+        StatData _updatedStats = StatData.FromHashtable(m_Stats);
+        bool _res = await DatabaseService.GetService(debug).UpdateStats(_updatedStats);
         loadingGraphic.SetActive(false);
         saveButton.interactable = true;
         Log("["+(NetworkTimestamp.NowMilliseconds()-_start)+"ms] [Save]: "+_res);
 
         if (_res) {
-            session.playerData.stats = StatData.Copy(m_Skills);
+            session.playerData.stats = StatData.Copy(_updatedStats);
         }
     }
 
@@ -65,13 +72,8 @@ public class SkillsPage : Page
             _v.SetActive(false);
             if (_k == _section) {
                 _v.SetActive(true);
-                m_State[_k] = true;
             }
         }
-    }
-
-    public bool SectionDidInit(SkillSection _section) {
-        return (bool)m_State[_section];
     }
 #endregion
 
@@ -89,16 +91,8 @@ public class SkillsPage : Page
         m_Pages.Add(SkillSection.TRADE, tradeSection);
         m_Pages.Add(SkillSection.EXPLORING, exploringSection);
 
-        // state hash
-        m_State = new Hashtable();
-        m_State.Add(SkillSection.CORE, false);
-        m_State.Add(SkillSection.HEALTH, false);
-        m_State.Add(SkillSection.WEAPONS, false);
-        m_State.Add(SkillSection.COMBAT, false);
-        m_State.Add(SkillSection.TRADE, false);
-        m_State.Add(SkillSection.EXPLORING, false);
-
-        m_Skills = StatData.Copy(session.playerData.stats);
+        m_Stats = session.playerData.stats.ToHashtable();
+        m_OtherStats = session.player.buffStats.Combine(session.player.gearStats).ToHashtable();
         OpenSection(SkillSection.CORE);
     }
 #endregion
