@@ -103,6 +103,20 @@ class SQLController {
         }
     }
 
+    async updatePlayer(_player) {
+        try {
+            const _resp = await this._player.update(_player, {where: {id: _player.ID}})
+            console.log(JSON.stringify(_resp));
+            return {
+                data: _resp
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
     async updateStats(_stats) {
         try {
             const _resp = await this._stat.update(_stats, {where: {id: _stats.ID}})
@@ -191,7 +205,8 @@ class SQLController {
             accountID: DataTypes.INTEGER,
             serverID: DataTypes.INTEGER,
             statsID: DataTypes.INTEGER,
-            level: DataTypes.INTEGER
+            level: DataTypes.INTEGER,
+            xp: DataTypes.INTEGER
         }, {
             timestamps: false
         });

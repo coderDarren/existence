@@ -89,6 +89,10 @@ public class Player : GameSystem
         m_TrickleStats = StatData.TrickleFrom(_out);
         return _out.Combine(m_TrickleStats);
     }
+
+    public void AddXp(int _xp) {
+        
+    }
 #endregion
 
 #region Private Functions
