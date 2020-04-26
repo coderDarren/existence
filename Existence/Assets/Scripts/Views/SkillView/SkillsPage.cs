@@ -5,6 +5,7 @@ using UnityCore.Menu;
 
 public class SkillsPage : Page
 {
+    public Text statPointLabel;
     public Button saveButton;
     public GameObject coreSection;
     public GameObject healthSection;
@@ -18,6 +19,7 @@ public class SkillsPage : Page
     private Hashtable m_Stats;
     private Hashtable m_OtherStats;
     private Hashtable m_Pages;
+    private int m_StatPoints;
 
     public Hashtable stats {
         get {
@@ -28,6 +30,16 @@ public class SkillsPage : Page
     public Hashtable otherStats {
         get {
             return m_OtherStats;
+        }
+    }
+
+    public int statPoints {
+        get {
+            return m_StatPoints;
+        }
+        set {
+            m_StatPoints = value;
+            statPointLabel.text = "Stat Points: "+m_StatPoints;
         }
     }
     
@@ -57,7 +69,12 @@ public class SkillsPage : Page
         Log("["+(NetworkTimestamp.NowMilliseconds()-_start)+"ms] [Save]: "+_res);
 
         if (_res) {
-            session.playerData.stats = StatData.Copy(_updatedStats);
+            session.player.SaveBaselineStats(_updatedStats);
+            session.player.data.player.statPoints = m_StatPoints;
+            _res = await DatabaseService.GetService(debug).UpdatePlayer(session.player.data.player);
+            if (!_res) {
+                LogError("Failed to save stat points after allocating stat points.");
+            }
         }
     }
 
@@ -91,6 +108,7 @@ public class SkillsPage : Page
         m_Pages.Add(SkillSection.TRADE, tradeSection);
         m_Pages.Add(SkillSection.EXPLORING, exploringSection);
 
+        statPoints = session.player.data.player.statPoints;
         m_Stats = session.playerData.stats.ToHashtable();
         m_OtherStats = session.player.buffStats.Combine(session.player.gearStats).ToHashtable();
         OpenSection(SkillSection.CORE);

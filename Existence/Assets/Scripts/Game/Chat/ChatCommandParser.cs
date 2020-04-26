@@ -4,7 +4,8 @@ using System.Collections.Generic;
 public enum ChatCommand
 {
     UNKNOWN,
-    LOGIN
+    LOGIN,
+    XP
 }
 
 public class ChatCommandParser
@@ -16,6 +17,7 @@ public class ChatCommandParser
 
         switch (_args[0].ToLower()) {
             case "login": return ChatCommand.LOGIN;
+            case "xp": return ChatCommand.XP;
             default: return ChatCommand.UNKNOWN;
         }
     }

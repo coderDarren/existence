@@ -7,4 +7,6 @@ public class ItemData
     public int level;
     public int rarity;
     public bool shopBuyable;
+    public bool stackable;
+    public bool tradeskillable;
 }

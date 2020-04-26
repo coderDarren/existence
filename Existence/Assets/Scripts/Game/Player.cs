@@ -7,6 +7,9 @@ using UnityEngine.UI;
 /// </summary>
 public class Player : GameSystem
 {
+    public delegate void IntAction(int _data);
+    public event IntAction OnXpAdded;
+
     public Text nameLabel;
     
     private PlayerData m_Data;
@@ -91,11 +94,41 @@ public class Player : GameSystem
     }
 
     public async void AddXp(int _xp) {
-        bool _res = await DatabaseService.GetService(debug).UpdatePlayer(m_Data.player);
+        m_Data.player.xp += _xp;
+        float _max = MaxXp();
+        while (m_Data.player.xp >= _max) {
+            m_Data.player.level ++;
+            m_Data.player.xp = m_Data.player.xp - (int)_max;
+            m_Data.player.statPoints += StatPointReward();
+            _max = MaxXp();
+        }
+        bool _success = await DatabaseService.GetService(debug).UpdatePlayer(m_Data.player);
+        if (_success) {
+            TryRunAction(OnXpAdded, _xp);
+        }
+    }
+
+    public float XpProgress() {
+        return m_Data.player.xp / MaxXp();
     }
 #endregion
 
 #region Private Functions
+    /// <summary>
+    /// Simple linear calculation using a coefficient of 500
+    /// </summary>
+    private float MaxXp() {
+        return m_Data.player.level * 500;
+    }
+
+    /// <summary>
+    /// Increase stat point allotment every 10 levels
+    /// </summary>
+    private int StatPointReward() {
+        int _factor = (m_Data.player.level / 10) + 1;
+        return _factor * 30;
+    }
+
     private string RandomString(int length)
     {
         var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -107,6 +140,12 @@ public class Player : GameSystem
         }
 
         return new string(stringChars);
+    }
+
+    private void TryRunAction(IntAction _action, int _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception) {}
     }
 #endregion
 }

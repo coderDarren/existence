@@ -58,12 +58,25 @@ class SQLController {
                 }; 
             }
 
+            const _playerId = _player[0].dataValues.ID;
             const _stats = await this._stat.findByPk(_player[0].dataValues.statsID);
+            //const _inventory = await this._inventorySlot.findAll({where: {playerID: _player[0].dataValues.ID}})
+            const _inventory = (await this._sql.query(`select * from items 
+                inner join inventorySlots on inventorySlots.playerID = ${_playerId} and inventorySlots.itemID = items.ID`))[0];
+            for (var i = 0; i < _inventory.length; i++) {
+                var _item = _inventory[i];
+                _item.requirements = await this._stat.findByPk(_item.requirementsID);
+                _item.effects = await this._stat.findByPk(_item.effectsID);
+                delete _item["requirementsID"];
+                delete _item["effectsID"];
+            }
+            console.log(JSON.stringify(_inventory));
             
             return {
                 data: {
                     player: _player[0].dataValues,
-                    stats: _stats
+                    stats: _stats,
+                    inventory: _inventory
                 }
             }
         } catch (_err) {
@@ -194,19 +207,23 @@ class SQLController {
             effectsID: DataTypes.INTEGER,
             level: DataTypes.INTEGER,
             rarity: DataTypes.INTEGER,
-            shopBuyable: DataTypes.TINYINT
+            shopBuyable: DataTypes.TINYINT,
+            stackable: DataTypes.TINYINT,
+            tradeskillable: DataTypes.TINYINT
         }, {
             timestamps: false
         });
 
         // PLAYERS
         this._player = this._sql.define('player', {
+            ID: {type:DataTypes.CHAR(255),primaryKey:true},
             name: DataTypes.CHAR(255),
             accountID: DataTypes.INTEGER,
             serverID: DataTypes.INTEGER,
             statsID: DataTypes.INTEGER,
             level: DataTypes.INTEGER,
-            xp: DataTypes.INTEGER
+            xp: DataTypes.INTEGER,
+            statPoints: DataTypes.INTEGER,
         }, {
             timestamps: false
         });
@@ -235,6 +252,7 @@ class SQLController {
 
         // STATS
         this._stat = this._sql.define('stat', {
+            ID:{type:DataTypes.INTEGER,primaryKey:true},
             strength: DataTypes.INTEGER,
             dexterity: DataTypes.INTEGER,
             intelligence: DataTypes.INTEGER,

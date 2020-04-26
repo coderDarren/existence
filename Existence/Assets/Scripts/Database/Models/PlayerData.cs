@@ -6,10 +6,12 @@ public class PlayerInfo : NetworkModel
     public string name;
     public int level;
     public int xp;
+    public int statPoints;
 }
 
 public class PlayerData : NetworkModel
 {
     public PlayerInfo player;
     public StatData stats;
+    public ItemData[] inventory;
 }

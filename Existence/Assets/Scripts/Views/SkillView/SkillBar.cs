@@ -42,6 +42,9 @@ public class SkillBar : GameSystem
 #region Private Functions
     private void UpdateView(string _label, string _hash, int _added) {
         int _curr = (int)page.stats[_hash];
+        // don't allow reductions beyond the start of the allocation session
+        if (_curr + _added < (int)session.player.data.stats.ToHashtable()[_hash]) return;
+
         page.stats[_hash] = _curr + _added;
         StatData _aggregated = StatData.FromHashtable(page.stats).Combine(StatData.FromHashtable(page.otherStats));
         int _total = (int)StatData.TrickleFrom(_aggregated).Combine(_aggregated).ToHashtable()[_hash];
@@ -49,6 +52,8 @@ public class SkillBar : GameSystem
         skillLabel.text = _label;
         valLabel.text = _total.ToString();
         bar.fillAmount = _total / (float)_max;
+
+        page.statPoints -= _added;
     }
 
     /*
@@ -91,6 +96,7 @@ public class SkillBar : GameSystem
 
 #region Public Functions
     public bool Add(int _diff) {
+        if (page.statPoints - _diff < 0) return false;
         return AddBar(_diff);
     }
 #endregion

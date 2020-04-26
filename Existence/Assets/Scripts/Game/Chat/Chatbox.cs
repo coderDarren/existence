@@ -62,6 +62,10 @@ public class Chatbox : GameSystem
             network.OnPlayerLeft += OnPlayerLeft;
             network.OnChat += OnChat;
         }
+
+        if (session) {
+            session.player.OnXpAdded += OnPlayerXpAdded;
+        }
     }
 
     private void Update() {
@@ -77,13 +81,18 @@ public class Chatbox : GameSystem
     }
 
     private void OnDisable() {
-        if (!network) return;
-        network.OnConnect -= OnServerConnect;
-        network.OnDisconnect -= OnServerDisconnect;
-        network.OnHandshake -= OnServerHandshake;
-        network.OnPlayerJoined -= OnPlayerJoined;
-        network.OnPlayerLeft -= OnPlayerLeft;
-        network.OnChat -= OnChat;
+        if (network) {
+            network.OnConnect -= OnServerConnect;
+            network.OnDisconnect -= OnServerDisconnect;
+            network.OnHandshake -= OnServerHandshake;
+            network.OnPlayerJoined -= OnPlayerJoined;
+            network.OnPlayerLeft -= OnPlayerLeft;
+            network.OnChat -= OnChat;
+        }
+
+        if (session) {
+            session.player.OnXpAdded -= OnPlayerXpAdded;
+        }
     }
 #endregion
 
@@ -135,6 +144,13 @@ public class Chatbox : GameSystem
                 }
                 Login(_args[1]);
                 break;
+            case ChatCommand.XP:
+                if (_args.Count != 2) {
+                    chatBox.text += "\nCommand arguments were not understood.";
+                    return;
+                }
+                session.player.AddXp(int.Parse(_args[1]));
+                break;
             case ChatCommand.UNKNOWN:
                 chatBox.text += "\nCommand not recognized.";
                 break;
@@ -177,6 +193,10 @@ public class Chatbox : GameSystem
 
     private void OnChat(string _msg) {
         chatBox.text += "\n"+_msg;
+    }
+
+    private void OnPlayerXpAdded(int _xp) {
+        chatBox.text += "\n<color=#fc0>You earned "+_xp+"xp.</color>";
     }
 
     private void TryRunAction(BasicAction _action) {
