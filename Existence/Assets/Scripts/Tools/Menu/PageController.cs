@@ -13,6 +13,7 @@ namespace UnityCore {
             public bool debug;
             public bool persist;
             public PageType entryPage;
+            public float entryDelay;
             public Page[] pages;
 
             private Hashtable m_Pages;
@@ -99,8 +100,13 @@ namespace UnityCore {
                 RegisterAllPages();
 
                 if (entryPage != PageType.None) {
-                    TurnPageOn(entryPage);
+                    StartCoroutine(WaitForEntry());
                 }
+            }
+
+            private IEnumerator WaitForEntry() {
+                yield return new WaitForSeconds(entryDelay);
+                TurnPageOn(entryPage);
             }
 
             private IEnumerator WaitForPageExit(Page _on, Page _off) {

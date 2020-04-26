@@ -7,7 +7,8 @@
             Splash,
             Loading,
             MainMenu,
-            Skills
+            Skills,
+            HUD
         }
     }
 }

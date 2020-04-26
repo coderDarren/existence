@@ -6,6 +6,7 @@ public class ViewHotkeyListener : GameSystem
 {
     public PageController pageController;
     public KeyCode skillsKey=KeyCode.U;
+    public KeyCode hudKey=KeyCode.H;
 
     private Chatbox m_Chat;
     private bool m_InputLocked;
@@ -40,6 +41,10 @@ public class ViewHotkeyListener : GameSystem
         
         if (Input.GetKeyDown(skillsKey)) {
             TogglePage(PageType.Skills);
+        }
+
+        if (Input.GetKeyDown(hudKey)) {
+            TogglePage(PageType.HUD);
         }
     }
 #endregion

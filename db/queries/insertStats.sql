@@ -45,5 +45,4 @@ values (
 );
 */
 #delete from stats where id != 26;
-
 select * from stats;

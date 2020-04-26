@@ -11,6 +11,10 @@ public class DatabaseServiceTester : GameSystem
     public StatData playerStats;
     public KeyCode updateStatsKeyCode;
 
+    [Header("POST /api/updatePlayer")]
+    public PlayerInfo playerInfo;
+    public KeyCode updatePlayerKeyCode;
+
     private DatabaseService m_Service;
 
 #region Unity Functions
@@ -25,6 +29,10 @@ public class DatabaseServiceTester : GameSystem
 
         if (Input.GetKeyDown(updateStatsKeyCode)) {
             TestUpdateStats();
+        }
+
+        if (Input.GetKeyDown(updatePlayerKeyCode)) {
+            TestUpdatePlayer();
         }
     }
 #endregion
@@ -44,6 +52,14 @@ public class DatabaseServiceTester : GameSystem
         m_Service = DatabaseService.GetService(debug);
         bool _res = await m_Service.UpdateStats(playerStats);
         Log("["+(NetworkTimestamp.NowMilliseconds()-_start)+"ms] [TestUpdateStats]: "+_res);
+    }
+
+    private async void TestUpdatePlayer() {
+        Log("[TestUpdatePlayer]: Sending request...");
+        long _start = NetworkTimestamp.NowMilliseconds();
+        m_Service = DatabaseService.GetService(debug);
+        bool _res = await m_Service.UpdatePlayer(playerInfo);
+        Log("["+(NetworkTimestamp.NowMilliseconds()-_start)+"ms] [TestUpdatePlayer]: "+_res);
     }
 #endregion
 }

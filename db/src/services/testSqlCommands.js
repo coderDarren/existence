@@ -10,12 +10,14 @@ const testUpdateStats = async function(_stats) {
 const runTests = async function() {
     await _sql.connect();
 
-    var _resp = await testUpdateStats({
+    /*var _resp = await testUpdateStats({
         ID: 45,
         fortitude: 3,
         nanoResist: 12
     });
-    if (_resp.error) console.log(`error on [testUpdateStats]: ${_resp.error}`)
+    if (_resp.error) console.log(`error on [testUpdateStats]: ${_resp.error}`)*/
+    var _resp = await _sql.getPlayer("darren2");
+    console.log(_resp)
 }
 
 runTests();

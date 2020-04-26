@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class Session : GameSystem
 {
+    public delegate void BasicAction();
+    public event BasicAction OnPlayerConnected;
 
     public static Session instance;
 
@@ -90,6 +92,7 @@ public class Session : GameSystem
     private void OnServerConnect() {
         player.ConnectWithData(playerData);
         network.SendHandshake(playerData.player.name);
+        TryRunAction(OnPlayerConnected);
     }
 
     private void OnServerDisconnect() {
@@ -141,6 +144,12 @@ public class Session : GameSystem
         if (!m_Players.ContainsKey(_name)) return; // could not find player
         NetworkPlayer _player = (NetworkPlayer)m_Players[_name];
         _player.UpdatePosition(_data);
+    }
+
+    private void TryRunAction(BasicAction _action) {
+        try {
+            _action();
+        } catch (System.Exception) {}
     }
 #endregion
 }

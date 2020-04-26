@@ -6,6 +6,7 @@ public class DatabaseService
     private static readonly string SERVICE_ENDPOINT = "https://15paucwkia.execute-api.us-east-1.amazonaws.com/dev/api/";
     private static readonly string PATH_GETPLAYER = "getPlayer";
     private static readonly string PATH_UPDATESTATS = "updateStats";
+    private static readonly string PATH_UPDATEPLAYER = "updatePlayer";
 
     private static DatabaseService m_Service;
     private RestService m_Rest;
@@ -57,6 +58,21 @@ public class DatabaseService
                 break;
             default:
                 Log("[UpdateStats]: "+_resp.message);
+                return false;
+                break;
+        }
+    }
+
+    public async UniTask<bool> UpdatePlayer(PlayerInfo _player) {
+        string _url = SERVICE_ENDPOINT+PATH_UPDATEPLAYER;
+        APIResponse _resp = await m_Rest.Post(_url, _player.ToJsonString());
+        switch (_resp.statusCode) {
+            case 200:
+                Log("[UpdatePlayer]: raw "+_resp.message);
+                return true;
+                break;
+            default:
+                Log("[UpdatePlayer]: "+_resp.message);
                 return false;
                 break;
         }
