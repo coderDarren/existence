@@ -23,6 +23,7 @@ public class UIContainer : GameSystem
         public FloatThreshold height;
     }
 
+    public int uniqueId;
     public bool draggable;
     public bool resizable;
     public Constraints constraints;
@@ -52,15 +53,15 @@ public class UIContainer : GameSystem
 #region Unity Functions
     private void Awake() {
         // Configure handles
-        ConfigureHandle(dragger, UIHandle.HandleLoc.IRRELEVANT);
-        ConfigureHandle(topLeftResizer, UIHandle.HandleLoc.TOP_LEFT);
-        ConfigureHandle(topRightResizer, UIHandle.HandleLoc.TOP_RIGHT);
-        ConfigureHandle(bottomLeftResizer, UIHandle.HandleLoc.BOTTOM_LEFT);
-        ConfigureHandle(bottomRightResizer, UIHandle.HandleLoc.BOTTOM_RIGHT);
-        ConfigureHandle(topResizer, UIHandle.HandleLoc.TOP);
-        ConfigureHandle(leftResizer, UIHandle.HandleLoc.LEFT);
-        ConfigureHandle(bottomResizer, UIHandle.HandleLoc.BOTTOM);
-        ConfigureHandle(rightResizer, UIHandle.HandleLoc.RIGHT);
+        ConfigureHandle(dragger, UIHandle.HandleLoc.IRRELEVANT, uniqueId);
+        ConfigureHandle(topLeftResizer, UIHandle.HandleLoc.TOP_LEFT, uniqueId);
+        ConfigureHandle(topRightResizer, UIHandle.HandleLoc.TOP_RIGHT, uniqueId);
+        ConfigureHandle(bottomLeftResizer, UIHandle.HandleLoc.BOTTOM_LEFT, uniqueId);
+        ConfigureHandle(bottomRightResizer, UIHandle.HandleLoc.BOTTOM_RIGHT, uniqueId);
+        ConfigureHandle(topResizer, UIHandle.HandleLoc.TOP, uniqueId);
+        ConfigureHandle(leftResizer, UIHandle.HandleLoc.LEFT, uniqueId);
+        ConfigureHandle(bottomResizer, UIHandle.HandleLoc.BOTTOM, uniqueId);
+        ConfigureHandle(rightResizer, UIHandle.HandleLoc.RIGHT, uniqueId);
     }
 #endregion
 
@@ -210,9 +211,9 @@ public class UIContainer : GameSystem
         return _val >= _min && _val <= _max;
     }
 
-    private void ConfigureHandle(UIHandle _handle, UIHandle.HandleLoc _loc) {
+    private void ConfigureHandle(UIHandle _handle, UIHandle.HandleLoc _loc, int _uniqueId) {
         if (_handle) {
-            _handle.Configure(this, _loc);
+            _handle.Configure(this, _loc, _uniqueId);
         }
     }
 #endregion

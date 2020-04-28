@@ -15,6 +15,17 @@ public class UIHandle : GameSystem,
                         IPointerUpHandler,
                         IDragHandler
 {
+
+    /*
+     * We set up a local event system to prevent..
+     * ..events from multiple nearby handles fighting..
+     * ..for control on the same container.
+     * _groupId is assigned by this handle's container.
+     */
+    private delegate void UIHandleEvent(int _groupId);
+    private static event UIHandleEvent StartedUsing;
+    private static event UIHandleEvent StoppedUsing; 
+
     public enum HandleType {
         DRAG,
         RESIZE
@@ -38,8 +49,9 @@ public class UIHandle : GameSystem,
     private HandleLoc m_Loc;
     private Vector2 m_Offset;
     private CursorController m_Cursor;
-    private bool m_PointerDown;
-    private bool m_Hovering;
+    private bool m_Busy;
+    private bool m_DidExit;
+    private int m_HandleGroupId;
 
     private CursorController cursor {
         get {
@@ -53,21 +65,45 @@ public class UIHandle : GameSystem,
         }
     }
 
+/*
+ * Deal with the local event subscription
+ */
 #region Unity Functions
+    private void OnEnable() {
+        UIHandle.StartedUsing += OnStartedUsing;
+        UIHandle.StoppedUsing += OnStoppedUsing;
+    }
+
+    private void OnDisable() {
+        UIHandle.StartedUsing -= OnStartedUsing;
+        UIHandle.StoppedUsing -= OnStoppedUsing;
+    }
+#endregion
+
+#region Private Functions
+    private void OnStartedUsing(int _groupId) {
+        if (_groupId != m_HandleGroupId) return;
+        m_Busy = true;
+    }
+
+    private void OnStoppedUsing(int _groupId) {
+        if (_groupId != m_HandleGroupId) return;
+        m_Busy = false;
+    }
 #endregion
 
 #region Public Functions
-    public void Configure(UIContainer _target, HandleLoc _loc) {
+    public void Configure(UIContainer _target, HandleLoc _loc, int _groupId) {
         m_Target = _target;
         m_Loc = _loc;
+        m_HandleGroupId = _groupId;
     }
 #endregion
 
 #region Interface Functions
     public void OnPointerEnter(PointerEventData _ped) {
-        m_Hovering = true;
-
         if (!cursor) return;
+        if (m_Busy) return;
         
         switch (m_Loc) {
             case HandleLoc.IRRELEVANT: cursor.LoadDrag(); break;
@@ -83,25 +119,25 @@ public class UIHandle : GameSystem,
     }
 
     public void OnPointerExit(PointerEventData _ped) {
-        m_Hovering = false;
-
+        m_DidExit = true;
         if (!cursor) return;
-        if (m_PointerDown) return;
+        if (m_Busy) return;
         cursor.LoadMain();
     }
 
     public void OnPointerUp(PointerEventData _ped) {
-        m_PointerDown = true;
-
         if (!cursor) return;
-        if (m_Hovering) return;
-        cursor.LoadMain();
+        StoppedUsing(m_HandleGroupId);
+        if (m_DidExit) {
+            m_DidExit = false;
+            cursor.LoadMain();
+        }
     }
 
     public void OnPointerDown(PointerEventData _ped) {
-        m_PointerDown = false;
-
         if (!m_Target) return;
+        if (m_Busy) return;
+        StartedUsing(m_HandleGroupId);
         m_Offset = new Vector2(m_Target.rect.transform.position.x, m_Target.rect.transform.position.y) - _ped.position;
     }
 
