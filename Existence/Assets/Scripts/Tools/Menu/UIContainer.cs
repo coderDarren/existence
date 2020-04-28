@@ -1,6 +1,7 @@
 ﻿
 using UnityEngine;
 using UnityEngine.UI;
+using UnityCore.Menu; 
 
 /// <summary>
 /// UIContainer is responsible for performing operations on the container.
@@ -39,6 +40,7 @@ public class UIContainer : GameSystem
     public UIHandle bottomResizer;
     public UIHandle rightResizer;
 
+    private Canvas m_Canvas;
     private RectTransform m_Rect;
 
     public RectTransform rect {
@@ -47,6 +49,15 @@ public class UIContainer : GameSystem
                 m_Rect = GetComponent<RectTransform>();
             }
             return m_Rect;
+        }
+    }
+
+    private Canvas canvas {
+        get {
+            if (!m_Canvas) {
+                m_Canvas = PageController.instance.GetComponent<Canvas>();
+            }
+            return m_Canvas;
         }
     }
 
@@ -68,12 +79,11 @@ public class UIContainer : GameSystem
 #region Public Functions
     public void Drag(Vector2 _pos) {
         if (!draggable) return;
+        float _scale = canvas.scaleFactor;
         float _maxWidth = Screen.width;
         float _maxHeight = Screen.height;
-        float _rectWidth = rect.rect.width;
-        float _rectHeight = rect.rect.height;
-        Debug.Log("rect width: "+_rectWidth);
-        Debug.Log("screen width: "+_maxWidth);
+        float _rectWidth = rect.rect.width * _scale;
+        float _rectHeight = rect.rect.height * _scale;
 
         if (_pos.x < 0) _pos.x = 0;
         if (_pos.x > _maxWidth - _rectWidth) _pos.x = _maxWidth - _rectWidth;
@@ -120,9 +130,12 @@ public class UIContainer : GameSystem
     }
     
     private void ResizeTop(Vector2 _pos) {
+        float _scale = canvas.scaleFactor;
+        _pos /= _scale;
         float _width = rect.sizeDelta.x;
         float _height = rect.sizeDelta.y;
         Vector2 _bottomLeft = rect.transform.position;
+        _bottomLeft.y /= _scale;
         Vector2 _topRight = new Vector2(_bottomLeft.x + _width, _bottomLeft.y + _height);
         if (FloatIsBetween(_pos.y, _bottomLeft.y + constraints.height.min, _bottomLeft.y + constraints.height.max)) {
             SetSize(-1, _pos.y - _bottomLeft.y);
@@ -142,17 +155,18 @@ public class UIContainer : GameSystem
         float _height = rect.sizeDelta.y;
         Vector2 _bottomLeft = rect.transform.position;
         Vector2 _topRight = new Vector2(_bottomLeft.x + _width, _bottomLeft.y + _height);
+        float _scaledRightRef = (_bottomLeft.x/canvas.scaleFactor+_width);
         if (FloatIsBetween(_pos.x, _topRight.x - constraints.width.max, _topRight.x - constraints.width.min)) {
-            SetSize(_topRight.x - _pos.x, -1);
+            SetSize(_scaledRightRef - _pos.x/canvas.scaleFactor, -1);
             SetPos(_pos.x, rect.transform.position.y);
         } else {
-            if (_pos.x > _topRight.x - constraints.width.min) {
+            /*if (_pos.x > _topRight.x - constraints.width.min) {
                 SetSize(constraints.width.min, -1);
                 SetPos(_topRight.x - constraints.width.min, rect.transform.position.y);
-            } else if (_pos.x < _topRight.x - constraints.width.max) {
+            } else if (_pos.x < _scaledRightRef - constraints.width.max) {
                 SetSize(constraints.width.max, -1);
                 SetPos(_topRight.x - constraints.width.max, rect.transform.position.y);
-            } 
+            }*/
         }
     }
     
@@ -161,24 +175,28 @@ public class UIContainer : GameSystem
         float _height = rect.sizeDelta.y;
         Vector2 _bottomLeft = rect.transform.position;
         Vector2 _topRight = new Vector2(_bottomLeft.x + _width, _bottomLeft.y + _height);
+        float _scaledRightRef = (_bottomLeft.y/canvas.scaleFactor+_height);
         if (FloatIsBetween(_pos.y, _topRight.y - constraints.height.max, _topRight.y - constraints.height.min)) {
-            SetSize(-1, _topRight.y - _pos.y);
+            SetSize(-1, _scaledRightRef - _pos.y/canvas.scaleFactor);
             SetPos(rect.transform.position.x, _pos.y);
         } else {
-            if (_pos.y > _topRight.y - constraints.height.min) {
+            /*if (_pos.y > _topRight.y - constraints.height.min) {
                 SetSize(-1, constraints.height.min);
                 SetPos(rect.transform.position.x, _topRight.y - constraints.height.min);
             } else if (_pos.y < _topRight.y - constraints.height.max) {
                 SetSize(-1, constraints.height.max);
                 SetPos(rect.transform.position.x, _topRight.y - constraints.height.max);
-            } 
+            }\*/
         }
     }
     
     private void ResizeRight(Vector2 _pos) {
+        float _scale = canvas.scaleFactor;
+        _pos /= _scale;
         float _width = rect.sizeDelta.x;
         float _height = rect.sizeDelta.y;
         Vector2 _bottomLeft = rect.transform.position;
+        _bottomLeft.x /= _scale;
         Vector2 _topRight = new Vector2(_bottomLeft.x + _width, _bottomLeft.y + _height);
         if (FloatIsBetween(_pos.x, _bottomLeft.x + constraints.width.min, _bottomLeft.x + constraints.width.max)) {
             SetSize(_pos.x - _bottomLeft.x, -1);
