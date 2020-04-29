@@ -22,9 +22,9 @@ public class UIHandle : GameSystem,
      * ..for control on the same container.
      * _groupId is assigned by this handle's container.
      */
-    private delegate void UIHandleEvent(int _groupId);
-    private static event UIHandleEvent StartedUsing;
-    private static event UIHandleEvent StoppedUsing; 
+    public delegate void UIHandleEvent(int _groupId);
+    public static event UIHandleEvent StartedUsing;
+    public static event UIHandleEvent StoppedUsing; 
 
     public enum HandleType {
         DRAG,

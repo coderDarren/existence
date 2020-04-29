@@ -40,12 +40,24 @@ public class CameraController : GameSystem
     private float m_MouseX;
     private float m_MouseY;
     private bool m_HoldingLeftClick;
+    private bool m_HoldingRightClick;
     private float m_Zoom;
+    private bool m_UIInteraction;
 
 #region Unity Functions
     private void Awake() {
         m_Camera = GetComponent<Camera>();
         m_MouseRotation = Quaternion.identity;
+    }
+
+    private void OnEnable() {
+        UIHandle.StartedUsing += OnUIHandleInteractionStart;
+        UIHandle.StoppedUsing += OnUIHandleInteractionStop;
+    }
+
+    private void OnDisable() {
+        UIHandle.StartedUsing -= OnUIHandleInteractionStart;
+        UIHandle.StoppedUsing -= OnUIHandleInteractionStop;
     }
 
     // The assumption is that all camera updates..
@@ -63,6 +75,14 @@ public class CameraController : GameSystem
 #endregion
 
 #region Private Functions
+    private void OnUIHandleInteractionStart(int _id) {
+        m_UIInteraction = true;
+    }
+
+    private void OnUIHandleInteractionStop(int _id) {
+        m_UIInteraction = false;
+    }
+
     private bool TargetHasIntegrity() {
         if (target == null) {
             LogWarning("Could not find target. Please assign in the inspector..");
@@ -73,18 +93,22 @@ public class CameraController : GameSystem
 
     private void GetInput() {
         m_HoldingLeftClick = Input.GetMouseButton(0);
+        m_HoldingRightClick = Input.GetMouseButton(1);
         m_MouseX = Input.GetAxis("Mouse X");
         m_MouseY = Input.GetAxis("Mouse Y");
         m_Zoom = Input.GetAxis("Mouse ScrollWheel");
     }
 
     private void LookAroundTarget() {
-        if (m_HoldingLeftClick) {
+        if (m_HoldingLeftClick && !m_UIInteraction) {
             m_RotationOffsetX -= m_MouseY * leftClickTurnSpeed;
             m_RotationOffsetY += m_MouseX * leftClickTurnSpeed;
             m_RotationOffsetX = Mathf.Clamp(m_RotationOffsetX, minimumInspectAngle, maximumInspectAngle);
-            m_MouseRotation = Quaternion.Euler(m_RotationOffsetX, m_RotationOffsetY, 0);
+        } else if (m_HoldingRightClick) {
+            m_RotationOffsetX -= m_MouseY * leftClickTurnSpeed;
+            m_RotationOffsetX = Mathf.Clamp(m_RotationOffsetX, minimumInspectAngle, maximumInspectAngle);
         }
+        m_MouseRotation = Quaternion.Euler(m_RotationOffsetX, m_RotationOffsetY, 0);
     }
 
     private void Zoom() {
