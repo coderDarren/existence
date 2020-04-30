@@ -13,6 +13,7 @@ public class Session : GameSystem
     public Player player;
 
     private PlayerController m_PlayerController;
+    private NetworkPlayer m_NetworkPlayer;
     private NetworkController m_Network;
     private Hashtable m_Players;
 
@@ -47,6 +48,7 @@ public class Session : GameSystem
     private async void Start() {
         m_Players = new Hashtable();
         m_PlayerController = player.GetComponent<PlayerController>();
+        m_NetworkPlayer = player.GetComponent<NetworkPlayer>();
 
         if (network) {
             network.OnConnect += OnServerConnect;
@@ -91,7 +93,7 @@ public class Session : GameSystem
 #region Private Functions
     private void OnServerConnect() {
         player.ConnectWithData(playerData);
-        network.SendHandshake(playerData.player.name);
+        network.SendHandshake(m_NetworkPlayer.clientData);
         TryRunAction(OnPlayerConnected);
     }
 

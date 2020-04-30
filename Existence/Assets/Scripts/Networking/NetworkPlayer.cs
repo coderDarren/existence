@@ -67,6 +67,12 @@ public class NetworkPlayer : GameSystem
         }
     }
 
+    public NetworkPlayerData clientData {
+        get {
+            return m_ClientData;
+        }
+    }
+
 #region Unity Functions
     private void Start() {
         if (isClient) {
