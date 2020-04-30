@@ -12,7 +12,7 @@ public class NPCController : MonoBehaviour
     public float jumpSpeed = 8.0f;
     public float gravity = 20.0f;
     public Vector3[] rallyPoint;
-    public float rallyDelay = 5;
+    public int rallyDelay;
     public GameObject target;
   
 
@@ -61,10 +61,11 @@ public class NPCController : MonoBehaviour
         Turn();
         ApproachZeroStrafe();
         Animate();
+        
     }
     private void Move() {
-        if (m_Controller.isGrounded)
-        {
+        //if (m_Controller.isGrounded)
+        //{
             float _forwardSpeed = m_ForwardInput < 0 ? backwardsSpeed : runSpeed;
             float _strafeSpeed = strafeSpeed;
             float _netSpeed = Mathf.Abs(m_ForwardInput) > 0 && Mathf.Abs(m_StrafeInput) > 0 ? (_forwardSpeed + _strafeSpeed) / 4.0f : 
@@ -75,7 +76,7 @@ public class NPCController : MonoBehaviour
             {
                 m_MoveDirection.y = jumpSpeed;
             }
-        }
+        //}
         m_MoveDirection.y -= gravity * Time.deltaTime;
         m_Controller.Move(m_MoveDirection * Time.deltaTime);
     }
@@ -121,21 +122,21 @@ public class NPCController : MonoBehaviour
             currentRally = 0;
             }  
             
-            await Task.Delay(10000);
+            await Task.Delay(rallyDelay);
             m_ForwardInput = 0.2f;
             turnSpeed = 1.0f;
             m_Material.SetFloat("_movingBool", 1f);        
         }        
     }
 
-    public async void Clicked(int rallyDelay) {        
+    public async void Clicked() {        
         player = GameObject.FindWithTag("Player");
         playerPos = player.transform.position;
         playerDir = currentPos - playerPos;
         talkRotation = Quaternion.LookRotation(-playerDir);           
         m_ForwardInput = 0.0f;
         gotClicked = true;        
-        await Task.Delay(rallyDelay);
+        await Task.Delay(5000);
         gotClicked = false;
         lookRotation = Quaternion.LookRotation(direction);
         m_ForwardInput = 0.2f;
