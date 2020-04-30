@@ -13,10 +13,12 @@ public class NPCController : MonoBehaviour
     public float gravity = 20.0f;
     public Vector3[] rallyPoint;
     public float rallyDelay = 5;
+    public GameObject target;
   
 
     private CharacterController m_Controller;
     private Animator m_Animator;
+    private Material m_Material;
     private Vector3 m_MoveDirection = Vector3.zero;
     private float m_ForwardInput;
     private float m_TurnInput;
@@ -43,7 +45,7 @@ public class NPCController : MonoBehaviour
         m_Controller = GetComponent<CharacterController>();
         m_Animator = GetComponent<Animator>();
         m_ForwardInput = 0.2f;
-        
+        m_Material = target.GetComponent<Renderer>().material;
         
     }
 
@@ -107,6 +109,7 @@ public class NPCController : MonoBehaviour
         {
             m_ForwardInput = 0.0f;
             turnSpeed = 0.0f;
+            m_Material.SetFloat("_movingBool", 0f);
               
            
            if(currentRally != rallyPoint.Length - 1) {            
@@ -120,7 +123,8 @@ public class NPCController : MonoBehaviour
             
             await Task.Delay(10000);
             m_ForwardInput = 0.2f;
-            turnSpeed = 1.0f;        
+            turnSpeed = 1.0f;
+            m_Material.SetFloat("_movingBool", 1f);        
         }        
     }
 
