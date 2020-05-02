@@ -13,5 +13,5 @@ using System.Collections;
 public class NetworkInstanceData : NetworkModel {
     public NetworkGameInfo gameInfo;
     public NetworkPlayerData[] players;
-    public NetworkServerSystemData system;
+    public NetworkMobData[] mobs;
 }

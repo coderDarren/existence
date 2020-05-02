@@ -9,6 +9,7 @@ public class Session : GameSystem
 
     public static Session instance;
 
+    public GameObject networkDummyObject;
     public GameObject networkPlayerObject;
     public Player player;
 
@@ -16,6 +17,7 @@ public class Session : GameSystem
     private NetworkPlayer m_NetworkPlayer;
     private NetworkController m_Network;
     private Hashtable m_Players;
+    private Hashtable m_Mobs;
 
     public PlayerData playerData {
         get {
@@ -46,6 +48,7 @@ public class Session : GameSystem
     }
 
     private async void Start() {
+        m_Mobs = new Hashtable();
         m_Players = new Hashtable();
         m_PlayerController = player.GetComponent<PlayerController>();
         m_NetworkPlayer = player.GetComponent<NetworkPlayer>();
@@ -105,11 +108,19 @@ public class Session : GameSystem
         foreach(NetworkPlayerData _player in _instance.players) {
             SpawnPlayer(_player);
         }
+
+        foreach(NetworkMobData _mob in _instance.mobs) {
+            SpawnMob(_mob);
+        }
     }
 
     private void OnInstanceUpdated(NetworkInstanceData _instance) {
         foreach(NetworkPlayerData _player in _instance.players) {
             MovePlayer(_player);
+        }
+
+        foreach(NetworkMobData _mob in _instance.mobs) {
+            MoveMob(_mob);
         }
     }
 
@@ -146,6 +157,24 @@ public class Session : GameSystem
         if (!m_Players.ContainsKey(_name)) return; // could not find player
         NetworkPlayer _player = (NetworkPlayer)m_Players[_name];
         _player.UpdatePosition(_data);
+    }
+
+    private void SpawnMob(NetworkMobData _data) {
+        string _name = _data.name;
+        if (m_Mobs.ContainsKey(_name)) return; // player already exists
+        GameObject _obj = Instantiate(networkDummyObject);
+        Mob _mob = _obj.GetComponent<Mob>();
+        _mob.Init(_data);
+        m_Mobs.Add(_name, _mob);
+    }
+
+    private void MoveMob(NetworkMobData _data) {
+        Log("trying to move mob");
+        string _name = _data.name;
+        if (!m_Mobs.ContainsKey(_name)) return; // could not find player
+        Mob _mob = (Mob)m_Mobs[_name];
+        _mob.UpdateData(_data);
+        Log("moving mob");
     }
 
     private void TryRunAction(BasicAction _action) {
