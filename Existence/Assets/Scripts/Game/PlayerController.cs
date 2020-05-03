@@ -4,6 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Player))]
+[RequireComponent(typeof(NetworkPlayer))]
 public class PlayerController : GameSystem
 {
 

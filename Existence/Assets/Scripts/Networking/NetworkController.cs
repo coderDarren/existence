@@ -133,6 +133,12 @@ public class NetworkController : GameSystem
         //Log("Sending {\"message\":\""+_data+"\"} to "+_id);
         m_Network.Emit(_id, new JSONObject("{\"message\":\""+_data+"\"}"));
     }
+
+    private void SendNetworkPlayerData(string _id, NetworkPlayerData _data) {
+        _data.timestamp = NetworkTimestamp.NowMilliseconds().ToString();
+        string _json = _data.ToJsonString();
+        m_Network.Emit(_id, new JSONObject(_json));
+    }
 #endregion
 
 #region Public Functions
@@ -144,18 +150,16 @@ public class NetworkController : GameSystem
         m_Network.Close();
     }
 
-    public void SendHandshake(string _data) {
-        SendString(NETWORK_MESSAGE_HANDSHAKE, _data);
-    }
-
     public void SendChat(string _chat) {
         SendString(NETWORK_MESSAGE_CHAT, _chat);
     }
 
+    public void SendHandshake(NetworkPlayerData _data) {
+        SendNetworkPlayerData(NETWORK_MESSAGE_HANDSHAKE, _data);
+    }
+
     public void SendNetworkPlayer(NetworkPlayerData _data) {
-        _data.timestamp = NetworkTimestamp.NowMilliseconds().ToString();
-        string _json = _data.ToJsonString();
-        m_Network.Emit(NETWORK_MESSAGE_PLAYER_DATA, new JSONObject(_json));
+        SendNetworkPlayerData(NETWORK_MESSAGE_PLAYER_DATA, _data);
     }
 #endregion
 }
