@@ -36,6 +36,7 @@ public class NetworkController : GameSystem
     private static readonly string NETWORK_MESSAGE_PLAYER_JOINED = "PLAYER_JOINED";
     private static readonly string NETWORK_MESSAGE_CHAT = "CHAT";
     private static readonly string NETWORK_MESSAGE_INSTANCE = "INSTANCE";
+    private static readonly string NETWORK_MESSAGE_HIT_MOB = "HIT_MOB";
 
 #region Unity Functions
     private void Awake() {
@@ -134,7 +135,10 @@ public class NetworkController : GameSystem
         m_Network.Emit(_id, new JSONObject("{\"message\":\""+_data+"\"}"));
     }
 
-    private void SendNetworkPlayerData(string _id, NetworkPlayerData _data) {
+
+
+    private void SendNetworkData<T>(string _id, T _data) where T : NetworkModel {
+
         _data.timestamp = NetworkTimestamp.NowMilliseconds().ToString();
         string _json = _data.ToJsonString();
         m_Network.Emit(_id, new JSONObject(_json));
@@ -155,11 +159,17 @@ public class NetworkController : GameSystem
     }
 
     public void SendHandshake(NetworkPlayerData _data) {
-        SendNetworkPlayerData(NETWORK_MESSAGE_HANDSHAKE, _data);
+
+        SendNetworkData<NetworkPlayerData>(NETWORK_MESSAGE_HANDSHAKE, _data);
     }
 
     public void SendNetworkPlayer(NetworkPlayerData _data) {
-        SendNetworkPlayerData(NETWORK_MESSAGE_PLAYER_DATA, _data);
+        SendNetworkData<NetworkPlayerData>(NETWORK_MESSAGE_PLAYER_DATA, _data);
+    }
+
+    public void HitMob(NetworkMobHitInfo _data) {
+        SendNetworkData<NetworkMobHitInfo>(NETWORK_MESSAGE_HIT_MOB, _data);
+
     }
 #endregion
 }

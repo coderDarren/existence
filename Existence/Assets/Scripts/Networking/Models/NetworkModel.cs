@@ -3,6 +3,9 @@ using Newtonsoft.Json;
 
 public class NetworkModel 
 {
+    
+    public string timestamp;
+    
 #region Public Functions
     public string ToJsonString() {
         string _ret = string.Empty;
