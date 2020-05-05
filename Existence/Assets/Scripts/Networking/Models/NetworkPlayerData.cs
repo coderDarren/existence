@@ -16,7 +16,6 @@ public class NetworkPlayerData : NetworkModel
     public NetworkVector3 rot;
     public int health;
     public int energy;
-    public string timestamp;
 
     public NetworkPlayerData() {
         input = new NetworkPlayerInput();

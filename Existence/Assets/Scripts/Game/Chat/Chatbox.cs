@@ -61,6 +61,7 @@ public class Chatbox : GameSystem
             network.OnPlayerJoined += OnPlayerJoined;
             network.OnPlayerLeft += OnPlayerLeft;
             network.OnChat += OnChat;
+            Log("subscribing to events");
         }
 
         if (session) {
@@ -88,6 +89,7 @@ public class Chatbox : GameSystem
             network.OnPlayerJoined -= OnPlayerJoined;
             network.OnPlayerLeft -= OnPlayerLeft;
             network.OnChat -= OnChat;
+            Log("unsubscribing events");
         }
 
         if (session) {
