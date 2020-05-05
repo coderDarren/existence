@@ -600,6 +600,7 @@ GameObject:
   - component: {fileID: 846861991}
   - component: {fileID: 846861990}
   - component: {fileID: 846861994}
+  - component: {fileID: 846861995}
   m_Layer: 0
   m_Name: CoreSystems
   m_TagString: Untagged
@@ -688,6 +689,7 @@ MonoBehaviour:
   playerName: player1
   getPlayerKeyCode: 103
   playerStats:
+    timestamp: 
     ID: 45
     strength: 0
     dexterity: 0
@@ -714,12 +716,27 @@ MonoBehaviour:
     melee: 0
   updateStatsKeyCode: 117
   playerInfo:
+    timestamp: 
     ID: 11
     name: testPlayer
     level: 1
     xp: 5
     statPoints: 0
   updatePlayerKeyCode: 107
+--- !u!114 &846861995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 846861989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ea7d9569f869b44bbccab2f953e1e17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 1
+  damageTestKey: 108
 --- !u!1 &1162249261
 GameObject:
   m_ObjectHideFlags: 0

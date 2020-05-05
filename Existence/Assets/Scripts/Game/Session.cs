@@ -160,7 +160,7 @@ public class Session : GameSystem
     }
 
     private void SpawnMob(NetworkMobData _data) {
-        string _name = _data.name;
+        string _name = _data.id;
         if (m_Mobs.ContainsKey(_name)) return; // player already exists
         GameObject _obj = Instantiate(networkDummyObject);
         Mob _mob = _obj.GetComponent<Mob>();
@@ -169,12 +169,10 @@ public class Session : GameSystem
     }
 
     private void MoveMob(NetworkMobData _data) {
-        Log("trying to move mob");
-        string _name = _data.name;
+        string _name = _data.id;
         if (!m_Mobs.ContainsKey(_name)) return; // could not find player
         Mob _mob = (Mob)m_Mobs[_name];
         _mob.UpdateData(_data);
-        Log("moving mob");
     }
 
     private void TryRunAction(BasicAction _action) {
