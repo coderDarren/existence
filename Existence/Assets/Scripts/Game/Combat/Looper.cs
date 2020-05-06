@@ -11,6 +11,8 @@ public class Looper : StateMachineBehaviour
     private bool attacking;
     private Animation animation;
     private float totalSpeed;
+    
+
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){        
@@ -23,7 +25,7 @@ public class Looper : StateMachineBehaviour
         if(attacking){
             totalSpeed = buffSpeed * atkSpeed;//Mash the raw wpn speed and buffspeed potatoes
             animator.SetFloat("totalSpeed", totalSpeed);//pour gravy on potatoes           
-            animator.Play(wpnAnim, 1);
+            //  animator.Play(wpnAnim, 1);
         }
     }
 
