@@ -70,7 +70,7 @@ public class CameraController : GameSystem
         //Zoom();
         MoveToTarget();
         LookAtTarget();
-        DetectCollision();
+        DetectCollision();	
     }
 #endregion
 
