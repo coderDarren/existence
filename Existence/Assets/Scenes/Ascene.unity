@@ -4556,6 +4556,7 @@ MonoBehaviour:
   debug: 0
   damageTestKey: 113
   player: {fileID: 858120939}
+  weapon: oneHandMelee
 --- !u!1001 &847380336
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4856,7 +4857,13 @@ Animator:
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
-  m_WarningMessage: 
+  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
+    are already bound by a Humanoid avatar. These transforms can only be changed
+    by Humanoid clips.\n\tTransform 'mixamorig:Hips'\n\tTransform 'mixamorig:LeftFoot'\n\tTransform
+    'mixamorig:RightHandRing2'\n\tTransform 'mixamorig:Spine1'\n\tTransform 'mixamorig:LeftToeBase'\n\tTransform
+    'mixamorig:RightArm'\n\tTransform 'mixamorig:LeftLeg'\n\tTransform 'mixamorig:LeftShoulder'\n\tTransform
+    'mixamorig:RightHandRing1'\n\tTransform 'mixamorig:RightHandIndex3'\n\tand more
+    ...\n\tFrom animation clip 'l_armMelee'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
@@ -10562,7 +10569,7 @@ PrefabInstance:
     - target: {fileID: 9038727701324112668, guid: b10a009154846dc4f9cb3339f0101c68,
         type: 3}
       propertyPath: startDelay.scalar
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9038727701324112668, guid: b10a009154846dc4f9cb3339f0101c68,
         type: 3}
@@ -10599,6 +10606,16 @@ PrefabInstance:
       propertyPath: startDelay.scalar
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 9038727701924496020, guid: b10a009154846dc4f9cb3339f0101c68,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9038727702065177570, guid: b10a009154846dc4f9cb3339f0101c68,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9038727702065177583, guid: b10a009154846dc4f9cb3339f0101c68,
         type: 3}
       propertyPath: lengthInSec
@@ -10629,6 +10646,11 @@ PrefabInstance:
       propertyPath: startDelay.scalar
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 9038727702669333658, guid: b10a009154846dc4f9cb3339f0101c68,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9038727702669333671, guid: b10a009154846dc4f9cb3339f0101c68,
         type: 3}
       propertyPath: lengthInSec
@@ -10658,6 +10680,11 @@ PrefabInstance:
         type: 3}
       propertyPath: startDelay.scalar
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9038727703077688640, guid: b10a009154846dc4f9cb3339f0101c68,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9038727703077688653, guid: b10a009154846dc4f9cb3339f0101c68,
         type: 3}

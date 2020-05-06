@@ -6,6 +6,7 @@ public class CombatTester : GameSystem
 {
     public KeyCode damageTestKey;
     public GameObject player;
+    public string weapon;
     
     private Animator anim;
     private ParticleSystem[] particles;
@@ -28,31 +29,29 @@ public class CombatTester : GameSystem
         if (Input.GetKeyDown(damageTestKey)) {
             if(!attacking){
                 attacking = true;
-                anim.SetBool("attacking", true);
-                foreach(ParticleSystem particle in particles){
-                    particle.Play();                    
-                }                
+                anim.SetBool("attacking"+ weapon, true);
+                /*foreach(ParticleSystem particle in particles){
+                    particle.Play();                 
+                }          */      
                 timer = 1;
             }
-            else{
+            else {
                 attacking = false;
-                anim.SetBool("attacking", false);
-                foreach(ParticleSystem particle in particles){
+                anim.SetBool("attacking"+ weapon, false);
+               /* foreach(ParticleSystem particle in particles){
                     particle.Stop();
-                }
+                }*/
                 
             }
         }
         if(attacking){    
            
+            if(timer >= 2){
+                //GameObject.FindGameObjectWithTag("CombatTestDummy").GetComponent<Mob>().Hit(50);
                 
-                if(timer >= 2){
-                    GameObject.FindGameObjectWithTag("CombatTestDummy").GetComponent<Mob>().Hit(50);
-                    
-                    timer = 0;
-                }
-        Debug.Log(particles.Length);    
-       }
+                timer = 0;
+            }
+        }
     }
 #endregion
 }

@@ -1,47 +1,40 @@
-﻿using System.Collections;
+﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class Attack : StateMachineBehaviour
 {
-    // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
-    //override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    //{
-    //    
-    //}
+    private ParticleSystem[] particles;
+    private GameObject player;
+    private bool atkDmg;
+    private bool attacking;
+    public string wpnAnim;
 
-    // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-    //override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    //{
-    //    
-    //}
+    
+    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
+        atkDmg = true;
+    }
+    
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        if(Input.GetKey(KeyCode.Q)){
-            animator.SetBool("attacking", false);
+        attacking = animator.GetBool("attacking" + wpnAnim);
+        if(!attacking){//Cancel animation
+            animator.SetTrigger("cycle");            
         }
-    if(Input.GetKey(KeyCode.E)){
-            animator.SetBool("attacking", true);
+        if (stateInfo.normalizedTime >= 1){//Send some Damage and Bullet Effect as long as animation completed
+            player = GameObject.FindGameObjectWithTag("Player");
+            particles = player.GetComponentsInChildren<ParticleSystem>();
+            
+            animator.SetTrigger("cycle");   
+            
+            foreach(ParticleSystem particle in particles){
+                particle.Play();                    
+            } 
+
+            if(atkDmg){
+                GameObject.FindGameObjectWithTag("CombatTestDummy").GetComponent<Mob>().Hit(50);
+                atkDmg = false;
             }
+        }
     }
-
-    // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
-    //override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    //{
-    //    
-    //}
-    override public void OnStateExit(Animator animator, AnimatorStateInfo animFinish, int layerIndex){
- 
-        //animator.SetBool("attacking", false);
-    }
-    // OnStateMove is called right after Animator.OnAnimatorMove()
-    //override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    //{
-    //    // Implement code that processes and affects root motion
-    //}
-
-    // OnStateIK is called right after Animator.OnAnimatorIK()
-    //override public void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    //{
-    //    // Implement code that sets up animation IK (inverse kinematics)
-    //}
 }
+
