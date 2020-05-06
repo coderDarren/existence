@@ -32,7 +32,6 @@ public class Dissolve : MonoBehaviour
             child.GetComponent<Renderer>().sharedMaterial.SetColor("lightColor", Color.red);
             material.SetFloat("Dissolve", dissolve);
         }
-        Debug.Log(distance);
-        Debug.Log(dissolve);
+        
     }
 }

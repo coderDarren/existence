@@ -25,7 +25,7 @@ public class Looper : StateMachineBehaviour
         if(attacking){
             totalSpeed = buffSpeed * atkSpeed;//Mash the raw wpn speed and buffspeed potatoes
             animator.SetFloat("totalSpeed", totalSpeed);//pour gravy on potatoes           
-            animator.Play(wpnAnim, 1);
+            //  animator.Play(wpnAnim, 1);
         }
     }
 

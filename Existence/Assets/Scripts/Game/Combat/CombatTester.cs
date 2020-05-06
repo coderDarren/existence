@@ -25,11 +25,13 @@ public class CombatTester : GameSystem
         if (Input.GetKeyDown(damageTestKey)) {
             if(!attacking){
                 attacking = true;
-                anim.SetBool("attacking"+ weapon, true);                
+                anim.SetBool("attacking"+ weapon, true);
+                anim.SetBool("attacking", true);                
             }
             else {
                 attacking = false;
-                anim.SetBool("attacking"+ weapon, false);              
+                anim.SetBool("attacking"+ weapon, false);
+                anim.SetBool("attacking", false);                  
             }
         }        
     }

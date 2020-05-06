@@ -83,6 +83,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wpnAnim: 
+  range: 0
 --- !u!206 &-8156721059189573867
 BlendTree:
   m_ObjectHideFlags: 1
@@ -346,6 +347,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wpnAnim: 
+  range: 0
 --- !u!1101 &-4462047163361005587
 AnimatorStateTransition:
   m_ObjectHideFlags: 3
@@ -523,6 +525,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wpnAnim: oneHandMelee
+  range: 10
 --- !u!1102 &-1042963336713907495
 AnimatorState:
   serializedVersion: 5
@@ -871,6 +874,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wpnAnim: 
+  range: 0
 --- !u!1102 &2441893730442288524
 AnimatorState:
   serializedVersion: 5
@@ -1334,3 +1338,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wpnAnim: oneHandRanged
+  range: 0
