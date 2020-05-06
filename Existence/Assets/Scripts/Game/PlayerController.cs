@@ -149,6 +149,7 @@ public class PlayerController : GameSystem
         } else {
             m_ForwardInput = m_VerticalAxis;
         }
+        
     }
 
     private void Turn() {
