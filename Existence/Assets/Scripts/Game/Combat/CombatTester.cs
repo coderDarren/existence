@@ -6,14 +6,11 @@ public class CombatTester : GameSystem
 {
     public KeyCode damageTestKey;
     public GameObject player;
-    public string weapon;
-    
-    private Animator anim;
-    private ParticleSystem[] particles;
-    private bool attacking;
-    private float timer;
-    
+    public string weapon;  
 
+    private bool attacking;
+    private Animator anim;
+    
 #region Unity Functions
 
     private void Start(){
@@ -21,37 +18,21 @@ public class CombatTester : GameSystem
     }
 
     private async void Update() {
-        anim = player.GetComponent<Animator>();
-        particles = player.GetComponentsInChildren<ParticleSystem>();
-        timer += Time.deltaTime;
+        anim = player.GetComponent<Animator>();    
+
         
         if (!GameObject.FindGameObjectWithTag("CombatTestDummy")) return;
         if (Input.GetKeyDown(damageTestKey)) {
             if(!attacking){
                 attacking = true;
-                anim.SetBool("attacking"+ weapon, true);
-                /*foreach(ParticleSystem particle in particles){
-                    particle.Play();                 
-                }          */      
-                timer = 1;
+                anim.SetBool("attacking"+ weapon, true);                
             }
             else {
                 attacking = false;
-                anim.SetBool("attacking"+ weapon, false);
-               /* foreach(ParticleSystem particle in particles){
-                    particle.Stop();
-                }*/
-                
+                anim.SetBool("attacking"+ weapon, false);              
             }
-        }
-        if(attacking){    
-           
-            if(timer >= 2){
-                //GameObject.FindGameObjectWithTag("CombatTestDummy").GetComponent<Mob>().Hit(50);
-                
-                timer = 0;
-            }
-        }
+        }        
     }
 #endregion
 }
+
