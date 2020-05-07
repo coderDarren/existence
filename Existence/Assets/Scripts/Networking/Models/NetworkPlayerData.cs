@@ -16,6 +16,7 @@ public class NetworkPlayerData : NetworkModel
     public NetworkVector3 rot;
     public int health;
     public int energy;
+    public string weaponName;
 
     public NetworkPlayerData() {
         input = new NetworkPlayerInput();

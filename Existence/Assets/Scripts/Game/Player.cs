@@ -5,12 +5,15 @@ using UnityEngine.UI;
 /// <summary>
 /// Hold data about the player
 /// </summary>
+
 public class Player : GameSystem
 {
     public delegate void IntAction(int _data);
-    public event IntAction OnXpAdded;
+    public event IntAction OnXpAdded;   
 
     public Text nameLabel;
+    public enum Weapon {oneHandRanged, oneHandMelee, twoHandRanged, twoHandMelee, fist};
+    public Weapon weapon;
     
     private PlayerData m_Data;
     private StatData m_GearStats;
@@ -61,7 +64,7 @@ public class Player : GameSystem
         m_Data.player.name = RandomString(12);
         m_GearStats = new StatData();
         m_BuffStats = new StatData();
-        m_TrickleStats = new StatData();
+        m_TrickleStats = new StatData();        
         nameLabel.text = m_Data.player.name;
     }
 #endregion
@@ -147,5 +150,6 @@ public class Player : GameSystem
             _action(_data);
         } catch (System.Exception) {}
     }
+    
 #endregion
 }

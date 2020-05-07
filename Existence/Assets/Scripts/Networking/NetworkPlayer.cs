@@ -39,11 +39,14 @@ public class NetworkPlayer : GameSystem
     private float m_TargetStrafing;
     private float m_Strafing;
     private bool m_Grounded;
+    private bool m_Attacking;
     private float m_UpdateTimer;
     private float m_IdleTimer;
     private long m_LastUpdateMillis;
     private float m_Smooth;
-    //private script m_weapon;
+    private float m_AttackSpeed;
+    private string m_Weapon;
+    
     
 
     // get Session with integrity
@@ -82,9 +85,9 @@ public class NetworkPlayer : GameSystem
         if (isClient) {
             m_ClientData = new NetworkPlayerData();
             m_PlayerController = GetComponent<PlayerController>();
-        } else {
-            m_Animator = GetComponent<Animator>();
+       
         }
+        m_Animator = GetComponent<Animator>();
     }
 
     private void Update() {
@@ -128,7 +131,9 @@ public class NetworkPlayer : GameSystem
         m_InitialStrafing = m_Strafing;
         m_TargetStrafing = _data.input.strafing;
         m_Grounded = _data.input.grounded;
-        //Something goes here I think.. but not sure what
+        m_Attacking = _data.input.attacking;
+        m_AttackSpeed = _data.input.attackSpeed;
+        m_Weapon = _data.weaponName;//Something goes here I think.. but not sure what
         m_UpdateTimer = 0;
 
         m_LastFrameData = _data;
@@ -156,8 +161,10 @@ public class NetworkPlayer : GameSystem
         m_ClientData.input.running = m_PlayerController.runAnimation;
         m_ClientData.input.strafing = m_PlayerController.strafeAnimation;
         m_ClientData.input.grounded = m_PlayerController.grounded;
-        //m_ClientData.input.attack = m_Animator.GetBool("attacking");  //Secondary bool activate by all attack animations
-
+        m_ClientData.input.attacking = m_Animator.GetBool(GetComponent<Player>().weapon.ToString());
+        m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");  //Secondary bool activate by all attack animations
+        m_ClientData.weaponName = GetComponent<Player>().weapon.ToString();
+      
         m_UpdateTimer += Time.deltaTime;
         if (m_UpdateTimer >= sendRate && m_IdleTimer < idleDetectionSeconds) {
             network.SendNetworkPlayer(m_ClientData);
@@ -171,8 +178,8 @@ public class NetworkPlayer : GameSystem
                 m_ClientData.pos.z == transform.position.z &&
                 m_ClientData.rot.x == transform.eulerAngles.x && 
                 m_ClientData.rot.y == transform.eulerAngles.y && 
-                m_ClientData.rot.z == transform.eulerAngles.z;
-                //m_ClientData.input.attack == false;   // Self explanatory I hope
+                m_ClientData.rot.z == transform.eulerAngles.z &&
+                m_ClientData.input.attacking == false;   // Self explanatory I hope
     }
 
     // Player not controlled by this client
@@ -182,12 +189,13 @@ public class NetworkPlayer : GameSystem
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / m_Smooth);
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialEuler), Quaternion.Euler(m_TargetEuler), m_UpdateTimer / m_Smooth);
         m_Running = Mathf.Lerp(m_InitialRunning, m_TargetRunning, m_UpdateTimer / m_Smooth);
-        m_Strafing = Mathf.Lerp(m_InitialStrafing, m_TargetStrafing, m_UpdateTimer / m_Smooth);
-        //m_weapon = script.weapon; //Referencing current weapon selection as previously mentioned
+        m_Strafing = Mathf.Lerp(m_InitialStrafing, m_TargetStrafing, m_UpdateTimer / m_Smooth);       
         m_Animator.SetFloat("running", m_Running);
         m_Animator.SetFloat("strafing", m_Strafing);
+        m_Animator.SetFloat("totalSpeed", m_AttackSpeed);
         m_Animator.SetBool("grounded", m_Grounded);
-        //m_Animator.SetBool("attacking" + m_weapon, ); // not sure how to tie this in..
+        m_Animator.SetBool(m_Weapon, m_Attacking);
+        Debug.Log(m_Attacking); // not sure how to tie this in..
     }
 
     private void PollPredictiveSmoothing() {
