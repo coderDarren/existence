@@ -31,10 +31,11 @@ public class PlayerController : GameSystem
     public float groundCheckDist = 1.0f;
     public float groundCheckBias = 0.1f;
     public LayerMask groundLayer;
-
+    
     private Player m_Player;
     private CharacterController m_Controller;
     private Animator m_Animator;
+    private ParticleSystem[] m_Particles;
     private Vector3 m_MoveDirection;
     private Vector3 m_ForwardVec;
     private Vector3 m_RightVec;
@@ -54,10 +55,13 @@ public class PlayerController : GameSystem
     private float m_GroundBiasTimer;
     private bool m_InputIsFrozen;
     private float m_AnimationSpeed;
+    private bool attacking;
+    private bool m_AttackInput;    
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
     public bool grounded { get { return m_Grounded; } }
+    public KeyCode m_Attack;    
 
 #region Unity Functions
     private void Start()
@@ -65,6 +69,7 @@ public class PlayerController : GameSystem
         m_Player = GetComponent<Player>();
         m_Controller = GetComponent<CharacterController>();
         m_Animator = GetComponent<Animator>();
+        attacking = false;
     }
 
     private void Update()
@@ -73,6 +78,7 @@ public class PlayerController : GameSystem
         Move();
         Turn();
         Animate();
+        Attack();
     }
 
 #endregion
@@ -115,6 +121,7 @@ public class PlayerController : GameSystem
         m_JumpInput = Input.GetButton("Jump");
         m_TurnInput = m_RightMouseDown ? Input.GetAxis("Mouse X")*3 : m_HorizontalAxis;
         m_StrafeInput = m_RightMouseDown && Mathf.Abs(m_HorizontalAxis) > 0 ? m_HorizontalAxis : 0;
+        m_AttackInput = Input.GetKeyDown(m_Attack);
         m_StrafeAnimation = Mathf.Abs(m_VerticalAxisRaw) == 0 ? Mathf.Lerp(m_StrafeAnimation, m_StrafeInput, 5*Time.deltaTime) : ApproachZero(m_StrafeAnimation);
         DetectWalking();
     }
@@ -224,7 +231,32 @@ public class PlayerController : GameSystem
         m_Animator.SetFloat("running", m_ForwardInput);
         m_Animator.SetFloat("strafing", m_StrafeAnimation);
         m_Animator.SetBool("grounded", grounded);
-        m_Animator.speed = m_AnimationSpeed;
+        m_Animator.speed = m_AnimationSpeed;//Need to use a multiplier on runspeed and access that instead of accessing base animatior speed
+    }
+
+    public void Attack(){        
+        if (!GameObject.FindGameObjectWithTag("CombatTestDummy")) return;
+        if (m_AttackInput) {
+            if(!attacking){
+                attacking = true;
+                m_Animator.SetBool(GetComponent<Player>().weapon.ToString(), true);
+                m_Animator.SetBool("attacking", true);                
+            }
+            else {
+                attacking = false;
+                m_Animator.SetBool(GetComponent<Player>().weapon.ToString(), false);
+                m_Animator.SetBool("attacking", false);                  
+            }
+        }
+
+    } 
+    
+    public void AttackEnd(){
+        GameObject.FindGameObjectWithTag("CombatTestDummy").GetComponent<Mob>().Hit(50);
+        m_Animator.SetTrigger("cycle");
+        /*foreach(ParticleSystem particle in m_Particles){
+                particle.Play();                    
+            }*/
     }
 #endregion
 }
