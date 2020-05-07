@@ -22,14 +22,14 @@ public class Dissolve : MonoBehaviour
         if(distance <= 4){
             dissolve += Time.deltaTime;            
             dissolve = Mathf.Clamp(dissolve, 0, 1);
-            child.GetComponent<Renderer>().sharedMaterial.SetColor("lightColor", Color.green);
+            child.GetComponent<Renderer>().sharedMaterial.SetColor("_EmissionColor", Color.green);
             material.SetFloat("Dissolve", dissolve);
 
         }
         else{
             dissolve -= Time.deltaTime;
             dissolve = Mathf.Clamp(dissolve, 0, 1);
-            child.GetComponent<Renderer>().sharedMaterial.SetColor("lightColor", Color.red);
+            child.GetComponent<Renderer>().sharedMaterial.SetColor("_EmissionColor", Color.red);
             material.SetFloat("Dissolve", dissolve);
         }
         
