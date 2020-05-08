@@ -1,5 +1,6 @@
 'use strict'
 const {Sequelize, DataTypes} = require('sequelize');
+const {decrypt} = require('../util/crypto.js');
 
 class SQLController {
     constructor() {
@@ -23,30 +24,51 @@ class SQLController {
     }
 
     async connect() {
-        this.__log__("Attempting to authenticate.");
+        this.__log__("Attempting to connect to server.");
         try {
             await this._sql.authenticate();
-            this.__log__("Successfully authenticated.");
+            this.__log__("Successfully connected.");
             return true;
         } catch(_err) {
-            this.__log__("Failed to authenticate: "+_err);
+            this.__log__("Failed to connect: "+_err);
             return false;
         }
     }
 
-    async createArmor() {
-        const _reqStat = await this._stat.create({
-            strength: 12,
-            dexterity: 12,
-        })
-        const _effStat = await this._stat.create({})
-        const _item = await this._item.create({
-            level: 5,
-            name: "test item2",
-            requirementsID: _reqStat.id,
-            effectsID: _effStat.id,
-            rarity: 1
-        });
+    async authenticate(_params) {
+        try {
+            const _acct = await this._account.findOne({where: {username: _params.username}});
+            if (!_acct) {
+                return {
+                    error: `No account found for user '${_params.username}'.`
+                }
+            }
+            
+            const _data = decrypt(_acct.dataValues.apiKey);
+            const _verify = _data.split('&');
+            if (!_data.includes('&') || _verify.length < 2) {
+                return {
+                    error: `Something is wrong with the user's account authentication.`
+                }
+            }
+
+            if (_params.password != _verify[1]) {
+                return {
+                    error: `Incorrect password.`
+                }
+            }
+
+            return {
+                data: {
+                    username: _params.username,
+                    apiKey: _acct.dataValues.apiKey
+                }
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
     }
 
     async getPlayer(_playerName) {
@@ -142,6 +164,21 @@ class SQLController {
                 error: _err
             }
         }
+    }
+
+    async createArmor() {
+        const _reqStat = await this._stat.create({
+            strength: 12,
+            dexterity: 12,
+        })
+        const _effStat = await this._stat.create({})
+        const _item = await this._item.create({
+            level: 5,
+            name: "test item2",
+            requirementsID: _reqStat.id,
+            effectsID: _effStat.id,
+            rarity: 1
+        });
     }
 
     __define_models__() {
