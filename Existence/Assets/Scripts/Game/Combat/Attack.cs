@@ -74,7 +74,7 @@ public class Attack : StateMachineBehaviour
         #region Cancel/Pause Animaton
         if(!attacking){//Cancel animation
             animator.SetFloat("totalSpeed", pauseSpeed);
-            animator.SetTrigger("cycle");            
+            animator.SetBool("cycle", true);            
         }
                     
         if (!child.GetComponent<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){

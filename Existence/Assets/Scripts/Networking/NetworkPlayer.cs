@@ -20,8 +20,7 @@ public class NetworkPlayer : GameSystem
     [Header("Network Player Settings")]
     public float moveSmooth=0.1f;
     
-   //public CombatTester script;  //To reference what the current weapon is so you can animate the correct weapon animation
-
+   
     private Session m_Session;
     private NetworkController m_Network;
     private Vector3 m_InitialPos;
@@ -40,6 +39,7 @@ public class NetworkPlayer : GameSystem
     private float m_Strafing;
     private bool m_Grounded;
     private bool m_Attacking;
+    private bool m_AttackCycle;
     private float m_UpdateTimer;
     private float m_IdleTimer;
     private long m_LastUpdateMillis;
@@ -132,8 +132,9 @@ public class NetworkPlayer : GameSystem
         m_TargetStrafing = _data.input.strafing;
         m_Grounded = _data.input.grounded;
         m_Attacking = _data.input.attacking;
+        m_AttackCycle = _data.input.cycle;
         m_AttackSpeed = _data.input.attackSpeed;
-        m_Weapon = _data.weaponName;//Something goes here I think.. but not sure what
+        m_Weapon = _data.weaponName;
         m_UpdateTimer = 0;
 
         m_LastFrameData = _data;
@@ -161,8 +162,9 @@ public class NetworkPlayer : GameSystem
         m_ClientData.input.running = m_PlayerController.runAnimation;
         m_ClientData.input.strafing = m_PlayerController.strafeAnimation;
         m_ClientData.input.grounded = m_PlayerController.grounded;
-        m_ClientData.input.attacking = m_Animator.GetBool(GetComponent<Player>().weapon.ToString());
-        m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");  //Secondary bool activate by all attack animations
+        m_ClientData.input.attacking = m_PlayerController.attacking;
+        m_ClientData.input.cycle = m_Animator.GetBool("cycle");
+        m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed"); 
         m_ClientData.weaponName = GetComponent<Player>().weapon.ToString();
       
         m_UpdateTimer += Time.deltaTime;
@@ -179,7 +181,7 @@ public class NetworkPlayer : GameSystem
                 m_ClientData.rot.x == transform.eulerAngles.x && 
                 m_ClientData.rot.y == transform.eulerAngles.y && 
                 m_ClientData.rot.z == transform.eulerAngles.z &&
-                m_ClientData.input.attacking == false;   // Self explanatory I hope
+                m_ClientData.input.attacking == false;   
     }
 
     // Player not controlled by this client
@@ -193,9 +195,10 @@ public class NetworkPlayer : GameSystem
         m_Animator.SetFloat("running", m_Running);
         m_Animator.SetFloat("strafing", m_Strafing);
         m_Animator.SetFloat("totalSpeed", m_AttackSpeed);
-        m_Animator.SetBool("grounded", m_Grounded);
+        m_Animator.SetBool("grounded", m_Grounded);        
         m_Animator.SetBool(m_Weapon, m_Attacking);
-        Debug.Log(m_Attacking); // not sure how to tie this in..
+        m_Animator.SetBool("cycle", m_AttackCycle);
+       
     }
 
     private void PollPredictiveSmoothing() {
@@ -209,6 +212,15 @@ public class NetworkPlayer : GameSystem
 
         Log("Network Delta: "+_diff);
         m_Smooth = _diff / 1000.0f;
+    }
+
+    public void AttackEnd(){
+        if(!isClient) return;
+        GameObject.FindGameObjectWithTag("CombatTestDummy").GetComponent<Mob>().Hit(50);
+        m_Animator.SetBool("cycle", true);
+        /*foreach(ParticleSystem particle in m_Particles){
+                particle.Play();                    
+            }*/
     }
 #endregion
 

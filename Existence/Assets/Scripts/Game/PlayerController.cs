@@ -54,13 +54,13 @@ public class PlayerController : GameSystem
     private bool m_Grounded;
     private float m_GroundBiasTimer;
     private bool m_InputIsFrozen;
-    private float m_AnimationSpeed;
-    private bool attacking;
+    private float m_AnimationSpeed;   
     private bool m_AttackInput;    
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
     public bool grounded { get { return m_Grounded; } }
+    public bool attacking;
     public KeyCode m_Attack;    
 
 #region Unity Functions
@@ -239,24 +239,19 @@ public class PlayerController : GameSystem
         if (m_AttackInput) {
             if(!attacking){
                 attacking = true;
-                m_Animator.SetBool(GetComponent<Player>().weapon.ToString(), true);
-                m_Animator.SetBool("attacking", true);                
+                m_Animator.SetBool(m_Player.weapon.ToString(), true);
+                m_Animator.SetBool("attacking", true);
+                m_Animator.SetBool("cycle", false);                
             }
             else {
                 attacking = false;
-                m_Animator.SetBool(GetComponent<Player>().weapon.ToString(), false);
+                m_Animator.SetBool(m_Player.weapon.ToString(), false);
                 m_Animator.SetBool("attacking", false);                  
             }
         }
 
     } 
     
-    public void AttackEnd(){
-        GameObject.FindGameObjectWithTag("CombatTestDummy").GetComponent<Mob>().Hit(50);
-        m_Animator.SetTrigger("cycle");
-        /*foreach(ParticleSystem particle in m_Particles){
-                particle.Play();                    
-            }*/
-    }
+    
 #endregion
 }
