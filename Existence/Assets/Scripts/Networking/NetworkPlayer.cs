@@ -30,6 +30,7 @@ public class NetworkPlayer : GameSystem
     private NetworkPlayerData m_ClientData;
     private NetworkPlayerData m_LastFrameData;
     private PlayerController m_PlayerController;
+    private Player m_Player;
     private Animator m_Animator;
     private float m_InitialRunning;
     private float m_TargetRunning;
@@ -85,7 +86,7 @@ public class NetworkPlayer : GameSystem
         if (isClient) {
             m_ClientData = new NetworkPlayerData();
             m_PlayerController = GetComponent<PlayerController>();
-       
+            m_Player = GetComponent<Player>();
         }
         m_Animator = GetComponent<Animator>();
     }
@@ -165,7 +166,7 @@ public class NetworkPlayer : GameSystem
         m_ClientData.input.attacking = m_PlayerController.attacking;
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
         m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed"); 
-        m_ClientData.weaponName = GetComponent<Player>().weapon.ToString();
+        m_ClientData.weaponName = m_Player.weapon.ToString();
       
         m_UpdateTimer += Time.deltaTime;
         if (m_UpdateTimer >= sendRate && m_IdleTimer < idleDetectionSeconds) {

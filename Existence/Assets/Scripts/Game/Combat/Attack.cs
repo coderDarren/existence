@@ -6,9 +6,9 @@ public class Attack : StateMachineBehaviour
 {
     
     public float range;   
-
-    private AnimationEvent attackEnd; 
     
+    private Player m_Player;
+    private AnimationEvent attackEnd;   
     private AnimationClip[] clips;
     private AnimationClip currentClip;
     private GameObject player;
@@ -28,47 +28,45 @@ public class Attack : StateMachineBehaviour
     
     
     
-    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
+    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex    ){
         
         pauseSpeed = animator.GetFloat("totalSpeed");
         i=0;
         tickBool =  false;
-        
-    }
-
-    override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        safetySpeed = 0;        
+        m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        safetySpeed = 0;
     }
     
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        attacking = animator.GetBool("attacking");
+        attacking = animator.GetBool(m_Player.weapon.ToString());
         target = GameObject.FindGameObjectWithTag("CombatTestDummy");
         player = GameObject.FindGameObjectWithTag("Player");       
         child = target.transform.GetChild(0).gameObject;
         distance = Vector3.Distance(player.transform.position, target.transform.position);
         
-        
         #region Determining end of animation
-        currentName = animator.GetCurrentAnimatorClipInfo(1)[0].clip.name; 
-        currentLength = animator.GetCurrentAnimatorClipInfo(1)[0].clip.length;
-        clips = animator.runtimeAnimatorController.animationClips;
-        foreach(AnimationClip clip in clips){
-            
-            if(clip.name == currentName && i <= clips.Length){                
-                tickBool = true;
-                currentClipNum = i;
-                attackEnd = new AnimationEvent();                
-                attackEnd.time = currentLength;
-                attackEnd.functionName = "AttackEnd";
-                currentClip = animator.runtimeAnimatorController.animationClips[currentClipNum];
-                if(animator.runtimeAnimatorController.animationClips[currentClipNum].events.Length == 0){
-                    currentClip.AddEvent(attackEnd);
+        if(animator.GetCurrentAnimatorClipInfo(1).Length > 0){
+                currentName = animator.GetCurrentAnimatorClipInfo(1)[0].clip.name; 
+                currentLength = animator.GetCurrentAnimatorClipInfo(1)[0].clip.length;
+                
+                clips = animator.runtimeAnimatorController.animationClips;
+            foreach(AnimationClip clip in clips){
+                
+                if(clip.name == currentName && i <= clips.Length){                
+                    tickBool = true;
+                    currentClipNum = i;
+                    attackEnd = new AnimationEvent();                
+                    attackEnd.time = currentLength;
+                    attackEnd.functionName = "AttackEnd";
+                    currentClip = animator.runtimeAnimatorController.animationClips[currentClipNum];
+                    if(animator.runtimeAnimatorController.animationClips[currentClipNum].events.Length == 0){
+                        currentClip.AddEvent(attackEnd);
+                    }
                 }
+                else if(!tickBool)
+                    i++;            
             }
-            else if(!tickBool)
-                i++;            
         }
-        
         #endregion
         
         #region Cancel/Pause Animaton

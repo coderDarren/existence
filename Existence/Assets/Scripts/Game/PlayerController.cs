@@ -240,13 +240,11 @@ public class PlayerController : GameSystem
             if(!attacking){
                 attacking = true;
                 m_Animator.SetBool(m_Player.weapon.ToString(), true);
-                m_Animator.SetBool("attacking", true);
                 m_Animator.SetBool("cycle", false);                
             }
             else {
                 attacking = false;
-                m_Animator.SetBool(m_Player.weapon.ToString(), false);
-                m_Animator.SetBool("attacking", false);                  
+                m_Animator.SetBool(m_Player.weapon.ToString(), false);                 
             }
         }
 
