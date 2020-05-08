@@ -35,7 +35,10 @@ public class PlayerController : GameSystem
     private Player m_Player;
     private CharacterController m_Controller;
     private Animator m_Animator;
+    private Targeting m_Targeting;    
     private ParticleSystem[] m_Particles;
+    private GameObject[] m_Targets;
+    private GameObject m_CurrentTarget;
     private Vector3 m_MoveDirection;
     private Vector3 m_ForwardVec;
     private Vector3 m_RightVec;
@@ -47,6 +50,7 @@ public class PlayerController : GameSystem
     private bool m_JumpInput;
     private bool m_RightMouseDown;
     private bool m_ShiftIsDown;
+    private bool m_CancelTarget;
     private float m_VerticalAxis;
     private float m_VerticalAxisRaw;
     private float m_HorizontalAxis;
@@ -54,13 +58,17 @@ public class PlayerController : GameSystem
     private bool m_Grounded;
     private float m_GroundBiasTimer;
     private bool m_InputIsFrozen;
-    private float m_AnimationSpeed;
-    private bool attacking;
-    private bool m_AttackInput;    
+    private float m_AnimationSpeed;   
+    private bool m_AttackInput;
+    private bool m_CycleTarget;
+    private int m_TargetNum;
+    private GameObject m_Target;
+        
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
     public bool grounded { get { return m_Grounded; } }
+    public bool attacking;
     public KeyCode m_Attack;    
 
 #region Unity Functions
@@ -69,6 +77,8 @@ public class PlayerController : GameSystem
         m_Player = GetComponent<Player>();
         m_Controller = GetComponent<CharacterController>();
         m_Animator = GetComponent<Animator>();
+        m_Targeting = GetComponent<Targeting>();
+        m_TargetNum = 1;
         attacking = false;
     }
 
@@ -78,7 +88,7 @@ public class PlayerController : GameSystem
         Move();
         Turn();
         Animate();
-        Attack();
+        Attack();        
     }
 
 #endregion
@@ -122,6 +132,8 @@ public class PlayerController : GameSystem
         m_TurnInput = m_RightMouseDown ? Input.GetAxis("Mouse X")*3 : m_HorizontalAxis;
         m_StrafeInput = m_RightMouseDown && Mathf.Abs(m_HorizontalAxis) > 0 ? m_HorizontalAxis : 0;
         m_AttackInput = Input.GetKeyDown(m_Attack);
+        m_CycleTarget = Input.GetKeyDown(KeyCode.Tab);
+        m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
         m_StrafeAnimation = Mathf.Abs(m_VerticalAxisRaw) == 0 ? Mathf.Lerp(m_StrafeAnimation, m_StrafeInput, 5*Time.deltaTime) : ApproachZero(m_StrafeAnimation);
         DetectWalking();
     }
@@ -141,6 +153,9 @@ public class PlayerController : GameSystem
 
             if (m_JumpInput)
                 m_MoveDirection.y = jumpSpeed + 0.01f*_playerStats.strength;
+        }
+        if(m_CycleTarget){
+            m_Targeting.Search();
         } 
         m_MoveDirection.y -= gravity * Time.deltaTime;
         m_Controller.Move(m_MoveDirection * Time.deltaTime);
@@ -216,6 +231,7 @@ public class PlayerController : GameSystem
         if (debug) {
             Debug.DrawLine(transform.position, transform.position + m_ForwardVec * 1.0f, Color.blue);
             Debug.DrawLine(transform.position, transform.position + m_RightVec * 1.0f, Color.red);
+            
         }
     }
 
@@ -234,29 +250,40 @@ public class PlayerController : GameSystem
         m_Animator.speed = m_AnimationSpeed;//Need to use a multiplier on runspeed and access that instead of accessing base animatior speed
     }
 
+    public void FindTarget(GameObject[] _targets){
+        m_CurrentTarget = _targets[0];
+        m_Targets = new GameObject[_targets.Length];
+        m_Targets = _targets;        
+    }
+    
+    public void CycleTarget(){
+        m_CurrentTarget = m_Targets[m_TargetNum];
+        m_TargetNum++;
+        if(m_TargetNum >= m_Targets.Length)
+            m_TargetNum = 0;
+        
+    }    
+
     public void Attack(){        
-        if (!GameObject.FindGameObjectWithTag("CombatTestDummy")) return;
+        if (!m_CurrentTarget) return;
         if (m_AttackInput) {
             if(!attacking){
                 attacking = true;
-                m_Animator.SetBool(GetComponent<Player>().weapon.ToString(), true);
-                m_Animator.SetBool("attacking", true);                
+                m_Target = m_CurrentTarget;
+                m_Animator.SetBool(m_Player.weapon.ToString(), true);
+                m_Animator.SetBool("cycle", false);                
             }
             else {
                 attacking = false;
-                m_Animator.SetBool(GetComponent<Player>().weapon.ToString(), false);
-                m_Animator.SetBool("attacking", false);                  
+                m_Animator.SetBool(m_Player.weapon.ToString(), false);                 
             }
         }
-
+        if(m_CancelTarget){
+            m_CurrentTarget = null;
+        }
+        Debug.Log(m_CurrentTarget);
     } 
     
-    public void AttackEnd(){
-        GameObject.FindGameObjectWithTag("CombatTestDummy").GetComponent<Mob>().Hit(50);
-        m_Animator.SetTrigger("cycle");
-        /*foreach(ParticleSystem particle in m_Particles){
-                particle.Play();                    
-            }*/
-    }
+    
 #endregion
 }

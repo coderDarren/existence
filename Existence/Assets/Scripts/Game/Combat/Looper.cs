@@ -8,6 +8,7 @@ public class Looper : StateMachineBehaviour
     public float buffSpeed;
     
     
+    private Player m_Player;
     private bool attacking;
     private Animation animation;
     private float totalSpeed;
@@ -16,12 +17,13 @@ public class Looper : StateMachineBehaviour
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        animator.ResetTrigger("cycle");
+        animator.SetBool("cycle", false);
+        m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        attacking = animator.GetBool("attacking");
+        attacking = animator.GetBool(m_Player.weapon.ToString());
         if(attacking){
             totalSpeed = buffSpeed * atkSpeed;//Mash the raw wpn speed and buffspeed potatoes
             animator.SetFloat("totalSpeed", totalSpeed);//pour gravy on potatoes           
