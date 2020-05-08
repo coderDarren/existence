@@ -217,7 +217,9 @@ public class NetworkPlayer : GameSystem
 
     public void AttackEnd(){
         if(!isClient) return;
-        GameObject.FindGameObjectWithTag("CombatTestDummy").GetComponent<Mob>().Hit(50);
+        Debug.Log( m_PlayerController.m_Target); 
+        m_PlayerController.m_Target.transform.parent.GetComponent<Mob>().Hit(50);
+        
         m_Animator.SetBool("cycle", true);
         /*foreach(ParticleSystem particle in m_Particles){
                 particle.Play();                    

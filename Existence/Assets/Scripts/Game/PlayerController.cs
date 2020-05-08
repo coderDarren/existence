@@ -62,14 +62,13 @@ public class PlayerController : GameSystem
     private bool m_AttackInput;
     private bool m_CycleTarget;
     private int m_TargetNum;
-    private GameObject m_Target;
-        
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
     public bool grounded { get { return m_Grounded; } }
     public bool attacking;
-    public KeyCode m_Attack;    
+    public KeyCode m_Attack;
+    public GameObject m_Target;    
 
 #region Unity Functions
     private void Start()
@@ -280,6 +279,8 @@ public class PlayerController : GameSystem
         }
         if(m_CancelTarget){
             m_CurrentTarget = null;
+            attacking = false;
+            m_Animator.SetBool(m_Player.weapon.ToString(), false); 
         }
         Debug.Log(m_CurrentTarget);
     } 
