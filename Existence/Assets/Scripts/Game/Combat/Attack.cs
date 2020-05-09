@@ -40,10 +40,14 @@ public class Attack : StateMachineBehaviour
     }
     
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
+        if(!m_PlayerController.m_Target) {
+            animator.SetBool("cycle", true);
+        }
         attacking = animator.GetBool(m_Player.weapon.ToString());
         target = m_PlayerController.m_Target;
         player = GameObject.FindGameObjectWithTag("Player"); 
-        distance = Vector3.Distance(player.transform.position, target.transform.position);
+        if(m_PlayerController.m_Target)
+            distance = Vector3.Distance(player.transform.position, target.transform.position);
         
         #region Determining end of animation
         if(animator.GetCurrentAnimatorClipInfo(1).Length > 0){
@@ -75,14 +79,15 @@ public class Attack : StateMachineBehaviour
             animator.SetFloat("totalSpeed", pauseSpeed);
             animator.SetBool("cycle", true);            
         }
-                    
-        if (!target.GetComponent<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
-            animator.SetFloat("totalSpeed", safetySpeed);
+        if(m_PlayerController.m_Target){            
+            if (!target.GetComponent<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
+                animator.SetFloat("totalSpeed", safetySpeed);
+            }
+            
+            if (target.GetComponent<Renderer>().IsVisibleFrom(Camera.main) && range >= distance){//No attack logic
+                animator.SetFloat("totalSpeed", pauseSpeed);
+            }
         }
-        
-        if (target.GetComponent<Renderer>().IsVisibleFrom(Camera.main) && range >= distance){//No attack logic
-            animator.SetFloat("totalSpeed", pauseSpeed);
-        }         
         #endregion
              
     }
