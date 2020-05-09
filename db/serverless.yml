@@ -11,6 +11,8 @@ functions:
     handler: index.api
     memorySize: 128
     description: Generic api
+    environment:
+      CRYPTO_SECRET: exist123
     events:
       - http:
           path: api
