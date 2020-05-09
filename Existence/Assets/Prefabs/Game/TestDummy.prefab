@@ -1686,6 +1686,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7277636714585736243}
   - component: {fileID: 5940600230940397258}
+  - component: {fileID: 4328090185065888592}
   m_Layer: 11
   m_Name: TestDummy
   m_TagString: CombatTestDummy
@@ -1727,6 +1728,18 @@ MonoBehaviour:
   name: {fileID: 4805403579904182221}
   healthBar: {fileID: 2189024974245188967}
   energyBar: {fileID: 7124159173208727452}
+--- !u!225 &4328090185065888592
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4754728568438128947}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &4762201262041314497
 GameObject:
   m_ObjectHideFlags: 0
