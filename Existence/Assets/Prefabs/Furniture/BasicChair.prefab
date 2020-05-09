@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 8373533777295417941}
   - component: {fileID: 3570300962122469227}
   - component: {fileID: 5847258465112344931}
-  - component: {fileID: 7402408860651250401}
+  - component: {fileID: 3360159478334495818}
   m_Layer: 0
-  m_Name: Box
+  m_Name: BasicChair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26,13 +26,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6941504989531519517}
-  m_LocalRotation: {x: -0.50000006, y: -0.49999994, z: -0.49999997, w: 0.50000006}
+  m_LocalRotation: {x: -0.5, y: -0.5, z: -0.5, w: 0.5}
   m_LocalPosition: {x: -1.2617221, y: 1.2099571, z: -1.4346313}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90.00001, y: 0, z: -90.00001}
 --- !u!33 &3570300962122469227
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -81,7 +81,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!64 &7402408860651250401
+--- !u!64 &3360159478334495818
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

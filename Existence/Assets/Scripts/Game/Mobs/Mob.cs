@@ -11,6 +11,8 @@ public class Mob : GameSystem
 
     private NetworkController m_Network;
     private NetworkMobData m_Data;
+    private PlayerController m_Controller;
+    private CanvasGroup m_NamePlate;
     private Vector3 m_InitialPos;
     private Vector3 m_TargetPos;
     private Vector3 m_InitialRot;
@@ -33,9 +35,18 @@ public class Mob : GameSystem
     private void Update() {
         if (m_UpdateTimer > smooth) return;
         m_UpdateTimer += Time.deltaTime;
-
+        
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / smooth);
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialRot), Quaternion.Euler(m_TargetRot), m_UpdateTimer / smooth);
+       DrawHealth();
+    }
+
+    private void DrawHealth(){
+        if (m_Controller.m_CurrentTarget == GetComponentInChildren<SkinnedMeshRenderer>().gameObject || m_Controller.m_Target == GetComponentInChildren<SkinnedMeshRenderer>().gameObject)
+            m_NamePlate.alpha = 1f;
+        else
+            m_NamePlate.alpha = 0f;
+        
     }
 #endregion
 
@@ -45,6 +56,9 @@ public class Mob : GameSystem
         name.text = m_Data.name;
         healthBar.fillAmount = m_Data.health / (float)m_Data.maxHealth;
         energyBar.fillAmount = m_Data.energy / (float)m_Data.maxEnergy;
+        m_NamePlate = GetComponent<CanvasGroup>();
+        m_Controller = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        
     }
 
     public void UpdateData(NetworkMobData _data) {

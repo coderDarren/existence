@@ -4,63 +4,94 @@ using System.Collections.Generic;
 
 public class Attack : StateMachineBehaviour
 {
-    public string wpnAnim;
-    public float range;    
     
-    private ParticleSystem[] particles;
+    public float range;   
+    
+    private Player m_Player;
+    private PlayerController m_PlayerController;
+    private AnimationEvent attackEnd;   
+    private AnimationClip[] clips;
+    private AnimationClip currentClip;
     private GameObject player;
     private GameObject child;
     private GameObject target;
-    private bool atkDmg;
+    private Animation animation;    
     private bool attacking;
+    private bool tickBool;
     private float pauseSpeed;
     private float safetySpeed;
     private float distance;
+    private float currentLength;
+    private string currentName;
+    private int currentClipNum;
+    private int i;
     
     
-    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        atkDmg = true;
-        pauseSpeed = animator.GetFloat("totalSpeed");        
-    }
-
-    override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        safetySpeed = 0;        
+    
+    
+    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex    ){
+        
+        pauseSpeed = animator.GetFloat("totalSpeed");
+        i=0;
+        tickBool =  false;
+        m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        m_PlayerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        safetySpeed = 0;
     }
     
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        attacking = animator.GetBool("attacking" + wpnAnim);
-        target = GameObject.FindGameObjectWithTag("CombatTestDummy");
-        player = GameObject.FindGameObjectWithTag("Player");
-        particles = player.GetComponentsInChildren<ParticleSystem>();
-        child = target.transform.GetChild(0).gameObject;
-        distance = Vector3.Distance(player.transform.position, target.transform.position);        
-        
-        
-        if(!attacking){//Cancel animation
-            animator.SetFloat("totalSpeed", pauseSpeed);
-            animator.SetTrigger("cycle");            
+        if(!m_PlayerController.m_Target) {
+            animator.SetBool("cycle", true);
         }
-        if (child.GetComponent<Renderer>().IsVisibleFrom(Camera.main) && range >= distance){//No attack logic
-            animator.SetFloat("totalSpeed", pauseSpeed);
-        }            
-        if (!child.GetComponent<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
-            animator.SetFloat("totalSpeed", safetySpeed);
-        } 
-        if (stateInfo.normalizedTime >= 1){//Send some Damage and Bullet Effect as long as animation completed            
-                        
-            animator.SetTrigger("cycle");
-
-            foreach(ParticleSystem particle in particles){
-                particle.Play();                    
-            } 
-
-            if(atkDmg){//Prevents multiple hits per animation
-                GameObject.FindGameObjectWithTag("CombatTestDummy").GetComponent<Mob>().Hit(50);
-                atkDmg = false;
+        attacking = animator.GetBool(m_Player.weapon.ToString());
+        target = m_PlayerController.m_Target;
+        player = GameObject.FindGameObjectWithTag("Player"); 
+        if(m_PlayerController.m_Target)
+            distance = Vector3.Distance(player.transform.position, target.transform.position);
+        
+        #region Determining end of animation
+        if(animator.GetCurrentAnimatorClipInfo(1).Length > 0){
+                currentName = animator.GetCurrentAnimatorClipInfo(1)[0].clip.name; 
+                currentLength = animator.GetCurrentAnimatorClipInfo(1)[0].clip.length;
+                
+                clips = animator.runtimeAnimatorController.animationClips;
+            foreach(AnimationClip clip in clips){
+                
+                if(clip.name == currentName && i <= clips.Length){                
+                    tickBool = true;
+                    currentClipNum = i;
+                    attackEnd = new AnimationEvent();                
+                    attackEnd.time = currentLength;
+                    attackEnd.functionName = "AttackEnd";
+                    currentClip = animator.runtimeAnimatorController.animationClips[currentClipNum];
+                    if(animator.runtimeAnimatorController.animationClips[currentClipNum].events.Length == 0){
+                        currentClip.AddEvent(attackEnd);
+                    }
+                }
+                else if(!tickBool)
+                    i++;            
             }
         }
+        #endregion
+        
+        #region Cancel/Pause Animaton
+        if(!attacking){//Cancel animation
+            animator.SetFloat("totalSpeed", pauseSpeed);
+            animator.SetBool("cycle", true);            
+        }
+        if(m_PlayerController.m_Target){            
+            if (!target.GetComponent<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
+                animator.SetFloat("totalSpeed", safetySpeed);
+            }
+            
+            if (target.GetComponent<Renderer>().IsVisibleFrom(Camera.main) && range >= distance){//No attack logic
+                animator.SetFloat("totalSpeed", pauseSpeed);
+            }
+        }
+        #endregion
+             
     }
-
+    
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
         animator.SetFloat("totalSpeed", pauseSpeed);
     }

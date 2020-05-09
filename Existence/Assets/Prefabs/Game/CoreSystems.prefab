@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 9201544657902839293}
   - component: {fileID: 9201544657902839282}
   - component: {fileID: 9201544657902839283}
-  - component: {fileID: 9201544657902839295}
   m_Layer: 0
   m_Name: CoreSystems
   m_TagString: Untagged
@@ -85,19 +84,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 1
   usePredictiveSmoothing: 1
---- !u!114 &9201544657902839295
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9201544657902839280}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ea7d9569f869b44bbccab2f953e1e17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  debug: 0
-  damageTestKey: 113
-  player: {fileID: 0}
-  weapon: oneHandMelee

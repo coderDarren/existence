@@ -20,8 +20,7 @@ public class NetworkPlayer : GameSystem
     [Header("Network Player Settings")]
     public float moveSmooth=0.1f;
     
-   //public CombatTester script;  //To reference what the current weapon is so you can animate the correct weapon animation
-
+   
     private Session m_Session;
     private NetworkController m_Network;
     private Vector3 m_InitialPos;
@@ -31,6 +30,7 @@ public class NetworkPlayer : GameSystem
     private NetworkPlayerData m_ClientData;
     private NetworkPlayerData m_LastFrameData;
     private PlayerController m_PlayerController;
+    private Player m_Player;
     private Animator m_Animator;
     private float m_InitialRunning;
     private float m_TargetRunning;
@@ -39,11 +39,15 @@ public class NetworkPlayer : GameSystem
     private float m_TargetStrafing;
     private float m_Strafing;
     private bool m_Grounded;
+    private bool m_Attacking;
+    private bool m_AttackCycle;
     private float m_UpdateTimer;
     private float m_IdleTimer;
     private long m_LastUpdateMillis;
     private float m_Smooth;
-    //private script m_weapon;
+    private float m_AttackSpeed;
+    private string m_Weapon;
+    
     
 
     // get Session with integrity
@@ -82,9 +86,9 @@ public class NetworkPlayer : GameSystem
         if (isClient) {
             m_ClientData = new NetworkPlayerData();
             m_PlayerController = GetComponent<PlayerController>();
-        } else {
-            m_Animator = GetComponent<Animator>();
+            m_Player = GetComponent<Player>();
         }
+        m_Animator = GetComponent<Animator>();
     }
 
     private void Update() {
@@ -128,7 +132,10 @@ public class NetworkPlayer : GameSystem
         m_InitialStrafing = m_Strafing;
         m_TargetStrafing = _data.input.strafing;
         m_Grounded = _data.input.grounded;
-        //Something goes here I think.. but not sure what
+        m_Attacking = _data.input.attacking;
+        m_AttackCycle = _data.input.cycle;
+        m_AttackSpeed = _data.input.attackSpeed;
+        m_Weapon = _data.weaponName;
         m_UpdateTimer = 0;
 
         m_LastFrameData = _data;
@@ -156,8 +163,11 @@ public class NetworkPlayer : GameSystem
         m_ClientData.input.running = m_PlayerController.runAnimation;
         m_ClientData.input.strafing = m_PlayerController.strafeAnimation;
         m_ClientData.input.grounded = m_PlayerController.grounded;
-        //m_ClientData.input.attack = m_Animator.GetBool("attacking");  //Secondary bool activate by all attack animations
-
+        m_ClientData.input.attacking = m_PlayerController.attacking;
+        m_ClientData.input.cycle = m_Animator.GetBool("cycle");
+        m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed"); 
+        m_ClientData.weaponName = m_Player.weapon.ToString();
+      
         m_UpdateTimer += Time.deltaTime;
         if (m_UpdateTimer >= sendRate && m_IdleTimer < idleDetectionSeconds) {
             network.SendNetworkPlayer(m_ClientData);
@@ -171,8 +181,8 @@ public class NetworkPlayer : GameSystem
                 m_ClientData.pos.z == transform.position.z &&
                 m_ClientData.rot.x == transform.eulerAngles.x && 
                 m_ClientData.rot.y == transform.eulerAngles.y && 
-                m_ClientData.rot.z == transform.eulerAngles.z;
-                //m_ClientData.input.attack == false;   // Self explanatory I hope
+                m_ClientData.rot.z == transform.eulerAngles.z &&
+                m_ClientData.input.attacking == false;   
     }
 
     // Player not controlled by this client
@@ -182,12 +192,14 @@ public class NetworkPlayer : GameSystem
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / m_Smooth);
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialEuler), Quaternion.Euler(m_TargetEuler), m_UpdateTimer / m_Smooth);
         m_Running = Mathf.Lerp(m_InitialRunning, m_TargetRunning, m_UpdateTimer / m_Smooth);
-        m_Strafing = Mathf.Lerp(m_InitialStrafing, m_TargetStrafing, m_UpdateTimer / m_Smooth);
-        //m_weapon = script.weapon; //Referencing current weapon selection as previously mentioned
+        m_Strafing = Mathf.Lerp(m_InitialStrafing, m_TargetStrafing, m_UpdateTimer / m_Smooth);       
         m_Animator.SetFloat("running", m_Running);
         m_Animator.SetFloat("strafing", m_Strafing);
-        m_Animator.SetBool("grounded", m_Grounded);
-        //m_Animator.SetBool("attacking" + m_weapon, ); // not sure how to tie this in..
+        m_Animator.SetFloat("totalSpeed", m_AttackSpeed);
+        m_Animator.SetBool("grounded", m_Grounded);        
+        m_Animator.SetBool(m_Weapon, m_Attacking);
+        m_Animator.SetBool("cycle", m_AttackCycle);
+       
     }
 
     private void PollPredictiveSmoothing() {
@@ -201,6 +213,17 @@ public class NetworkPlayer : GameSystem
 
         Log("Network Delta: "+_diff);
         m_Smooth = _diff / 1000.0f;
+    }
+
+    public void AttackEnd(){
+        if(!isClient) return;
+        if(!m_PlayerController.m_Target) return;
+        m_PlayerController.m_Target.transform.parent.GetComponent<Mob>().Hit(50);
+        
+        m_Animator.SetBool("cycle", true);
+        /*foreach(ParticleSystem particle in m_Particles){
+                particle.Play();                    
+            }*/
     }
 #endregion
 
