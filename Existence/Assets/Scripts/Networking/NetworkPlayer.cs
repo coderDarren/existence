@@ -216,8 +216,7 @@ public class NetworkPlayer : GameSystem
     }
 
     public void AttackEnd(){
-        if(!isClient) return;
-        Debug.Log( m_PlayerController.m_Target); 
+        if(!isClient) return; 
         m_PlayerController.m_Target.transform.parent.GetComponent<Mob>().Hit(50);
         
         m_Animator.SetBool("cycle", true);
