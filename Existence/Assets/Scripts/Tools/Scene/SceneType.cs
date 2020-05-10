@@ -5,7 +5,7 @@ namespace UnityCore {
 
         public enum SceneType {
             None,
-            Splash,
+            Login,
             Game,
         }
     }

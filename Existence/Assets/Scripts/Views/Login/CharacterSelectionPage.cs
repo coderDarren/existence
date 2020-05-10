@@ -26,11 +26,14 @@ public class CharacterSelectionPage : Page
 
 #region Public Functions
     public void SelectCharacter(PlayerData _player) {
+        if (!controller) return;
         Log(_player.player.name+" was selected");
+        controller.SelectCharacter(_player);
     }
 
     public void Play() {
-
+        if (!controller) return;
+        controller.Play();
     }
 
     public void SignOut() {

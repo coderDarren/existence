@@ -48,7 +48,7 @@ public class Session : GameSystem
         }
     }
 
-    private NetworkController network {
+    public NetworkController network {
         get {
             if (!m_Network) {
                 m_Network = NetworkController.instance;

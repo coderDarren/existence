@@ -10,7 +10,8 @@
             Skills,
             HUD,
             Login,
-            CharacterSelection
+            CharacterSelection,
+            LoginLoad
         }
     }
 }
