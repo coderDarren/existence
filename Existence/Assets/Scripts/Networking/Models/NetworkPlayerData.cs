@@ -10,6 +10,7 @@
 /// </summary>
 public class NetworkPlayerData : NetworkModel
 {
+    
     public string name;
     public string weaponName;
     public NetworkPlayerInput input;
@@ -17,7 +18,6 @@ public class NetworkPlayerData : NetworkModel
     public NetworkVector3 rot;
     public int health;
     public int energy;
-    
 
     public NetworkPlayerData() {
         input = new NetworkPlayerInput();

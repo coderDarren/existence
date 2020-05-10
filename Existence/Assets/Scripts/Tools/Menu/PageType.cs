@@ -9,7 +9,8 @@
             MainMenu,
             Skills,
             HUD,
-            Login
+            Login,
+            CharacterSelection
         }
     }
 }

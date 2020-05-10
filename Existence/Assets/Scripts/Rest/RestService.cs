@@ -30,12 +30,6 @@ public class RestService
 		} catch (HttpRequestException _err) {
 			return new APIResponse(502, "Internal Server Error.");
 		}
-		/*try {
-			UnityWebRequest request = UnityWebRequest.Post(_url);
-			request.SetRequestHeader("Content-Type", "application/json");
-		} catch {
-
-		}*/
 	}
 
 	public async UniTask<APIResponse> Get(string _url) {

@@ -17,7 +17,7 @@ const getPlayer = async function(_query) {
 
     if (_params == -1) {
         return {
-            error: "Invalid query params. Expecting 'player'."
+            error: "Invalid query params."
         }
     }
 
