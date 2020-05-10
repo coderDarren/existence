@@ -18,13 +18,13 @@ const validateParams = function(_params)
     };
 }
 
-const authenticate = async function(_query) {
-    console.log(`query: ${JSON.stringify(_query)}`);
-    const _params = validateParams(_query);
+const authenticate = async function(_body) {
+    console.log(`query: ${JSON.stringify(_body)}`);
+    const _params = validateParams(_body);
 
     if (_params == -1) {
         return {
-            error: "Invalid query params."
+            error: "Invalid request body."
         }
     }
 

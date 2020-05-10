@@ -63,10 +63,6 @@ public class Chatbox : GameSystem
             network.OnChat += OnChat;
             Log("subscribing to events");
         }
-
-        if (session) {
-            session.player.OnXpAdded += OnPlayerXpAdded;
-        }
     }
 
     private void Update() {
@@ -99,6 +95,12 @@ public class Chatbox : GameSystem
 #endregion
 
 #region Public Functions
+    public void ConfigurePlayerEvents() {
+        if (session) {
+            session.player.OnXpAdded += OnPlayerXpAdded;
+        }
+    }
+
     public void OnInputChanged() {
         // tell session to stop the player
         session.FreezePlayerInput();
