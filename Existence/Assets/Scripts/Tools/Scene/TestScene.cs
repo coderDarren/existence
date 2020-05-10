@@ -15,7 +15,7 @@ namespace UnityCore {
 #if UNITY_EDITOR
             private void Update() {
                 if (Input.GetKeyUp(KeyCode.M)) {
-                    sceneController.Load(SceneType.Splash, (_scene) => {Debug.Log("Scene ["+_scene+"] loaded from test script!");}, false, PageType.Loading);
+                    sceneController.Load(SceneType.Game, (_scene) => {Debug.Log("Scene ["+_scene+"] loaded from test script!");}, false, PageType.Loading);
                 }
                 if (Input.GetKeyUp(KeyCode.G)) {
                     sceneController.Load(SceneType.Game);

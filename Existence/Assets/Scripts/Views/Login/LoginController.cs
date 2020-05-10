@@ -15,6 +15,7 @@ public class LoginController : GameSystem
     private PageController m_Menu;
     private Session m_Session;
     private IEnumerator m_MessageJob;
+    private PlayerData m_SelectedPlayer;
 
     private PageController menu {
         get {
@@ -37,6 +38,12 @@ public class LoginController : GameSystem
                 Log("Trying to access session, but no instance was found.");
             }
             return m_Session;
+        }
+    }
+
+    public PlayerData selectedPlayer {
+        get {
+            return m_SelectedPlayer;
         }
     }
 
@@ -98,6 +105,16 @@ public class LoginController : GameSystem
 
     public void GoToCharacterCreation() {
 
+    }
+
+    public void SelectCharacter(PlayerData _player) {
+        m_SelectedPlayer = _player;
+    }
+
+    public void Play() {
+        if (!menu) return;
+        if (m_SelectedPlayer == null) return;
+        menu.TurnPageOn(PageType.LoginLoad);
     }
 
     public void ShowMessage(Text _label, string _msg) {
