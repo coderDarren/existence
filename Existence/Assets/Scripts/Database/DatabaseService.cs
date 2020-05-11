@@ -7,6 +7,8 @@ public class DatabaseService
     private static readonly string PATH_GETPLAYER = "getPlayer";
     private static readonly string PATH_UPDATESTATS = "updateStats";
     private static readonly string PATH_UPDATEPLAYER = "updatePlayer";
+    private static readonly string PATH_AUTHENTICATE = "authenticate";
+    private static readonly string PATH_GETACCOUNTPLAYERS = "getAccountPlayers";
 
     private static DatabaseService m_Service;
     private RestService m_Rest;
@@ -74,6 +76,36 @@ public class DatabaseService
             default:
                 Log("[UpdatePlayer]: "+_resp.message);
                 return false;
+                break;
+        }
+    }
+
+    public async UniTask<AccountData> Authenticate(AuthenticationData _auth) {
+        string _url = SERVICE_ENDPOINT+PATH_AUTHENTICATE;
+        APIResponse _resp = await m_Rest.Post(_url, _auth.ToJsonString());
+        switch (_resp.statusCode) {
+            case 200:
+                Log("[Authenticate]: raw "+_resp.message);
+                return NetworkModel.FromJsonStr<AccountData>(_resp.message);
+                break;
+            default:
+                Log("[Authenticate]: "+_resp.message);
+                return null;
+                break;
+        }
+    }
+
+    public async UniTask<PlayerData[]> GetAccountPlayers(AccountData _account) {
+        string _url = SERVICE_ENDPOINT+PATH_GETACCOUNTPLAYERS+"?account="+_account.id+"&apiKey="+_account.apiKey;
+        APIResponse _resp = await m_Rest.Get(_url);
+        switch (_resp.statusCode) {
+            case 200:
+                Log("[GetAccountPlayers]: raw "+_resp.message);
+                return NetworkModel.FromJsonStr<PlayerData[]>(_resp.message);
+                break;
+            default:
+                Log("[GetAccountPlayers]: "+_resp.message);
+                return null;
                 break;
         }
     }

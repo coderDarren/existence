@@ -1,5 +1,6 @@
 'use strict'
 const {Sequelize, DataTypes} = require('sequelize');
+const {decrypt} = require('../util/crypto.js');
 
 class SQLController {
     constructor() {
@@ -15,6 +16,8 @@ class SQLController {
 
         this.getPlayer = this.getPlayer.bind(this);
         this.__define_models__ = this.__define_models__.bind(this);
+        this.__validate_account__ = this.__validate_account__.bind(this);
+
         this.__define_models__();
     }
 
@@ -22,31 +25,109 @@ class SQLController {
         console.log(`[SQL]: ${_msg}`);
     }
 
+    async __validate_account__(_params) {
+        const _acct = await this._account.findByPk(_params.account);
+        if (!_acct) {
+            console.log(`Unable to verify account ${_params.account}`);
+            return {
+                error: `No account found for user '${_params.account}'.`
+            }
+        }
+
+        if (_acct.dataValues.apiKey != _params.apiKey) {
+            console.log(`Invalid api key was attempted on account ${_params.account}`);
+            return {
+                error: `Invalid api key was attempted on account ${_params.account}`
+            }
+        }
+
+        return {};
+    }
+
     async connect() {
-        this.__log__("Attempting to authenticate.");
+        this.__log__("Attempting to connect to server.");
         try {
             await this._sql.authenticate();
-            this.__log__("Successfully authenticated.");
+            this.__log__("Successfully connected.");
             return true;
         } catch(_err) {
-            this.__log__("Failed to authenticate: "+_err);
+            this.__log__("Failed to connect: "+_err);
             return false;
         }
     }
 
-    async createArmor() {
-        const _reqStat = await this._stat.create({
-            strength: 12,
-            dexterity: 12,
-        })
-        const _effStat = await this._stat.create({})
-        const _item = await this._item.create({
-            level: 5,
-            name: "test item2",
-            requirementsID: _reqStat.id,
-            effectsID: _effStat.id,
-            rarity: 1
-        });
+    async authenticate(_params) {
+        try {
+            const _acct = await this._account.findOne({where: {username: _params.username}});
+            if (!_acct) {
+                return {
+                    error: `No account found for user '${_params.username}'.`
+                }
+            }
+            
+            const _data = decrypt(_acct.dataValues.apiKey);
+            const _verify = _data.split('&');
+            if (!_data.includes('&') || _verify.length < 2) {
+                return {
+                    error: `Something is wrong with the user's account authentication.`
+                }
+            }
+
+            if (_params.password != _verify[1]) {
+                return {
+                    error: `Incorrect password.`
+                }
+            }
+
+            return {
+                data: _acct.dataValues
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
+    async getAccountPlayers(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            const _players = await this._player.findAll({where: {accountID: _params.account}});
+            console.log(_players);
+            var _data = [];
+            for (i in _players) {
+                const _player = _players[i];
+                const _stats = await this._stat.findByPk(_player.dataValues.statsID);
+                const _inventory = (await this._sql.query(`select * from items 
+                    inner join inventorySlots on inventorySlots.playerID = ${_player.dataValues.ID} and inventorySlots.itemID = items.ID`))[0];
+                for (var i = 0; i < _inventory.length; i++) {
+                    var _item = _inventory[i];
+                    _item.requirements = await this._stat.findByPk(_item.requirementsID);
+                    _item.effects = await this._stat.findByPk(_item.effectsID);
+                    delete _item["requirementsID"];
+                    delete _item["effectsID"];
+                }
+                _data.push({
+                    player: _player.dataValues,
+                    stats: _stats,
+                    inventory: _inventory
+                });
+            }
+
+            return {
+                data: _data
+            }
+            
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
     }
 
     async getPlayer(_playerName) {
@@ -70,7 +151,7 @@ class SQLController {
                 delete _item["requirementsID"];
                 delete _item["effectsID"];
             }
-            console.log(JSON.stringify(_inventory));
+            // console.log(JSON.stringify(_inventory));
             
             return {
                 data: {
@@ -144,9 +225,25 @@ class SQLController {
         }
     }
 
+    async createArmor() {
+        const _reqStat = await this._stat.create({
+            strength: 12,
+            dexterity: 12,
+        })
+        const _effStat = await this._stat.create({})
+        const _item = await this._item.create({
+            level: 5,
+            name: "test item2",
+            requirementsID: _reqStat.id,
+            effectsID: _effStat.id,
+            rarity: 1
+        });
+    }
+
     __define_models__() {
         // ACCOUNTS
         this._account = this._sql.define('account', {
+            ID: {type:DataTypes.CHAR(255),primaryKey:true},
             first_name: DataTypes.CHAR(255),
             last_name: DataTypes.CHAR(255),
             apiKey: DataTypes.CHAR(255),

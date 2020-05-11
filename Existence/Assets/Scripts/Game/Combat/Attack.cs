@@ -8,6 +8,7 @@ public class Attack : StateMachineBehaviour
     public float range;   
     
     private Player m_Player;
+    private PlayerController m_PlayerController;
     private AnimationEvent attackEnd;   
     private AnimationClip[] clips;
     private AnimationClip currentClip;
@@ -34,15 +35,19 @@ public class Attack : StateMachineBehaviour
         i=0;
         tickBool =  false;
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        m_PlayerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         safetySpeed = 0;
     }
     
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
+        if(!m_PlayerController.m_Target) {
+            animator.SetBool("cycle", true);
+        }
         attacking = animator.GetBool(m_Player.weapon.ToString());
-        target = GameObject.FindGameObjectWithTag("CombatTestDummy");
-        player = GameObject.FindGameObjectWithTag("Player");       
-        child = target.transform.GetChild(0).gameObject;
-        distance = Vector3.Distance(player.transform.position, target.transform.position);
+        target = m_PlayerController.m_Target;
+        player = GameObject.FindGameObjectWithTag("Player"); 
+        if(m_PlayerController.m_Target)
+            distance = Vector3.Distance(player.transform.position, target.transform.position);
         
         #region Determining end of animation
         if(animator.GetCurrentAnimatorClipInfo(1).Length > 0){
@@ -74,14 +79,15 @@ public class Attack : StateMachineBehaviour
             animator.SetFloat("totalSpeed", pauseSpeed);
             animator.SetBool("cycle", true);            
         }
-                    
-        if (!child.GetComponent<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
-            animator.SetFloat("totalSpeed", safetySpeed);
+        if(m_PlayerController.m_Target){            
+            if (!target.GetComponent<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
+                animator.SetFloat("totalSpeed", safetySpeed);
+            }
+            
+            if (target.GetComponent<Renderer>().IsVisibleFrom(Camera.main) && range >= distance){//No attack logic
+                animator.SetFloat("totalSpeed", pauseSpeed);
+            }
         }
-        
-        if (child.GetComponent<Renderer>().IsVisibleFrom(Camera.main) && range >= distance){//No attack logic
-            animator.SetFloat("totalSpeed", pauseSpeed);
-        }         
         #endregion
              
     }

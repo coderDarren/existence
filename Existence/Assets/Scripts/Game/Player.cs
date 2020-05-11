@@ -57,7 +57,6 @@ public class Player : GameSystem
 
 #region Unity Functions
     private void Awake() {
-        // start with default name
         m_Data = new PlayerData();
         m_Data.player = new PlayerInfo();
         m_Data.stats = new StatData();
@@ -66,6 +65,11 @@ public class Player : GameSystem
         m_BuffStats = new StatData();
         m_TrickleStats = new StatData();        
         nameLabel.text = m_Data.player.name;
+    }
+
+    private void Start() {
+        if (!session) return;
+        session.InitPlayer(this);
     }
 #endregion
 

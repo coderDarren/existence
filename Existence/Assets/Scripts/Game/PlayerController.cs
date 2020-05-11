@@ -38,7 +38,6 @@ public class PlayerController : GameSystem
     private Targeting m_Targeting;    
     private ParticleSystem[] m_Particles;
     private GameObject[] m_Targets;
-    private GameObject m_CurrentTarget;
     private Vector3 m_MoveDirection;
     private Vector3 m_ForwardVec;
     private Vector3 m_RightVec;
@@ -68,7 +67,8 @@ public class PlayerController : GameSystem
     public bool grounded { get { return m_Grounded; } }
     public bool attacking;
     public KeyCode m_Attack;
-    public GameObject m_Target;    
+    public GameObject m_Target;
+    public GameObject m_CurrentTarget;    
 
 #region Unity Functions
     private void Start()
@@ -274,15 +274,17 @@ public class PlayerController : GameSystem
             }
             else {
                 attacking = false;
+                m_Target = null;
                 m_Animator.SetBool(m_Player.weapon.ToString(), false);                 
             }
         }
         if(m_CancelTarget){
-            m_CurrentTarget = null;
+            m_Target = null;
             attacking = false;
             m_Animator.SetBool(m_Player.weapon.ToString(), false); 
         }
         Debug.Log(m_CurrentTarget);
+        Debug.Log(m_Target);
     } 
     
     
