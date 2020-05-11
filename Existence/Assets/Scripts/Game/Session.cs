@@ -11,24 +11,44 @@ public class Session : GameSystem
 
     public GameObject networkDummyObject;
     public GameObject networkPlayerObject;
-    public Player player;
 
+    private AccountData m_Account;
+    private PlayerData[] m_AccountPlayers;
+    private Player m_Player;
     private PlayerController m_PlayerController;
     private NetworkPlayer m_NetworkPlayer;
     private NetworkController m_Network;
     private Hashtable m_Players;
     private Hashtable m_Mobs;
 
-    public PlayerData playerData {
+    public AccountData account {
         get {
-            return player.data;
-        }
-        set {
-            player.data = value;
+            return m_Account;
         }
     }
 
-    private NetworkController network {
+    public PlayerData[] accountPlayers {
+        get {
+            return m_AccountPlayers;
+        }
+    }
+
+    public Player player {
+        get {
+            return m_Player;
+        }
+    }
+
+    public PlayerData playerData {
+        get {
+            return m_Player.data;
+        }
+        set {
+            m_Player.data = value;
+        }
+    }
+
+    public NetworkController network {
         get {
             if (!m_Network) {
                 m_Network = NetworkController.instance;
@@ -50,8 +70,6 @@ public class Session : GameSystem
     private async void Start() {
         m_Mobs = new Hashtable();
         m_Players = new Hashtable();
-        m_PlayerController = player.GetComponent<PlayerController>();
-        m_NetworkPlayer = player.GetComponent<NetworkPlayer>();
 
         if (network) {
             network.OnConnect += OnServerConnect;
@@ -75,6 +93,25 @@ public class Session : GameSystem
 #endregion
 
 #region Public Functions
+    public void InitAccount(AccountData _account) {
+        m_Account = _account;
+    }
+
+    public void InitAccountPlayers(PlayerData[] _accountPlayers) {
+        m_AccountPlayers = _accountPlayers;
+    }
+
+    public void SignOut() {
+        m_Account = null;
+        m_AccountPlayers = null;
+    }
+
+    public void InitPlayer(Player _player) {
+        m_Player = _player;
+        m_PlayerController = m_Player.GetComponent<PlayerController>();
+        m_NetworkPlayer = m_Player.GetComponent<NetworkPlayer>();
+        Chatbox.instance.ConfigurePlayerEvents();
+    }
     /// <summary>
     /// Should be called by ChatBox when user logs in
     /// </summary>
@@ -95,7 +132,7 @@ public class Session : GameSystem
 
 #region Private Functions
     private void OnServerConnect() {
-        player.ConnectWithData(playerData);
+        m_Player.ConnectWithData(playerData);
         network.SendHandshake(m_NetworkPlayer.clientData);
         TryRunAction(OnPlayerConnected);
     }

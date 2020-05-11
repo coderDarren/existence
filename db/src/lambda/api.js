@@ -8,8 +8,10 @@ const getPlayer = require('./getPlayer.js');
 const createPlayer = require('./createPlayer.js');
 const updateStats = require('./updateStats.js');
 const updatePlayer = require('./updatePlayer.js');
+const authenticate = require('./authenticate.js');
+const getAccountPlayers = require('./getAccountPlayers.js');
 
-const versionCode = 0.1;
+const versionCode = '0.1';
 const api = async function(_event, _context) {
     console.log(JSON.stringify(_event));
     const _method = _event.httpMethod;
@@ -35,16 +37,22 @@ const handleRoute = async function(_req) {
         case "/api/":
             _req.context.succeed(response(200, `Existence API v${versionCode}`));
             break;
-        case "/api/getPlayer":
+        case "/api/authenticate": // POST
+            _resp = await authenticate(_req.body);
+            break;
+        case "/api/getAccountPlayers": // GET
+            _resp = await getAccountPlayers(_req.query);
+            break;
+        case "/api/getPlayer": // GET
             _resp = await getPlayer(_req.query);
             break;
-        case "/api/createPlayer":
+        case "/api/createPlayer": // POST
             _resp = await createPlayer(_req.body);
             break;
-        case "/api/updatePlayer":
+        case "/api/updatePlayer": // POST
             _resp = await updatePlayer(_req.body);
             break;
-        case "/api/updateStats":
+        case "/api/updateStats": // POST
             _resp = await updateStats(_req.body);
             break;
     }

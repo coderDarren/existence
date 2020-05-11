@@ -8,7 +8,10 @@
             Loading,
             MainMenu,
             Skills,
-            HUD
+            HUD,
+            Login,
+            CharacterSelection,
+            LoginLoad
         }
     }
 }
