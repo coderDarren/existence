@@ -128,12 +128,12 @@ public class PlayerController : GameSystem
         m_RightMouseDown = Input.GetMouseButton(1);
         m_ShiftIsDown = Input.GetKey(KeyCode.LeftShift);
         m_JumpInput = Input.GetButton("Jump");
-        m_TurnInput = m_RightMouseDown ? Input.GetAxis("Mouse X")*3 : m_HorizontalAxis;
-        m_StrafeInput = m_RightMouseDown && Mathf.Abs(m_HorizontalAxis) > 0 ? m_HorizontalAxis : 0;
+        m_TurnInput = m_RightMouseDown ? Input.GetAxis("Mouse X")*3 : m_HorizontalAxisRaw;
+        m_StrafeInput = m_RightMouseDown && Mathf.Abs(m_HorizontalAxisRaw) > 0 ? m_HorizontalAxis : 0;
         m_AttackInput = Input.GetKeyDown(m_Attack);
         m_CycleTarget = Input.GetKeyDown(KeyCode.Tab);
         m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
-        m_StrafeAnimation = Mathf.Abs(m_VerticalAxisRaw) == 0 ? Mathf.Lerp(m_StrafeAnimation, m_StrafeInput, 5*Time.deltaTime) : ApproachZero(m_StrafeAnimation);
+        m_StrafeAnimation = Mathf.Abs(m_VerticalAxisRaw) == 0 ? m_StrafeInput == 0 ? ApproachTarget(m_StrafeAnimation, 0) : m_StrafeInput : ApproachTarget(m_StrafeAnimation, 0);
         DetectWalking();
     }
 
@@ -148,7 +148,7 @@ public class PlayerController : GameSystem
             float _forwardSpeed = m_ForwardInput < 0 ? backwardSpeed : m_ShiftIsDown ? walkSpeed : (runSpeed+0.01f*_playerStats.runSpeed);
             _forwardSpeed = Mathf.Clamp(_forwardSpeed, 0.25f, Mathf.Infinity);
             float _strafeSpeed = m_ShiftIsDown || m_VerticalAxisRaw < 0 ? walkStrafeSpeed : runStrafeSpeed;
-            m_MoveDirection = m_ForwardVec * m_ForwardInput * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed;
+            m_MoveDirection = m_ForwardVec * Input.GetAxisRaw("Vertical") * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed;
 
             if (m_JumpInput)
                 m_MoveDirection.y = jumpSpeed + 0.01f*_playerStats.strength;
@@ -234,9 +234,9 @@ public class PlayerController : GameSystem
         }
     }
 
-    private float ApproachZero(float _val) {
-        _val = Mathf.Lerp(_val, 0, 5 * Time.deltaTime);
-        if (Mathf.Abs(_val) <= 0.025f) {
+    private float ApproachTarget(float _val, float _target) {
+        _val = Mathf.Lerp(_val, _target, 5 * Time.deltaTime);
+        if (Mathf.Abs(_val - _target) <= 0.025f) {
             _val = 0;
         }
         return _val;

@@ -82,15 +82,15 @@ public class NetworkController : GameSystem
     private void OnNetworkPlayerJoined(SocketIOEvent _evt) {
         Log("Player joined the server.");
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkPlayerData _instance = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
-        TryRunAction(OnPlayerJoined, _instance);
+        NetworkPlayerData _player = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
+        TryRunAction(OnPlayerJoined, _player);
     }
 
     private void OnNetworkPlayerLeft(SocketIOEvent _evt) {
         Log("Player left the server.");
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkPlayerData _instance = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
-        TryRunAction(OnPlayerLeft, _instance);
+        NetworkPlayerData _player = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
+        TryRunAction(OnPlayerLeft, _player);
     }
 
     private void OnInstanceUpdate(SocketIOEvent _evt) {
