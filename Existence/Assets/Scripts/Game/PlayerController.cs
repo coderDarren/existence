@@ -1,4 +1,4 @@
-﻿
+﻿ 
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -292,6 +292,7 @@ public class PlayerController : GameSystem
         }
         if(m_CancelTarget){
             m_Target = null;
+            m_CurrentTarget = null;
             attacking = false;
             m_Animator.SetBool(m_Player.weapon.ToString(), false); 
         }

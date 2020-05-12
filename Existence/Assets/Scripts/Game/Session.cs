@@ -125,7 +125,7 @@ public class Session : GameSystem
         m_AccountPlayers = null;
     }
 
-    private void InitPlayer(Player _player) {
+    public void InitPlayer(Player _player) {
         m_Player = _player;
         m_PlayerController = m_Player.GetComponent<PlayerController>();
         m_NetworkPlayer = m_Player.GetComponent<NetworkPlayer>();
