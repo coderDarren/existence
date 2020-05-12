@@ -48,7 +48,7 @@ public class CharacterSelectionPage : Page
         DeleteCharacterScrollView();
         foreach (PlayerData _player in controller.session.accountPlayers) {
             GameObject _go = Instantiate(CharacterCard) as GameObject;
-            _go.transform.parent = characterCardContainer;
+            _go.GetComponent<RectTransform>().SetParent(characterCardContainer);
             _go.transform.localScale = Vector3.one;
             CharacterCard _card = _go.GetComponent<CharacterCard>();
             _card.Init(this, _player);
@@ -73,7 +73,7 @@ public class CharacterSelectionPage : Page
     }
 
     private void StopShowingMessage() {
-        controller.StopShowingMessage();
+        //controller.StopShowingMessage();
     }
 #endregion
 

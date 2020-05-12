@@ -54,6 +54,10 @@ public class LoginController : GameSystem
         }
     }
 
+    private void Start() {
+        localMenu.TurnPageOn(session.entryPage);
+    }
+
     private void OnDisable() {
         StopShowingMessage();
     }

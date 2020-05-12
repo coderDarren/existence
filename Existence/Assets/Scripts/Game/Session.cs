@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityCore.Scene;
+using UnityCore.Menu;
 
 public class Session : GameSystem
 {
@@ -11,6 +13,8 @@ public class Session : GameSystem
 
     public GameObject networkDummyObject;
     public GameObject networkPlayerObject;
+    [HideInInspector]
+    public PageType entryPage=PageType.Login;
 
     private AccountData m_Account;
     private PlayerData[] m_AccountPlayers;
@@ -18,6 +22,7 @@ public class Session : GameSystem
     private PlayerController m_PlayerController;
     private NetworkPlayer m_NetworkPlayer;
     private NetworkController m_Network;
+    private SceneController m_SceneController;
     private Hashtable m_Players;
     private Hashtable m_Mobs;
 
@@ -60,6 +65,18 @@ public class Session : GameSystem
         }
     }
 
+    private SceneController sceneController {
+        get {
+            if (!m_SceneController) {
+                m_SceneController = SceneController.instance;
+            }
+            if (!m_SceneController) {
+                Log("Trying to access SceneController, but no instance was found.");
+            }
+            return m_SceneController;
+        }
+    }
+
 #region Unity Functions
     private void Awake() {
         if (!instance) {
@@ -72,6 +89,7 @@ public class Session : GameSystem
         m_Players = new Hashtable();
 
         if (network) {
+            Log("subscribing to network events");
             network.OnConnect += OnServerConnect;
             network.OnDisconnect += OnServerDisconnect;
             network.OnHandshake += OnServerHandshake;
@@ -83,6 +101,7 @@ public class Session : GameSystem
 
     private void OnDisable() {
         if (!network) return;
+        Log("unsubscribing to network events");
         network.OnConnect -= OnServerConnect;
         network.OnDisconnect -= OnServerDisconnect;
         network.OnHandshake -= OnServerHandshake;
@@ -106,7 +125,7 @@ public class Session : GameSystem
         m_AccountPlayers = null;
     }
 
-    public void InitPlayer(Player _player) {
+    private void InitPlayer(Player _player) {
         m_Player = _player;
         m_PlayerController = m_Player.GetComponent<PlayerController>();
         m_NetworkPlayer = m_Player.GetComponent<NetworkPlayer>();
@@ -117,6 +136,10 @@ public class Session : GameSystem
     /// </summary>
     public void ConnectPlayer(PlayerData _player) {
         if (!network) return;
+        // !! TODO
+        // we probably want to actually spawn the character freshly here
+        InitPlayer(GameObject.FindObjectOfType<Player>());
+        m_NetworkPlayer.Init(_player);
         playerData = _player;
         network.Connect();
     }
@@ -127,6 +150,18 @@ public class Session : GameSystem
 
     public void FreePlayerInput() {
         m_PlayerController.FreeInput();
+    }
+
+    public void DisconnectPlayer() {
+        if (network) {
+            network.Close();
+        }
+        m_Mobs = new Hashtable();
+        m_Players = new Hashtable();
+        entryPage = PageType.CharacterSelection;
+        if (sceneController) {
+            sceneController.Load(SceneType.Login);
+        }
     }
 #endregion
 
@@ -171,6 +206,7 @@ public class Session : GameSystem
 
     private void SpawnPlayer(NetworkPlayerData _data) {
         string _name = _data.name;
+        if (_name == null) return;
         if (_name == playerData.player.name) return; //this is you..
         if (m_Players.ContainsKey(_name)) return; // player already exists
         GameObject _obj = Instantiate(networkPlayerObject);

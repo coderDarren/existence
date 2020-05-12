@@ -97,8 +97,8 @@ namespace UnityCore {
                 if (m_SceneLoadDelegate != null) {
                     try {
                         m_SceneLoadDelegate(_sceneType); // it is possible the delegate is no longer accessible
-                    } catch (System.Exception) {
-                        LogWarning("Unable to respond with sceneLoadDelegate after scene ["+_sceneType+"] loaded.");
+                    } catch (System.Exception _e) {
+                        LogWarning("Unable to respond with sceneLoadDelegate after scene ["+_sceneType+"] loaded: "+_e);
                     }
                 }
 

@@ -13,7 +13,8 @@ namespace UnityCore {
             public static readonly string FLAG_NONE = "None";
 
             public PageType type;
-            public bool useAnimation;
+            public bool animateIn;
+            public bool animateOut;
             public string targetState {get;private set;}
 
             /*
@@ -53,7 +54,7 @@ namespace UnityCore {
             /// Call this to turn the page on or off by setting the control '_on'
             /// </summary>
             public void Animate(bool _on) {
-                if (useAnimation) {
+                if ((animateIn && _on) || (animateOut && !_on)) {
                     m_Animator.SetBool("on", _on);
 
                     StopCoroutine("AwaitAnimation");
@@ -91,7 +92,7 @@ namespace UnityCore {
             }
 
             private void CheckAnimatorIntegrity() {
-                if (useAnimation) {
+                if (animateIn || animateOut) {
                     // try to get animator
                     m_Animator = GetComponent<Animator>();
                     if (!m_Animator) {

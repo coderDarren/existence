@@ -5,6 +5,7 @@ public enum ChatCommand
 {
     UNKNOWN,
     LOGIN,
+    LOGOUT,
     XP
 }
 
@@ -17,6 +18,7 @@ public class ChatCommandParser
 
         switch (_args[0].ToLower()) {
             case "login": return ChatCommand.LOGIN;
+            case "logout": return ChatCommand.LOGOUT;
             case "xp": return ChatCommand.XP;
             default: return ChatCommand.UNKNOWN;
         }
