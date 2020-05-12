@@ -61,6 +61,7 @@ public class PlayerController : GameSystem
     private bool m_AttackInput;
     private bool m_CycleTarget;
     private int m_TargetNum;
+    private float m_Gravity;
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
@@ -128,36 +129,44 @@ public class PlayerController : GameSystem
         m_RightMouseDown = Input.GetMouseButton(1);
         m_ShiftIsDown = Input.GetKey(KeyCode.LeftShift);
         m_JumpInput = Input.GetButton("Jump");
-        m_TurnInput = m_RightMouseDown ? Input.GetAxis("Mouse X")*3 : m_HorizontalAxis;
-        m_StrafeInput = m_RightMouseDown && Mathf.Abs(m_HorizontalAxis) > 0 ? m_HorizontalAxis : 0;
+        m_TurnInput = m_RightMouseDown ? Input.GetAxis("Mouse X")*3 : m_HorizontalAxisRaw;
+        m_StrafeInput = m_RightMouseDown && Mathf.Abs(m_HorizontalAxisRaw) > 0 ? m_HorizontalAxis : 0;
         m_AttackInput = Input.GetKeyDown(m_Attack);
         m_CycleTarget = Input.GetKeyDown(KeyCode.Tab);
         m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
-        m_StrafeAnimation = Mathf.Abs(m_VerticalAxisRaw) == 0 ? Mathf.Lerp(m_StrafeAnimation, m_StrafeInput, 5*Time.deltaTime) : ApproachZero(m_StrafeAnimation);
+        m_StrafeAnimation = Mathf.Abs(m_VerticalAxisRaw) == 0 ? m_StrafeInput == 0 ? ApproachTarget(m_StrafeAnimation, 0) : m_StrafeInput : ApproachTarget(m_StrafeAnimation, 0);
         DetectWalking();
     }
 
     private void Move() {
+        var _playerStats = m_Player.GetAggregatedStats();
+
+        // calculate forward speed
+        m_AnimationSpeed = m_ForwardInput <= 0 || m_ShiftIsDown ? 1 : (0.75f + 0.00045f*_playerStats.runSpeed);
+        m_AnimationSpeed = Mathf.Clamp(m_AnimationSpeed, 0.25f, 3);
+        float _forwardSpeed = m_ForwardInput < 0 ? backwardSpeed : m_ShiftIsDown ? walkSpeed : (runSpeed+0.01f*_playerStats.runSpeed);
+        _forwardSpeed = Mathf.Clamp(_forwardSpeed, 0.25f, Mathf.Infinity);
+        float _strafeSpeed = m_ShiftIsDown || m_VerticalAxisRaw < 0 ? walkStrafeSpeed : runStrafeSpeed;
+        
         CheckGrounded();
         if (m_Controller.isGrounded)
         {
-            // calculate forward speed
-            var _playerStats = m_Player.GetAggregatedStats();
-            m_AnimationSpeed = m_ForwardInput <= 0 || m_ShiftIsDown ? 1 : (0.75f + 0.00045f*_playerStats.runSpeed);
-            m_AnimationSpeed = Mathf.Clamp(m_AnimationSpeed, 0.25f, 3);
-            float _forwardSpeed = m_ForwardInput < 0 ? backwardSpeed : m_ShiftIsDown ? walkSpeed : (runSpeed+0.01f*_playerStats.runSpeed);
-            _forwardSpeed = Mathf.Clamp(_forwardSpeed, 0.25f, Mathf.Infinity);
-            float _strafeSpeed = m_ShiftIsDown || m_VerticalAxisRaw < 0 ? walkStrafeSpeed : runStrafeSpeed;
-            m_MoveDirection = m_ForwardVec * m_ForwardInput * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed;
+            m_Gravity = gravity;
+            m_MoveDirection = m_ForwardVec * Input.GetAxisRaw("Vertical") * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed - Vector3.up * 1000;
 
-            if (m_JumpInput)
+            if (m_JumpInput) 
+            {
                 m_MoveDirection.y = jumpSpeed + 0.01f*_playerStats.strength;
+            }
         }
+        
+        //m_Gravity += 0.05f;
+        m_MoveDirection.y -= gravity;
+        m_Controller.Move(m_MoveDirection * Time.deltaTime);
+
         if(m_CycleTarget){
             m_Targeting.Search();
-        } 
-        m_MoveDirection.y -= gravity * Time.deltaTime;
-        m_Controller.Move(m_MoveDirection * Time.deltaTime);
+        }
     }
 
     private void DetectWalking() {
@@ -170,7 +179,6 @@ public class PlayerController : GameSystem
         } else {
             m_ForwardInput = m_VerticalAxis;
         }
-        
     }
 
     private void Turn() {
@@ -226,17 +234,21 @@ public class PlayerController : GameSystem
                 }
             }
         }
+
+        if (!m_Grounded) {
+            m_ForwardVec = transform.forward;
+            m_RightVec = transform.right;
+        }
         
         if (debug) {
             Debug.DrawLine(transform.position, transform.position + m_ForwardVec * 1.0f, Color.blue);
             Debug.DrawLine(transform.position, transform.position + m_RightVec * 1.0f, Color.red);
-            
         }
     }
 
-    private float ApproachZero(float _val) {
-        _val = Mathf.Lerp(_val, 0, 5 * Time.deltaTime);
-        if (Mathf.Abs(_val) <= 0.025f) {
+    private float ApproachTarget(float _val, float _target) {
+        _val = Mathf.Lerp(_val, _target, 5 * Time.deltaTime);
+        if (Mathf.Abs(_val - _target) <= 0.025f) {
             _val = 0;
         }
         return _val;

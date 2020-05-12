@@ -84,7 +84,6 @@ public class NetworkPlayer : GameSystem
 #region Unity Functions
     private void Start() {
         if (isClient) {
-            m_ClientData = new NetworkPlayerData();
             m_PlayerController = GetComponent<PlayerController>();
             m_Player = GetComponent<Player>();
         }
@@ -107,6 +106,12 @@ public class NetworkPlayer : GameSystem
         m_TargetPos = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
         m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
         transform.position = m_TargetPos;
+    }
+
+    public void Init(PlayerData _data) {
+        m_ClientData = new NetworkPlayerData();
+        m_ClientData.name = _data.player.name;
+        m_ClientData.weaponName = Player.Weapon.oneHandRanged.ToString();
     }
 
     public void UpdatePosition(NetworkPlayerData _data) {
