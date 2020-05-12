@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityCore.Scene;
+using UnityCore.Menu;
 
 public class Session : GameSystem
 {
@@ -12,6 +13,8 @@ public class Session : GameSystem
 
     public GameObject networkDummyObject;
     public GameObject networkPlayerObject;
+    [HideInInspector]
+    public PageType entryPage=PageType.Login;
 
     private AccountData m_Account;
     private PlayerData[] m_AccountPlayers;
@@ -120,8 +123,6 @@ public class Session : GameSystem
     public void SignOut() {
         m_Account = null;
         m_AccountPlayers = null;
-        m_Mobs = new Hashtable();
-        m_Players = new Hashtable();
     }
 
     private void InitPlayer(Player _player) {
@@ -155,7 +156,9 @@ public class Session : GameSystem
         if (network) {
             network.Close();
         }
-        SignOut();
+        m_Mobs = new Hashtable();
+        m_Players = new Hashtable();
+        entryPage = PageType.CharacterSelection;
         if (sceneController) {
             sceneController.Load(SceneType.Login);
         }
