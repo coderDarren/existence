@@ -4,22 +4,22 @@ using UnityEngine;
 
 public class Dissolve : MonoBehaviour
 {
-    private GameObject player;
+    private Collider[] hit;
+    public LayerMask mask;
     private GameObject child;
     private Material material;
-    private float distance;
     private float dissolve;
-
-    // Update is called once per frame
+    
     void Update()
     {
-        
-        player = GameObject.FindGameObjectWithTag("Player");
+        hit = Physics.OverlapSphere(transform.position, 4, mask);    
         child = transform.GetChild(0).gameObject;
         material = GetComponent<Renderer>().sharedMaterial;
-        distance = Vector3.Distance(transform.position, player.transform.position);
 
-        if(distance <= 4){
+
+        
+
+        if(hit.Length > 0){
             dissolve += Time.deltaTime;            
             dissolve = Mathf.Clamp(dissolve, 0, 1);
             child.GetComponent<Renderer>().sharedMaterial.SetColor("_EmissionColor", Color.green);
