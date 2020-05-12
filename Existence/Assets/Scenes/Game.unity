@@ -9306,7 +9306,7 @@ PrefabInstance:
     - target: {fileID: 5911822411736022915, guid: 88492c86bdbd98c4aad481f444011171,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000022888184
+      value: -0.000038146973
       objectReference: {fileID: 0}
     - target: {fileID: 5911822411804230141, guid: 88492c86bdbd98c4aad481f444011171,
         type: 3}
@@ -10567,6 +10567,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GamePlayer
+      objectReference: {fileID: 0}
+    - target: {fileID: 7574644151340118813, guid: 84078890a1bbf654196e29ee95c3df64,
+        type: 3}
+      propertyPath: jumpSpeed
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7574644151340118813, guid: 84078890a1bbf654196e29ee95c3df64,
+        type: 3}
+      propertyPath: gravity
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7574644151340118813, guid: 84078890a1bbf654196e29ee95c3df64,
+        type: 3}
+      propertyPath: groundCheckBias
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7574644151340118813, guid: 84078890a1bbf654196e29ee95c3df64,
+        type: 3}
+      propertyPath: m_CurrentTarget
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 84078890a1bbf654196e29ee95c3df64, type: 3}

@@ -61,6 +61,7 @@ public class PlayerController : GameSystem
     private bool m_AttackInput;
     private bool m_CycleTarget;
     private int m_TargetNum;
+    private float m_Gravity;
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
@@ -138,26 +139,34 @@ public class PlayerController : GameSystem
     }
 
     private void Move() {
+        var _playerStats = m_Player.GetAggregatedStats();
+
+        // calculate forward speed
+        m_AnimationSpeed = m_ForwardInput <= 0 || m_ShiftIsDown ? 1 : (0.75f + 0.00045f*_playerStats.runSpeed);
+        m_AnimationSpeed = Mathf.Clamp(m_AnimationSpeed, 0.25f, 3);
+        float _forwardSpeed = m_ForwardInput < 0 ? backwardSpeed : m_ShiftIsDown ? walkSpeed : (runSpeed+0.01f*_playerStats.runSpeed);
+        _forwardSpeed = Mathf.Clamp(_forwardSpeed, 0.25f, Mathf.Infinity);
+        float _strafeSpeed = m_ShiftIsDown || m_VerticalAxisRaw < 0 ? walkStrafeSpeed : runStrafeSpeed;
+        
         CheckGrounded();
         if (m_Controller.isGrounded)
         {
-            // calculate forward speed
-            var _playerStats = m_Player.GetAggregatedStats();
-            m_AnimationSpeed = m_ForwardInput <= 0 || m_ShiftIsDown ? 1 : (0.75f + 0.00045f*_playerStats.runSpeed);
-            m_AnimationSpeed = Mathf.Clamp(m_AnimationSpeed, 0.25f, 3);
-            float _forwardSpeed = m_ForwardInput < 0 ? backwardSpeed : m_ShiftIsDown ? walkSpeed : (runSpeed+0.01f*_playerStats.runSpeed);
-            _forwardSpeed = Mathf.Clamp(_forwardSpeed, 0.25f, Mathf.Infinity);
-            float _strafeSpeed = m_ShiftIsDown || m_VerticalAxisRaw < 0 ? walkStrafeSpeed : runStrafeSpeed;
-            m_MoveDirection = m_ForwardVec * Input.GetAxisRaw("Vertical") * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed;
+            m_Gravity = gravity;
+            m_MoveDirection = m_ForwardVec * Input.GetAxisRaw("Vertical") * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed - Vector3.up * 1000;
 
-            if (m_JumpInput)
+            if (m_JumpInput) 
+            {
                 m_MoveDirection.y = jumpSpeed + 0.01f*_playerStats.strength;
+            }
         }
+        
+        //m_Gravity += 0.05f;
+        m_MoveDirection.y -= gravity;
+        m_Controller.Move(m_MoveDirection * Time.deltaTime);
+
         if(m_CycleTarget){
             m_Targeting.Search();
-        } 
-        m_MoveDirection.y -= gravity * Time.deltaTime;
-        m_Controller.Move(m_MoveDirection * Time.deltaTime);
+        }
     }
 
     private void DetectWalking() {
@@ -170,7 +179,6 @@ public class PlayerController : GameSystem
         } else {
             m_ForwardInput = m_VerticalAxis;
         }
-        
     }
 
     private void Turn() {
@@ -226,11 +234,15 @@ public class PlayerController : GameSystem
                 }
             }
         }
+
+        if (!m_Grounded) {
+            m_ForwardVec = transform.forward;
+            m_RightVec = transform.right;
+        }
         
         if (debug) {
             Debug.DrawLine(transform.position, transform.position + m_ForwardVec * 1.0f, Color.blue);
             Debug.DrawLine(transform.position, transform.position + m_RightVec * 1.0f, Color.red);
-            
         }
     }
 
