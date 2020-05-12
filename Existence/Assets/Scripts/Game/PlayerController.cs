@@ -161,7 +161,7 @@ public class PlayerController : GameSystem
         }
         
         //m_Gravity += 0.05f;
-        m_MoveDirection.y -= gravity;
+        m_MoveDirection.y -= gravity * Time.deltaTime;
         m_Controller.Move(m_MoveDirection * Time.deltaTime);
 
         if(m_CycleTarget){
