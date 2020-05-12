@@ -101,7 +101,6 @@ public class Slideshow : MonoBehaviour
         while (true) {
             yield return new WaitForSeconds(automaticDuration);
             GoToNextPage();
-            Debug.Log("next");
         }
     }
 

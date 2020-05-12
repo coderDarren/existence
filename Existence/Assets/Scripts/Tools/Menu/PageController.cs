@@ -64,7 +64,7 @@ namespace UnityCore {
                     _offPage.Animate(false);
                 }
 
-                if (_waitForExit && _offPage.useAnimation) {
+                if (_waitForExit && _offPage.animateOut) {
                     Page _onPage = GetPage(_on);
                     StopCoroutine("WaitForPageExit");
                     StartCoroutine(WaitForPageExit(_onPage, _offPage));

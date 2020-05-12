@@ -148,6 +148,10 @@ public class Chatbox : GameSystem
                 }
                 Login(_args[1]);
                 break;
+            case ChatCommand.LOGOUT:
+                chatBox.text += "\nCommand arguments were not understood.";
+                session.DisconnectPlayer();
+                break;
             case ChatCommand.XP:
                 if (_args.Count != 2) {
                     chatBox.text += "\nCommand arguments were not understood.";
