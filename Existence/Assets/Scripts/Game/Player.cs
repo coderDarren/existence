@@ -69,7 +69,7 @@ public class Player : GameSystem
 
     private void Start() {
         if (!session) return;
-        //session.InitPlayer(this);
+        session.InitPlayer(this);
     }
 #endregion
 
