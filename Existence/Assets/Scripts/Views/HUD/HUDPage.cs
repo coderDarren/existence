@@ -28,7 +28,12 @@ public class HUDPage : Page
     }
 
     private void OnPlayerConnected() {
+        session.player.OnXpAdded += OnPlayerXpAdded;
         xpProgress.fillAmount = session.player.XpProgress();
+    }
+
+    private void OnPlayerDisconnected() {
+        session.player.OnXpAdded -= OnPlayerXpAdded;
     }
 
     private void OnPlayerXpAdded(int _xp) {
@@ -43,6 +48,7 @@ public class HUDPage : Page
 
         if (session) {
             session.OnPlayerConnected += OnPlayerConnected;
+            session.OnPlayerDisconnected += OnPlayerDisconnected;
             session.player.OnXpAdded += OnPlayerXpAdded;
         }
     }
@@ -52,6 +58,7 @@ public class HUDPage : Page
 
         if (session) {
             session.OnPlayerConnected -= OnPlayerConnected;
+            session.OnPlayerDisconnected -= OnPlayerDisconnected;
             session.player.OnXpAdded -= OnPlayerXpAdded;
         }
     }
