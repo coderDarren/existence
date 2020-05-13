@@ -5,7 +5,6 @@ using UnityEngine.UI;
 /// <summary>
 /// Hold data about the player
 /// </summary>
-
 public class Player : GameSystem
 {
     public delegate void IntAction(int _data);
@@ -56,21 +55,6 @@ public class Player : GameSystem
     }
 
 #region Unity Functions
-    private void Awake() {
-        m_Data = new PlayerData();
-        m_Data.player = new PlayerInfo();
-        m_Data.stats = new StatData();
-        m_Data.player.name = RandomString(12);
-        m_GearStats = new StatData();
-        m_BuffStats = new StatData();
-        m_TrickleStats = new StatData();        
-        nameLabel.text = m_Data.player.name;
-    }
-
-    private void Start() {
-        if (!session) return;
-        session.InitPlayer(this);
-    }
 #endregion
 
 #region Public Functions
@@ -79,7 +63,10 @@ public class Player : GameSystem
     /// </summary>
     public void ConnectWithData(PlayerData _data) {
         m_Data = _data;
-        nameLabel.text = _data.player.name;
+        m_GearStats = new StatData();
+        m_BuffStats = new StatData();
+        m_TrickleStats = new StatData();        
+        nameLabel.text = m_Data.player.name;
     }
 
     public void SaveBaselineStats(StatData _stats) {

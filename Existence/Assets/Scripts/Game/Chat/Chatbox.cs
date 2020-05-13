@@ -150,7 +150,7 @@ public class Chatbox : GameSystem
                 break;
             case ChatCommand.LOGOUT:
                 chatBox.text += "\nCommand arguments were not understood.";
-                session.DisconnectPlayer();
+                session.LogoutToCharSelection();
                 break;
             case ChatCommand.XP:
                 if (_args.Count != 2) {
@@ -173,7 +173,7 @@ public class Chatbox : GameSystem
         Log("[Login]: ["+(NetworkTimestamp.NowMilliseconds()-_start)+"ms]: "+_data);
 
         if (_data != null) {
-            session.ConnectPlayer(_data);
+            session.StartGame(_data);
         } else {
             chatBox.text += "\nNo account for "+_playerName+" exists. Create one first.";
         }

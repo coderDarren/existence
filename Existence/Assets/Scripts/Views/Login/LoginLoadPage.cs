@@ -60,7 +60,7 @@ public class LoginLoadPage : Page
             // subscribe to network connect event to bring down the loading page
             session.network.OnConnect += OnServerConnect;
             // tell the session to connect
-            session.ConnectPlayer(m_SelectedPlayer);
+            session.StartGame(m_SelectedPlayer);
         }
     }
 

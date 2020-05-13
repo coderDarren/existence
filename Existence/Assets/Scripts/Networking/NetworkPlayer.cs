@@ -3,8 +3,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// NetworkPlayer should be placed on the player prefab object..
-/// ..that spawns when a new player is found on the server
+/// NetworkPlayer is placed on all players including the local client
+///
+/// This class is used to manage incoming and outgoing NetworkPlayerData
 /// </summary>
 [RequireComponent(typeof(Animator))]
 public class NetworkPlayer : GameSystem
@@ -47,8 +48,6 @@ public class NetworkPlayer : GameSystem
     private float m_Smooth;
     private float m_AttackSpeed;
     private string m_Weapon;
-    
-    
 
     // get Session with integrity
     private Session session {
