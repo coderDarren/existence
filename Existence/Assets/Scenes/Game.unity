@@ -4986,6 +4986,37 @@ Transform:
   m_Father: {fileID: 1663640161}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -3.7900002, y: 0, z: 0}
+--- !u!1 &1420668996 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1420668996, guid: 88492c86bdbd98c4aad481f444011171,
+    type: 3}
+  m_PrefabInstance: {fileID: 2577028032661281205}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1420669000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420668996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83101a006a6638347a5bfd3029beac48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+--- !u!225 &1420669001
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420668996}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1437299576
 GameObject:
   m_ObjectHideFlags: 0
@@ -9496,6 +9527,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1613153397, guid: 88492c86bdbd98c4aad481f444011171, type: 3}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 132326154}
+    - target: {fileID: 1613153397, guid: 88492c86bdbd98c4aad481f444011171, type: 3}
+      propertyPath: nameplate
+      value: 
+      objectReference: {fileID: 1420669000}
+    - target: {fileID: 1613153397, guid: 88492c86bdbd98c4aad481f444011171, type: 3}
+      propertyPath: maxViewableDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1613153397, guid: 88492c86bdbd98c4aad481f444011171, type: 3}
+      propertyPath: fadeDistance
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 5940800748587646817, guid: 88492c86bdbd98c4aad481f444011171,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -9616,10 +9663,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameUI
       objectReference: {fileID: 0}
+    - target: {fileID: 5940800749485650776, guid: 88492c86bdbd98c4aad481f444011171,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5940800749485650776, guid: 88492c86bdbd98c4aad481f444011171,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5940800749485650776, guid: 88492c86bdbd98c4aad481f444011171,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5940800749545475366, guid: 88492c86bdbd98c4aad481f444011171,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 5.699952
+      value: 0.000030517578
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 88492c86bdbd98c4aad481f444011171, type: 3}
