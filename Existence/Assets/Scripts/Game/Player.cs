@@ -139,7 +139,8 @@ public class Player : GameSystem
     private void TryRunAction(IntAction _action, int _data) {
         try {
             _action(_data);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+        }
     }
     
 #endregion
