@@ -103,6 +103,7 @@ class SQLController {
             for (i in _players) {
                 const _player = _players[i];
                 const _stats = await this._stat.findByPk(_player.dataValues.statsID);
+                const _sessionData = await this._sessionData.findByPk(_player.dataValues.sessionDataID);
                 const _inventory = (await this._sql.query(`select * from items 
                     inner join inventorySlots on inventorySlots.playerID = ${_player.dataValues.ID} and inventorySlots.itemID = items.ID`))[0];
                 for (var i = 0; i < _inventory.length; i++) {
@@ -114,6 +115,7 @@ class SQLController {
                 }
                 _data.push({
                     player: _player.dataValues,
+                    sessionData: _sessionData,
                     stats: _stats,
                     inventory: _inventory
                 });
@@ -141,7 +143,7 @@ class SQLController {
 
             const _playerId = _player[0].dataValues.ID;
             const _stats = await this._stat.findByPk(_player[0].dataValues.statsID);
-            //const _inventory = await this._inventorySlot.findAll({where: {playerID: _player[0].dataValues.ID}})
+            const _sessionData = await this._sessionData.findByPk(_player[0].dataValues.sessionDataID);
             const _inventory = (await this._sql.query(`select * from items 
                 inner join inventorySlots on inventorySlots.playerID = ${_playerId} and inventorySlots.itemID = items.ID`))[0];
             for (var i = 0; i < _inventory.length; i++) {
@@ -156,6 +158,7 @@ class SQLController {
             return {
                 data: {
                     player: _player[0].dataValues,
+                    sessionData: _sessionData,
                     stats: _stats,
                     inventory: _inventory
                 }
@@ -183,7 +186,15 @@ class SQLController {
                 }
             }
 
-            const _player = await this._player.create({name: _playerName, serverID: 1, accountID: _account, statsID: _stats.id});
+            const _sessionData = await this._sessionData.create({})
+            if (_sessionData.id == null) {
+                return {
+                    error: `Failed to generate session data.`
+                }
+            }
+
+            const _player = await this._player.create({name: _playerName, serverID: 1, accountID: _account, statsID: _stats.id, sessionDataID: _sessionData.id});
+
             return {
                 data: {
                     player: _player,
@@ -211,9 +222,37 @@ class SQLController {
         }
     }
 
+    async updatePlayer(_player) {
+        try {
+            const _resp = await this._player.update(_player, {where: {id: _player.ID}})
+            console.log(JSON.stringify(_resp));
+            return {
+                data: _resp
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
     async updateStats(_stats) {
         try {
             const _resp = await this._stat.update(_stats, {where: {id: _stats.ID}})
+            console.log(JSON.stringify(_resp));
+            return {
+                data: _resp
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
+    async updateSessionData(_session) {
+        try {
+            const _resp = await this._sessionData.update(_session, {where: {id: _session.ID}})
             console.log(JSON.stringify(_resp));
             return {
                 data: _resp
@@ -318,9 +357,23 @@ class SQLController {
             accountID: DataTypes.INTEGER,
             serverID: DataTypes.INTEGER,
             statsID: DataTypes.INTEGER,
+            sessionDataID: DataTypes.INTEGER,
             level: DataTypes.INTEGER,
             xp: DataTypes.INTEGER,
             statPoints: DataTypes.INTEGER,
+        }, {
+            timestamps: false
+        });
+
+        // SESSION DATA
+        this._sessionData = this._sql.define('sessionData', {
+            ID: {type:DataTypes.INTEGER,primaryKey:true},
+            posX: DataTypes.FLOAT,
+            posY: DataTypes.FLOAT,
+            posZ: DataTypes.FLOAT,
+            rotX: DataTypes.FLOAT,
+            rotY: DataTypes.FLOAT,
+            rotZ: DataTypes.FLOAT
         }, {
             timestamps: false
         });

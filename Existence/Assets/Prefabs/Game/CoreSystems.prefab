@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 9201544657902839293}
   - component: {fileID: 9201544657902839282}
   - component: {fileID: 9201544657902839283}
+  - component: {fileID: 316485622}
   m_Layer: 0
   m_Name: CoreSystems
   m_TagString: Untagged
@@ -46,11 +47,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 1
-  networkDummyObject: {fileID: 4754728568438128947, guid: a08ccfe91bac9c043827a9481b77cabf,
+  playerObject: {fileID: 7574644151340118790, guid: 84078890a1bbf654196e29ee95c3df64,
     type: 3}
-  networkPlayerObject: {fileID: 1275614032009576521, guid: c68758ad7f811a640869cf44f16e989f,
-    type: 3}
-  player: {fileID: 0}
+  entryPage: 6
 --- !u!114 &9201544657902839282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84,3 +83,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 1
   usePredictiveSmoothing: 1
+--- !u!114 &316485622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9201544657902839280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46d84ca2e95ec474ba29783baf70c1f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 1
