@@ -7,6 +7,7 @@ const {
 const getPlayer = require('./getPlayer.js');
 const createPlayer = require('./createPlayer.js');
 const updateStats = require('./updateStats.js');
+const updateSessionData = require('./updateSessionData.js');
 const updatePlayer = require('./updatePlayer.js');
 const authenticate = require('./authenticate.js');
 const getAccountPlayers = require('./getAccountPlayers.js');
@@ -54,6 +55,9 @@ const handleRoute = async function(_req) {
             break;
         case "/api/updateStats": // POST
             _resp = await updateStats(_req.body);
+            break;
+        case "/api/updateSessionData": // POST
+            _resp = await updateSessionData(_req.body);
             break;
     }
 

@@ -1,9 +1,14 @@
 ﻿using System.Collections;
+using UniRx.Async;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityCore.Scene;
 using UnityCore.Menu;
 
+/// <summary>
+/// Session is responsible for collecting and maintaining player data..
+/// ..from login to gameplay to exit
+/// </summary>
 public class Session : GameSystem
 {
     public delegate void BasicAction();
@@ -11,8 +16,8 @@ public class Session : GameSystem
 
     public static Session instance;
 
-    public GameObject networkDummyObject;
-    public GameObject networkPlayerObject;
+    public bool testing;
+    public GameObject playerObject;
     [HideInInspector]
     public PageType entryPage=PageType.Login;
 
@@ -46,6 +51,9 @@ public class Session : GameSystem
 
     public PlayerData playerData {
         get {
+            if (m_Player == null) {
+                Log("Trying to get player data, but no instance of Player was found.");
+            }
             return m_Player.data;
         }
         set {
@@ -84,30 +92,20 @@ public class Session : GameSystem
         }
     }
 
-    private async void Start() {
-        m_Mobs = new Hashtable();
-        m_Players = new Hashtable();
-
-        if (network) {
-            Log("subscribing to network events");
-            network.OnConnect += OnServerConnect;
-            network.OnDisconnect += OnServerDisconnect;
-            network.OnHandshake += OnServerHandshake;
-            network.OnPlayerJoined += OnPlayerJoined;
-            network.OnPlayerLeft += OnPlayerLeft;
-            network.OnInstanceUpdated += OnInstanceUpdated;
+    private void Start() {
+        if (testing) {
+            InitTestGame();
         }
+
+        if (!network) return;
+        network.OnConnect += OnServerConnect;
+        network.OnDisconnect += OnServerDisconnect;
     }
 
     private void OnDisable() {
         if (!network) return;
-        Log("unsubscribing to network events");
         network.OnConnect -= OnServerConnect;
         network.OnDisconnect -= OnServerDisconnect;
-        network.OnHandshake -= OnServerHandshake;
-        network.OnPlayerJoined -= OnPlayerJoined;
-        network.OnPlayerLeft -= OnPlayerLeft;
-        network.OnInstanceUpdated -= OnInstanceUpdated;
     }
 #endregion
 
@@ -125,22 +123,17 @@ public class Session : GameSystem
         m_AccountPlayers = null;
     }
 
-    public void InitPlayer(Player _player) {
-        m_Player = _player;
-        m_PlayerController = m_Player.GetComponent<PlayerController>();
-        m_NetworkPlayer = m_Player.GetComponent<NetworkPlayer>();
-        Chatbox.instance.ConfigurePlayerEvents();
-    }
     /// <summary>
-    /// Should be called by ChatBox when user logs in
+    /// Should be called by ChatBox when user logs in..
+    /// ..or by login load page 
     /// </summary>
-    public void ConnectPlayer(PlayerData _player) {
+    public async void StartGame(PlayerData _player) {
         if (!network) return;
-        // !! TODO
-        // we probably want to actually spawn the character freshly here
-        InitPlayer(GameObject.FindObjectOfType<Player>());
-        m_NetworkPlayer.Init(_player);
-        playerData = _player;
+        if (network.IsConnected) {
+            network.Close();
+            await UniTask.Delay(1000);
+        }
+        InitGame(_player);
         network.Connect();
     }
 
@@ -152,12 +145,11 @@ public class Session : GameSystem
         m_PlayerController.FreeInput();
     }
 
-    public void DisconnectPlayer() {
+    public void LogoutToCharSelection() {
         if (network) {
             network.Close();
         }
-        m_Mobs = new Hashtable();
-        m_Players = new Hashtable();
+        SaveSession();
         entryPage = PageType.CharacterSelection;
         if (sceneController) {
             sceneController.Load(SceneType.Login);
@@ -168,84 +160,76 @@ public class Session : GameSystem
 #region Private Functions
     private void OnServerConnect() {
         m_Player.ConnectWithData(playerData);
-        network.SendHandshake(m_NetworkPlayer.clientData);
+        network.SendHandshake(new NetworkHandshake(m_NetworkPlayer.clientData, playerData.sessionData.ID));
         TryRunAction(OnPlayerConnected);
     }
 
     private void OnServerDisconnect() {
-        
+        // !! TODO
+        // Implement 
     }
 
-    private void OnServerHandshake(NetworkInstanceData _instance) {
-        foreach(NetworkPlayerData _player in _instance.players) {
-            SpawnPlayer(_player);
-        }
-
-        foreach(NetworkMobData _mob in _instance.mobs) {
-            SpawnMob(_mob);
-        }
-    }
-
-    private void OnInstanceUpdated(NetworkInstanceData _instance) {
-        foreach(NetworkPlayerData _player in _instance.players) {
-            MovePlayer(_player);
-        }
-
-        foreach(NetworkMobData _mob in _instance.mobs) {
-            MoveMob(_mob);
+    private void SaveSession() {
+        if (m_AccountPlayers == null) return;
+        foreach(PlayerData _player in m_AccountPlayers) {
+            if (_player.player.name == playerData.player.name) {
+                _player.sessionData.posX = player.transform.position.x;
+                _player.sessionData.posY = player.transform.position.y;
+                _player.sessionData.posZ = player.transform.position.z;
+                _player.sessionData.rotX = player.transform.eulerAngles.x;
+                _player.sessionData.rotY = player.transform.eulerAngles.y;
+                _player.sessionData.rotZ = player.transform.eulerAngles.z;
+            }
         }
     }
 
-    private void OnPlayerJoined(NetworkPlayerData _player) {
-        SpawnPlayer(_player);
-    }
-    
-    private void OnPlayerLeft(NetworkPlayerData _player) {
-        RemovePlayer(_player);
-    }
-
-    private void SpawnPlayer(NetworkPlayerData _data) {
-        string _name = _data.name;
-        if (_name == null) return;
-        if (_name == playerData.player.name) return; //this is you..
-        if (m_Players.ContainsKey(_name)) return; // player already exists
-        GameObject _obj = Instantiate(networkPlayerObject);
-        NetworkPlayer _player = _obj.GetComponent<NetworkPlayer>();
-        _player.Init(_data);
-        m_Players.Add(_name, _player);
+    private void InitTestGame() {
+        PlayerData _playerData = new PlayerData();
+        _playerData.stats = new StatData();
+        _playerData.sessionData = new PlayerSessionData();
+        _playerData.player = new PlayerInfo();
+        _playerData.player.name = "Tester";
+        _playerData.sessionData.posX = -21;
+        _playerData.sessionData.posY = 33;
+        _playerData.sessionData.posZ = 275;
+        InitGame(_playerData);
     }
 
-    private void RemovePlayer(NetworkPlayerData _data) {
-        string _playerName = _data.name;
-        if (_playerName == playerData.player.name) return; //this is you..
-        if (!m_Players.ContainsKey(_playerName)) return;
-        NetworkPlayer _player = (NetworkPlayer)m_Players[_playerName];
-        m_Players.Remove(_playerName);
-        Destroy(_player.gameObject);
+    private void InitGame(PlayerData _player) {
+        InitPlayer(_player);
+        InitSystems();
     }
 
-    private void MovePlayer(NetworkPlayerData _data) {
-        string _name = _data.name;
-        if (_name == playerData.player.name) return; //this is you..
-        if (!m_Players.ContainsKey(_name)) return; // could not find player
-        NetworkPlayer _player = (NetworkPlayer)m_Players[_name];
-        _player.UpdatePosition(_data);
+    private void InitPlayer(PlayerData _playerData) {
+        PlayerController _testPlayer = GameObject.FindObjectOfType<PlayerController>();
+        if (_testPlayer) {
+            Destroy(_testPlayer.gameObject);
+        }
+
+        GameObject _go = Instantiate(
+            playerObject, 
+            new Vector3(_playerData.sessionData.posX, _playerData.sessionData.posY, _playerData.sessionData.posZ),
+            Quaternion.Euler(_playerData.sessionData.rotX, _playerData.sessionData.rotY, _playerData.sessionData.rotZ)
+        );
+        Player _player = _go.GetComponent<Player>();
+        NetworkPlayer _netPlayer = _go.GetComponent<NetworkPlayer>();
+        PlayerController _playerController = _go.GetComponent<PlayerController>();
+
+        if (!_player || !_netPlayer || !_playerController) {
+            LogError("Invalid playerObject instantiated when initializing game. Your player is missing one of type Player, NetworkPlayer or PlayerController.");
+            return;
+        }
+
+        m_Player = _player;
+        m_PlayerController = _playerController;
+        m_NetworkPlayer = _netPlayer;
+        m_NetworkPlayer.Init(_playerData);
+        m_Player.ConnectWithData(_playerData);
+        Camera.main.GetComponent<CameraController>().target = _go.transform;
     }
 
-    private void SpawnMob(NetworkMobData _data) {
-        string _name = _data.id;
-        if (m_Mobs.ContainsKey(_name)) return; // player already exists
-        GameObject _obj = Instantiate(networkDummyObject);
-        Mob _mob = _obj.GetComponent<Mob>();
-        _mob.Init(_data);
-        m_Mobs.Add(_name, _mob);
-    }
-
-    private void MoveMob(NetworkMobData _data) {
-        string _name = _data.id;
-        if (!m_Mobs.ContainsKey(_name)) return; // could not find player
-        Mob _mob = (Mob)m_Mobs[_name];
-        _mob.UpdateData(_data);
+    private void InitSystems() {
+        Chatbox.instance.ConfigurePlayerEvents();
     }
 
     private void TryRunAction(BasicAction _action) {

@@ -25,7 +25,7 @@ public class PlayerController : GameSystem
     public float gravity = 20.0f;
 
     [Header("Grounding")]
-    [Range(4,12)]
+    [Range(4,24)]
     public int groundCheckDensity = 5;
     public float groundCheckRadius = 1.0f;
     public float groundCheckDist = 1.0f;
@@ -158,6 +158,8 @@ public class PlayerController : GameSystem
             {
                 m_MoveDirection.y = jumpSpeed + 0.01f*_playerStats.strength;
             }
+        } else {
+            //m_MoveDirection = m_ForwardVec * Input.GetAxisRaw("Vertical") * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed;
         }
         
         //m_Gravity += 0.05f;
@@ -204,9 +206,37 @@ public class PlayerController : GameSystem
         }
 
         // check radius
+        // !! TODO
+        // Make this a function
         for (int i = 0; i < groundCheckDensity; i++) {
             float _angle = (360.0F / groundCheckDensity) * i;
             _from = transform.position + m_Controller.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * groundCheckRadius;
+            if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
+                _normalAggregate += _hitInfo.normal;
+                _hit = true;
+                _hits++;
+            }
+            if (debug) {
+                Debug.DrawLine(_from, _from + Vector3.down * groundCheckDist, Color.green);
+            }
+        }
+
+        for (int i = 0; i < groundCheckDensity; i++) {
+            float _angle = (360.0F / groundCheckDensity) * i;
+            _from = transform.position + m_Controller.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * (groundCheckRadius/2.0f);
+            if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
+                _normalAggregate += _hitInfo.normal;
+                _hit = true;
+                _hits++;
+            }
+            if (debug) {
+                Debug.DrawLine(_from, _from + Vector3.down * groundCheckDist, Color.green);
+            }
+        }
+
+        for (int i = 0; i < groundCheckDensity; i++) {
+            float _angle = (360.0F / groundCheckDensity) * i;
+            _from = transform.position + m_Controller.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * (groundCheckRadius/5.0f);
             if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
                 _normalAggregate += _hitInfo.normal;
                 _hit = true;
