@@ -8,11 +8,8 @@ using UnityEngine.UI;
 /// This class is used to manage incoming and outgoing NetworkPlayerData
 /// </summary>
 [RequireComponent(typeof(Animator))]
-public class NetworkPlayer : GameSystem
+public class NetworkPlayer : Selectable
 {
-    [Header("Generic Settings")]
-    public Text nameLabel;
-    
     [Header("Client Settings")]
     public bool isClient;
     public float sendRate = 0.15f;
@@ -21,7 +18,6 @@ public class NetworkPlayer : GameSystem
     [Header("Network Player Settings")]
     public float moveSmooth=0.1f;
     
-   
     private Session m_Session;
     private NetworkController m_Network;
     private Vector3 m_InitialPos;
@@ -85,8 +81,10 @@ public class NetworkPlayer : GameSystem
         if (isClient) {
             m_PlayerController = GetComponent<PlayerController>();
             m_Player = GetComponent<Player>();
+            NameplateController.instance.TrackSelectable(this);
         }
         m_Animator = GetComponent<Animator>();
+        m_Nameplate = new NameplateData();
     }
 
     private void Update() {
@@ -101,7 +99,6 @@ public class NetworkPlayer : GameSystem
 #region Public Functions
     public void Init(NetworkPlayerData _data) {
         if (isClient) return;
-        nameLabel.text = _data.name;
         m_TargetPos = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
         m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
         transform.position = m_TargetPos;
@@ -113,7 +110,11 @@ public class NetworkPlayer : GameSystem
         m_ClientData.weaponName = Player.Weapon.oneHandRanged.ToString();
     }
 
-    public void UpdatePosition(NetworkPlayerData _data) {
+    public void Dispose() {
+        NameplateController.instance.ForgetSelectable(this);
+    }
+
+    public void UpdateServerPlayer(NetworkPlayerData _data) {
         if (isClient) return;
 
         if (network.usePredictiveSmoothing) {
@@ -141,6 +142,8 @@ public class NetworkPlayer : GameSystem
         m_AttackSpeed = _data.input.attackSpeed;
         m_Weapon = _data.weaponName;
         m_UpdateTimer = 0;
+
+        UpdateNameplate(_data.name, _data.health, _data.maxHealth);
 
         m_LastFrameData = _data;
     }
@@ -171,6 +174,9 @@ public class NetworkPlayer : GameSystem
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
         m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed"); 
         m_ClientData.weaponName = m_Player.weapon.ToString();
+        m_ClientData.maxHealth = m_Player.MaxHealth();
+
+        UpdateNameplate(m_ClientData.name, m_ClientData.health, m_ClientData.maxHealth);
       
         m_UpdateTimer += Time.deltaTime;
         if (m_UpdateTimer >= sendRate && m_IdleTimer < idleDetectionSeconds) {

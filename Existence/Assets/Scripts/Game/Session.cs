@@ -134,6 +134,9 @@ public class Session : GameSystem
             network.Close();
             await UniTask.Delay(1000);
         }
+        if (m_NetworkPlayer != null) {
+            m_NetworkPlayer.Dispose();
+        }
         InitGame(_player);
         network.Connect();
     }

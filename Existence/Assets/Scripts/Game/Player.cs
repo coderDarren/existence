@@ -10,7 +10,6 @@ public class Player : GameSystem
     public delegate void IntAction(int _data);
     public event IntAction OnXpAdded;   
 
-    public Text nameLabel;
     public enum Weapon {oneHandRanged, oneHandMelee, twoHandRanged, twoHandMelee, fist};
     public Weapon weapon;
     
@@ -66,7 +65,6 @@ public class Player : GameSystem
         m_GearStats = new StatData();
         m_BuffStats = new StatData();
         m_TrickleStats = new StatData();        
-        nameLabel.text = m_Data.player.name;
     }
 
     public void SaveBaselineStats(StatData _stats) {
@@ -104,6 +102,10 @@ public class Player : GameSystem
 
     public float XpProgress() {
         return m_Data.player.xp / MaxXp();
+    }
+
+    public int MaxHealth() {
+        return m_Data.player.level * 100;
     }
 #endregion
 

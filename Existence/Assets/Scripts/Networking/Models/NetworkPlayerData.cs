@@ -17,7 +17,9 @@ public class NetworkPlayerData : NetworkModel
     public NetworkVector3 pos;
     public NetworkVector3 rot;
     public int health;
+    public int maxHealth;
     public int energy;
+    public int maxEnergy;
 
     public NetworkPlayerData() {
         input = new NetworkPlayerInput();

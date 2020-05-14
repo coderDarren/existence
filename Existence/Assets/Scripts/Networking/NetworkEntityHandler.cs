@@ -109,6 +109,7 @@ public class NetworkEntityHandler : GameSystem
         NetworkPlayer _player = _obj.GetComponent<NetworkPlayer>();
         _player.Init(_data);
         m_Players.Add(_name, _player);
+        NameplateController.instance.TrackSelectable((Selectable)_player);
     }
 
     private void RemovePlayer(NetworkPlayerData _data) {
@@ -118,6 +119,7 @@ public class NetworkEntityHandler : GameSystem
         NetworkPlayer _player = (NetworkPlayer)m_Players[_playerName];
         m_Players.Remove(_playerName);
         Destroy(_player.gameObject);
+        NameplateController.instance.ForgetSelectable((Selectable)_player);
     }
 
     private void MovePlayer(NetworkPlayerData _data) {
@@ -125,7 +127,7 @@ public class NetworkEntityHandler : GameSystem
         if (_name == session.playerData.player.name) return; //this is you..
         if (!m_Players.ContainsKey(_name)) return; // could not find player
         NetworkPlayer _player = (NetworkPlayer)m_Players[_name];
-        _player.UpdatePosition(_data);
+        _player.UpdateServerPlayer(_data);
     }
 
     private void SpawnMob(NetworkMobData _data) {
