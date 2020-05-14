@@ -124,6 +124,7 @@ public class NetworkEntityHandler : GameSystem
 
     private void MovePlayer(NetworkPlayerData _data) {
         string _name = _data.name;
+        Log(_name+": "+m_Players.ContainsKey(_name));
         if (_name == session.playerData.player.name) return; //this is you..
         if (!m_Players.ContainsKey(_name)) return; // could not find player
         NetworkPlayer _player = (NetworkPlayer)m_Players[_name];

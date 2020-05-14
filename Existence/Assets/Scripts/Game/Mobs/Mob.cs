@@ -42,11 +42,11 @@ public class Mob : GameSystem
     }
 
     private void DrawHealth(){
-        if (m_Controller.m_CurrentTarget == GetComponentInChildren<SkinnedMeshRenderer>().gameObject || m_Controller.m_Target == GetComponentInChildren<SkinnedMeshRenderer>().gameObject)
+        /*if (m_Controller.m_CurrentTarget == GetComponentInChildren<SkinnedMeshRenderer>().gameObject || m_Controller.m_Target == GetComponentInChildren<SkinnedMeshRenderer>().gameObject)
             m_NamePlate.alpha = 1f;
         else
             m_NamePlate.alpha = 0f;
-        
+        */
     }
 #endregion
 

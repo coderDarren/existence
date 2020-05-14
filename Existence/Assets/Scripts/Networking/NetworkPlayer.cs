@@ -78,13 +78,14 @@ public class NetworkPlayer : Selectable
 
 #region Unity Functions
     private void Start() {
+        m_Animator = GetComponent<Animator>();
         if (isClient) {
             m_PlayerController = GetComponent<PlayerController>();
             m_Player = GetComponent<Player>();
+            m_Nameplate = new NameplateData();
+            m_Nameplate.name = m_Player.data.player.name;
             NameplateController.instance.TrackSelectable(this);
         }
-        m_Animator = GetComponent<Animator>();
-        m_Nameplate = new NameplateData();
     }
 
     private void Update() {
@@ -99,6 +100,8 @@ public class NetworkPlayer : Selectable
 #region Public Functions
     public void Init(NetworkPlayerData _data) {
         if (isClient) return;
+        m_Nameplate = new NameplateData();
+        m_Nameplate.name = _data.name;
         m_TargetPos = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
         m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
         transform.position = m_TargetPos;
@@ -198,6 +201,7 @@ public class NetworkPlayer : Selectable
     // Player not controlled by this client
     private void UpdateNetworkPlayer() {
         if (m_UpdateTimer > m_Smooth) return;
+        Log("towards pos: "+m_TargetPos);
         m_UpdateTimer += Time.deltaTime;
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / m_Smooth);
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialEuler), Quaternion.Euler(m_TargetEuler), m_UpdateTimer / m_Smooth);
