@@ -8,13 +8,13 @@ public class Attack : StateMachineBehaviour
     public float range;   
     
     private Player m_Player;
-    private PlayerController m_PlayerController;
+    private Targeting m_PlayerController;
     private AnimationEvent attackEnd;   
     private AnimationClip[] clips;
     private AnimationClip currentClip;
     private GameObject player;
     private GameObject child;
-    private GameObject target;
+    private Mob target;
     private Animation animation;    
     private bool attacking;
     private bool tickBool;
@@ -35,13 +35,13 @@ public class Attack : StateMachineBehaviour
         i=0;
         tickBool =  false;
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        m_PlayerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        m_PlayerController = GameObject.FindGameObjectWithTag("Player").GetComponent<Targeting>();
         safetySpeed = 0;
     }
     
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
         if(!m_PlayerController.m_Target) {
-            animator.SetBool("cycle", true);
+            //animator.SetBool("cycle", true);
         }
         attacking = animator.GetBool(m_Player.weapon.ToString());
         target = m_PlayerController.m_Target;
@@ -80,11 +80,11 @@ public class Attack : StateMachineBehaviour
             animator.SetBool("cycle", true);            
         }
         if(m_PlayerController.m_Target){            
-            if (!target.GetComponent<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
+            if (!target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
                 animator.SetFloat("totalSpeed", safetySpeed);
             }
             
-            if (target.GetComponent<Renderer>().IsVisibleFrom(Camera.main) && range >= distance){//No attack logic
+            if (target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) && range >= distance){//No attack logic
                 animator.SetFloat("totalSpeed", pauseSpeed);
             }
         }

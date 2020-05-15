@@ -55,7 +55,7 @@ public class UIContainer : GameSystem
     private Canvas canvas {
         get {
             if (!m_Canvas) {
-                m_Canvas = PageController.instance.GetComponent<Canvas>();
+                m_Canvas = GameObject.FindObjectOfType<Canvas>();
             }
             return m_Canvas;
         }
