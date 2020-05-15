@@ -11,7 +11,8 @@
             HUD,
             Login,
             CharacterSelection,
-            LoginLoad
+            LoginLoad,
+            AccountCreation
         }
     }
 }

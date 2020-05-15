@@ -29,13 +29,8 @@ const authenticate = async function(_body) {
     }
 
     const _sql = new SQL();    
-    if (!(await _sql.connect())) {
-        return {
-            error: "Failed to connect to db."
-        }
-    }
-
     const _result = await _sql.authenticate(_params);
+    await _sql.close();
     if (_result.error) {
         return _result;
     }
