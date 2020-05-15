@@ -8,7 +8,7 @@ class SQLController {
             process.env.DB_NAME || 'existence', 
             process.env.DB_USER || 'admin', 
             process.env.DB_PASS || 'adminadmin', {
-            host: process.env.DB_ENDPOINT || 'stage-existence.c4rptbmpkq5n.us-east-1.rds.amazonaws.com',
+            host: process.env.DB_ENDPOINT || 'stage-existence-db-proxy.proxy-c4rptbmpkq5n.us-east-1.rds.amazonaws.com',
             port: process.env.DB_PORT || 3306,
             dialect: process.env.DB_DIALECT || 'mysql',
             logging:console.log
@@ -53,6 +53,40 @@ class SQLController {
         } catch(_err) {
             this.__log__("Failed to connect: "+_err);
             return false;
+        }
+    }
+
+    async close() {
+        await this._sql.close();
+    }
+
+    async createAccount(_params) {
+        try {
+            var _check = await this._account.findOne({where: {username: _params.username}});
+            if (_check) {
+                return {
+                    error: `Account already exists for username '${_params.username}'.`,
+                    code: 1408
+                }
+            }
+
+            var _check = await this._account.findOne({where: {email: _params.email}});
+            if (_check) {
+                return {
+                    error: `Account already exists for email '${_params.username}'.`,
+                    code: 1409
+                }
+            }
+
+            const _acct = await this._account.create(_params);
+
+            return {
+                data: _acct
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
         }
     }
 
@@ -286,7 +320,8 @@ class SQLController {
             first_name: DataTypes.CHAR(255),
             last_name: DataTypes.CHAR(255),
             apiKey: DataTypes.CHAR(255),
-            username: DataTypes.CHAR(255)
+            username: DataTypes.CHAR(255),
+            email: DataTypes.CHAR(255)
         }, {
             timestamps: false
         });
