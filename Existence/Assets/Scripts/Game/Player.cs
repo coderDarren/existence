@@ -65,6 +65,8 @@ public class Player : GameSystem
         m_GearStats = new StatData();
         m_BuffStats = new StatData();
         m_TrickleStats = new StatData();        
+
+
     }
 
     public void SaveBaselineStats(StatData _stats) {
