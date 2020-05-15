@@ -1,18 +1,14 @@
 ﻿
 using UnityEngine;
-using UnityEngine.UI;
 
-public class Mob : GameSystem
+public class Mob : Selectable
 {
     public float smooth;
-    public Text name;
-    public Image healthBar;
-    public Image energyBar;
 
     private NetworkController m_Network;
     private NetworkMobData m_Data;
     private PlayerController m_Controller;
-    private CanvasGroup m_NamePlate;
+    //private CanvasGroup m_NamePlate;
     private Vector3 m_InitialPos;
     private Vector3 m_TargetPos;
     private Vector3 m_InitialRot;
@@ -38,27 +34,15 @@ public class Mob : GameSystem
         
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / smooth);
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialRot), Quaternion.Euler(m_TargetRot), m_UpdateTimer / smooth);
-       DrawHealth();
-    }
-
-    private void DrawHealth(){
-        /*if (m_Controller.m_CurrentTarget == GetComponentInChildren<SkinnedMeshRenderer>().gameObject || m_Controller.m_Target == GetComponentInChildren<SkinnedMeshRenderer>().gameObject)
-            m_NamePlate.alpha = 1f;
-        else
-            m_NamePlate.alpha = 0f;
-        */
     }
 #endregion
 
 #region Public Functions
     public void Init(NetworkMobData _data) {
         m_Data = _data;
-        name.text = m_Data.name;
-        healthBar.fillAmount = m_Data.health / (float)m_Data.maxHealth;
-        energyBar.fillAmount = m_Data.energy / (float)m_Data.maxEnergy;
-        m_NamePlate = GetComponent<CanvasGroup>();
+        m_Nameplate = new NameplateData();
+        m_Nameplate.name = m_Data.name;
         m_Controller = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        
     }
 
     public void UpdateData(NetworkMobData _data) {
@@ -71,9 +55,9 @@ public class Mob : GameSystem
         m_TargetRot.z = m_Data.rot.z;
         m_InitialRot = transform.eulerAngles;
         m_InitialPos = transform.position;
-        healthBar.fillAmount = m_Data.health / (float)m_Data.maxHealth;
-        energyBar.fillAmount = m_Data.energy / (float)m_Data.maxEnergy;
         m_UpdateTimer = 0;
+
+        UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth);
     }
 
     public void Hit(int _dmg) {

@@ -1288,6 +1288,7 @@ GameObject:
   - component: {fileID: 7277636714585736243}
   - component: {fileID: 5940600230940397258}
   - component: {fileID: 4328090185065888592}
+  - component: {fileID: 789026936810835721}
   m_Layer: 11
   m_Name: TestDummy
   m_TagString: CombatTestDummy
@@ -1324,10 +1325,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 1
+  nameplateOffset: {x: 0, y: 2.2, z: 0}
   smooth: 0.15
-  name: {fileID: 0}
-  healthBar: {fileID: 0}
-  energyBar: {fileID: 0}
 --- !u!225 &4328090185065888592
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1340,6 +1339,20 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!136 &789026936810835721
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4754728568438128947}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 1.92
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &4762201262041314497
 GameObject:
   m_ObjectHideFlags: 0

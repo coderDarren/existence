@@ -166,6 +166,7 @@ GameObject:
   - component: {fileID: 7832545739686782726}
   - component: {fileID: 800358526234658292}
   - component: {fileID: 3148826555094228214}
+  - component: {fileID: -2051319278554633914}
   m_Layer: 9
   m_Name: NetworkPlayer
   m_TagString: NetworkPlayer
@@ -222,11 +223,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 1
   nameplateOffset: {x: 0, y: 1.97, z: 0}
-  nameLabel: {fileID: 0}
   isClient: 0
   sendRate: 0.15
   idleDetectionSeconds: 2
   moveSmooth: 0.15
+--- !u!136 &-2051319278554633914
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1275614032009576521}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 1.92
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &1291541591572603130
 GameObject:
   m_ObjectHideFlags: 0

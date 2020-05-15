@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -12,13 +13,22 @@ using UnityEngine;
 /// </summary>
 public class NetworkEntityHandler : GameSystem
 {
+    public static NetworkEntityHandler instance;
+
     public GameObject networkDummyObject;
     public GameObject networkPlayerObject;
 
     private Session m_Session;
     private NetworkController m_Network;
-    private Hashtable m_Mobs;
+    private Hashtable m_MobsHash;
     private Hashtable m_Players;
+    private List<Mob> m_Mobs;
+
+    public List<Mob> mobs {
+        get {
+            return m_Mobs;
+        }
+    }
 
     // Get the Session with integrity
     private Session session {
@@ -47,8 +57,16 @@ public class NetworkEntityHandler : GameSystem
     }
 
 #region Unity Functions
+    private void Awake() {
+        if (!instance) {
+            instance = this;
+        }
+    }
     private void Start() {
-        m_Mobs = new Hashtable();
+        if (instance != this) return;
+
+        m_MobsHash = new Hashtable();
+        m_Mobs = new List<Mob>();
         m_Players = new Hashtable();
 
         if (!network) return;
@@ -124,7 +142,7 @@ public class NetworkEntityHandler : GameSystem
 
     private void MovePlayer(NetworkPlayerData _data) {
         string _name = _data.name;
-        Log(_name+": "+m_Players.ContainsKey(_name));
+
         if (_name == session.playerData.player.name) return; //this is you..
         if (!m_Players.ContainsKey(_name)) return; // could not find player
         NetworkPlayer _player = (NetworkPlayer)m_Players[_name];
@@ -134,17 +152,19 @@ public class NetworkEntityHandler : GameSystem
     private void SpawnMob(NetworkMobData _data) {
         string _name = _data.id;
         if (_name == null) return;
-        if (m_Mobs.ContainsKey(_name)) return; // player already exists
+        if (m_MobsHash.ContainsKey(_name)) return; // player already exists
         GameObject _obj = Instantiate(networkDummyObject);
         Mob _mob = _obj.GetComponent<Mob>();
         _mob.Init(_data);
-        m_Mobs.Add(_name, _mob);
+        m_MobsHash.Add(_name, _mob);
+        m_Mobs.Add(_mob);
+        NameplateController.instance.TrackSelectable((Selectable)_mob);
     }
 
     private void MoveMob(NetworkMobData _data) {
         string _name = _data.id;
-        if (!m_Mobs.ContainsKey(_name)) return; // could not find player
-        Mob _mob = (Mob)m_Mobs[_name];
+        if (!m_MobsHash.ContainsKey(_name)) return; // could not find player
+        Mob _mob = (Mob)m_MobsHash[_name];
         _mob.UpdateData(_data);
     }
 #endregion

@@ -33,14 +33,15 @@ public class NameplateController : GameSystem
         foreach(DictionaryEntry _entry in m_Selectables) {
             Selectable _s = (Selectable)_entry.Value;
             Nameplate _n = (Nameplate)m_Nameplates[_entry.Key];
-            Log(_n.nameLabel.text+": "+_s);
-            _n.transform.position = Camera.main.WorldToScreenPoint(_s.transform.position + _s.nameplateOffset);
+
+            _n.SetPos(Camera.main.WorldToScreenPoint(_s.transform.position + _s.nameplateOffset));
             float _dist = Vector3.Distance(Camera.main.transform.position, _s.transform.position);
             _n.SetAlpha(1 - (_dist - maxViewableDistance) / fadeDistance);
             _n.SetScale(minScale + (1 - _dist / scaleDistance) * (maxScale - minScale));
             _n.SetName(_s.nameplate.name);
+            _n.SetHealthBar(_s.nameplate.maxHealth, _s.nameplate.health);
             SkinnedMeshRenderer _renderer = _s.GetComponentInChildren<SkinnedMeshRenderer>();
-            if (_renderer && !_renderer.isVisible) {
+            if ((_renderer && !_renderer.isVisible) || !_s.nameplate.isVisible) {
                 _n.SetAlpha(0);
             }
         }
@@ -50,7 +51,7 @@ public class NameplateController : GameSystem
 #region Public Functions
     public void TrackSelectable(Selectable _selectable) {
         string _id = _selectable.nameplate.name;
-        Log("Track "+_id);
+
         if (m_Selectables.ContainsKey(_id)) return; // already tracking
         m_Selectables.Add(_id, _selectable);
         GameObject _go = Instantiate(nameplate);
@@ -63,7 +64,7 @@ public class NameplateController : GameSystem
 
     public void ForgetSelectable(Selectable _selectable) {
         string _id = _selectable.nameplate.name;
-        Log("Forget "+_id);
+
         if (!m_Selectables.ContainsKey(_id)) return; // not tracking
         m_Selectables.Remove(_id);
         Nameplate _n = (Nameplate)m_Nameplates[_id];

@@ -114,6 +114,7 @@ public class NetworkPlayer : Selectable
     }
 
     public void Dispose() {
+        if (!isClient) return;
         NameplateController.instance.ForgetSelectable(this);
     }
 
@@ -173,7 +174,7 @@ public class NetworkPlayer : Selectable
         m_ClientData.input.running = m_PlayerController.runAnimation;
         m_ClientData.input.strafing = m_PlayerController.strafeAnimation;
         m_ClientData.input.grounded = m_PlayerController.grounded;
-        m_ClientData.input.attacking = m_PlayerController.attacking;
+        m_ClientData.input.attacking = m_PlayerController.GetComponent<Targeting>().attacking;
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
         m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed"); 
         m_ClientData.weaponName = m_Player.weapon.ToString();
@@ -201,7 +202,6 @@ public class NetworkPlayer : Selectable
     // Player not controlled by this client
     private void UpdateNetworkPlayer() {
         if (m_UpdateTimer > m_Smooth) return;
-        Log("towards pos: "+m_TargetPos);
         m_UpdateTimer += Time.deltaTime;
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / m_Smooth);
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialEuler), Quaternion.Euler(m_TargetEuler), m_UpdateTimer / m_Smooth);
@@ -210,7 +210,7 @@ public class NetworkPlayer : Selectable
         m_Animator.SetFloat("running", m_Running);
         m_Animator.SetFloat("strafing", m_Strafing);
         m_Animator.SetFloat("totalSpeed", m_AttackSpeed);
-        m_Animator.SetBool("grounded", m_Grounded);        
+        m_Animator.SetBool("grounded", m_Grounded);
         m_Animator.SetBool(m_Weapon, m_Attacking);
         m_Animator.SetBool("cycle", m_AttackCycle);
        
@@ -231,9 +231,8 @@ public class NetworkPlayer : Selectable
 
     public void AttackEnd(){
         if(!isClient) return;
-        if(!m_PlayerController.m_Target) return;
-        m_PlayerController.m_Target.transform.parent.GetComponent<Mob>().Hit(50);
-        
+        if(!m_PlayerController.GetComponent<Targeting>().m_Target) return;
+        m_PlayerController.GetComponent<Targeting>().m_Target.Hit(50);
         m_Animator.SetBool("cycle", true);
         /*foreach(ParticleSystem particle in m_Particles){
                 particle.Play();                    
