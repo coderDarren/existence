@@ -56,7 +56,7 @@ public class CharacterSelectionPage : Page
         }
         
         Vector2 _size = characterCardContainer.sizeDelta;
-        _size.y = m_PlayerCards.Count * 75 + m_PlayerCards.Count * 4;
+        _size.y = m_PlayerCards.Count * 160 + m_PlayerCards.Count * 4;
         characterCardContainer.sizeDelta = _size;
     }
 

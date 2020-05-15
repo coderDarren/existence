@@ -13,6 +13,7 @@ public class Session : GameSystem
 {
     public delegate void BasicAction();
     public event BasicAction OnPlayerConnected;
+    public event BasicAction OnPlayerDisconnected;
 
     public static Session instance;
 
@@ -133,6 +134,9 @@ public class Session : GameSystem
             network.Close();
             await UniTask.Delay(1000);
         }
+        if (m_NetworkPlayer != null) {
+            m_NetworkPlayer.Dispose();
+        }
         InitGame(_player);
         network.Connect();
     }
@@ -167,6 +171,7 @@ public class Session : GameSystem
     private void OnServerDisconnect() {
         // !! TODO
         // Implement 
+        TryRunAction(OnPlayerDisconnected);
     }
 
     private void SaveSession() {

@@ -367,7 +367,7 @@ class SQLController {
 
         // SESSION DATA
         this._sessionData = this._sql.define('sessionData', {
-            ID: {type:DataTypes.INTEGER,primaryKey:true},
+            //ID: {type:DataTypes.INTEGER,primaryKey:true},
             posX: DataTypes.FLOAT,
             posY: DataTypes.FLOAT,
             posZ: DataTypes.FLOAT,
@@ -402,7 +402,7 @@ class SQLController {
 
         // STATS
         this._stat = this._sql.define('stat', {
-            ID:{type:DataTypes.INTEGER,primaryKey:true},
+            //ID:{type:DataTypes.INTEGER,primaryKey:true},
             strength: DataTypes.INTEGER,
             dexterity: DataTypes.INTEGER,
             intelligence: DataTypes.INTEGER,
