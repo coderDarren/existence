@@ -8,7 +8,8 @@ class SQLController {
             process.env.DB_NAME || 'existence', 
             process.env.DB_USER || 'admin', 
             process.env.DB_PASS || 'adminadmin', {
-            host: process.env.DB_ENDPOINT || 'stage-existence-db-proxy.proxy-c4rptbmpkq5n.us-east-1.rds.amazonaws.com',
+            /*host: process.env.DB_ENDPOINT || 'stage-existence-db-proxy.proxy-c4rptbmpkq5n.us-east-1.rds.amazonaws.com',*/
+            host: process.env.DB_ENDPOINT || 'stage-existence.c4rptbmpkq5n.us-east-1.rds.amazonaws.com',
             port: process.env.DB_PORT || 3306,
             dialect: process.env.DB_DIALECT || 'mysql',
             logging:console.log
@@ -66,15 +67,15 @@ class SQLController {
             if (_check) {
                 return {
                     error: `Account already exists for username '${_params.username}'.`,
-                    code: 1408
+                    code: 1407
                 }
             }
 
             var _check = await this._account.findOne({where: {email: _params.email}});
             if (_check) {
                 return {
-                    error: `Account already exists for email '${_params.username}'.`,
-                    code: 1409
+                    error: `Account already exists for email '${_params.email}'.`,
+                    code: 1408
                 }
             }
 
