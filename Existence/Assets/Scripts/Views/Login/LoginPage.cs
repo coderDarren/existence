@@ -32,6 +32,13 @@ public class LoginPage : Page
     }
 #endregion
 
+#region Public Functions
+    public void CreateAccount() {
+        if (!controller) return;
+        controller.GoToAccountCreation();
+    }
+#endregion
+
 #region Private Functions
     private async void Login() {
         if (!controller) return;

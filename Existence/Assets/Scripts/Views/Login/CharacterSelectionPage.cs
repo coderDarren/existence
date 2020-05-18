@@ -31,6 +31,11 @@ public class CharacterSelectionPage : Page
         controller.SelectCharacter(_player);
     }
 
+    public void CreateCharacter() {
+        if (!controller) return;
+        controller.GoToCharacterCreation();
+    }
+
     public void Play() {
         if (!controller) return;
         controller.Play();

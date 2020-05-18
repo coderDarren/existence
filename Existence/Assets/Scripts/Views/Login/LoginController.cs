@@ -76,13 +76,16 @@ public class LoginController : GameSystem
 
     public void GoToLogin() {
         session.SignOut();
-        localMenu.TurnPageOff(PageType.CharacterSelection, PageType.Login, false);
+        localMenu.TurnPageOff(PageType.CharacterSelection);
+        localMenu.TurnPageOff(PageType.AccountCreation);
+        localMenu.TurnPageOn(PageType.Login);
     }
 #endregion
 
 #region ACCOUNT_CREATION
     public void GoToAccountCreation() {
-        
+        localMenu.TurnPageOff(PageType.Login);
+        localMenu.TurnPageOn(PageType.AccountCreation);
     }
 
     public async UniTask<int> CreateAccount(AccountData _acct) {
