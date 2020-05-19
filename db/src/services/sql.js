@@ -180,7 +180,7 @@ class SQLController {
                 }; 
             }
 
-            const _playerId = _player.dataValues.ID;
+            const _playerId = _player.dataValues.id;
             const _stats = await this._stat.findByPk(_player.dataValues.statsID);
             const _sessionData = await this._sessionData.findByPk(_player.dataValues.sessionDataID);
             const _inventory = (await this._sql.query(`select * from items 
