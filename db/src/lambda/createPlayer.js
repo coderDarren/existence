@@ -5,11 +5,13 @@ const validateParams = function(_body)
 {
     if (!_body) return -1;
     const _name = _body.name;
-    const _account = _body.account;
+    const _account = _body.id;
+    const _apiKey = _body.apiKey;
     if (!_name || !_account) return -1;
     return {
         name: _name,
-        account: _account
+        account: _account,
+        apiKey: _apiKey,
     };
 }
 
@@ -19,18 +21,13 @@ const createPlayer = async function(_body) {
 
     if (_params == -1) {
         return {
-            error: "Invalid request body. Expecting 'name'."
+            error: "Invalid request body."
         }
     }
 
     const _sql = new SQL();    
-    if (!(await _sql.connect())) {
-        return {
-            error: "Failed to connect to db."
-        }
-    }
-    
-    const _result = await _sql.createPlayer(_params.account, _params.name);
+    const _result = await _sql.createPlayer(_params);
+    await _sql.close();
     if (_result.error) {
         return _result;
     }

@@ -78,6 +78,7 @@ const createAccount = async function(_body) {
 
     const _sql = new SQL();
     const _result = await _sql.createAccount(_params);
+    await _sql.close();
     if (_result.error) {
         return _result;
     }

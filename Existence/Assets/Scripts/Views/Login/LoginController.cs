@@ -119,9 +119,20 @@ public class LoginController : GameSystem
             }
         }
 
-        localMenu.TurnPageOff(PageType.Login, PageType.CharacterSelection, false);
+        localMenu.TurnPageOff(PageType.Login);
+        localMenu.TurnPageOff(PageType.CharacterCreation);
+        localMenu.TurnPageOn(PageType.CharacterSelection);
 
         return true;
+    }
+
+    public async UniTask<int> CreateCharacter(CreatePlayerRequest _req) {
+        if (!session) return -1;
+        PlayerData _player = await DatabaseService.GetService(debug).CreatePlayer(_req);
+        if (_player.responseCode == 200) {
+            SelectCharacter(_player);
+        }
+        return _player.responseCode;
     }
 
     public void SelectCharacter(PlayerData _player) {
@@ -129,7 +140,7 @@ public class LoginController : GameSystem
     }
 
     public void GoToCharacterCreation() {
-
+        localMenu.TurnPageOff(PageType.CharacterSelection, PageType.CharacterCreation, false);
     }
 #endregion
 
