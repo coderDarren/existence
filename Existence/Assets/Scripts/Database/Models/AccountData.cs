@@ -19,7 +19,7 @@ public class AccountData : NetworkModel
      * 1405 - First name cannot contain special characters or numbers
      * 1406 - Email is not supported
      * 1407 - Account already exists for username
-     * 1408 -Account already exists for email
+     * 1408 - Account already exists for email
      */
     public int creationResponseCode;
 

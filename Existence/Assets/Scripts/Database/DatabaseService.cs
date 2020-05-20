@@ -6,6 +6,7 @@ public class DatabaseService
     private static readonly string SERVICE_ENDPOINT = "https://15paucwkia.execute-api.us-east-1.amazonaws.com/dev/api/";
     private static readonly string PATH_GETPLAYER = "getPlayer";
     private static readonly string PATH_CREATEACCOUNT = "createAccount";
+    private static readonly string PATH_CREATEPLAYER = "createPlayer";
     private static readonly string PATH_UPDATESTATS = "updateStats";
     private static readonly string PATH_UPDATEPLAYER = "updatePlayer";
     private static readonly string PATH_AUTHENTICATE = "authenticate";
@@ -48,6 +49,28 @@ public class DatabaseService
             default:
                 Log("[CreateAccount]: "+_resp.message);
                 return new AccountData(_resp.statusCode);;
+                break;
+        }
+    }
+
+    public async UniTask<PlayerData> CreatePlayer(CreatePlayerRequest _req) {
+        string _url = SERVICE_ENDPOINT+PATH_CREATEPLAYER;
+        APIResponse _resp = await m_Rest.Post(_url, _req.ToJsonString());
+        switch (_resp.statusCode) {
+            case 200:
+                try {
+                    PlayerData _data = NetworkModel.FromJsonStr<PlayerData>(_resp.message);
+                    Log("[CreatePlayer]: raw "+_resp.message);
+                    _data.responseCode = _resp.statusCode;
+                    return _data;
+                } catch (System.Exception _err) {
+                    Log("[CreatePlayer]: "+_err.Message);
+                    return new PlayerData(_resp.statusCode);
+                }
+                break;
+            default:
+                Log("[CreatePlayer]: "+_resp.message);
+                return new PlayerData(_resp.statusCode);;
                 break;
         }
     }

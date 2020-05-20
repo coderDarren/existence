@@ -8,6 +8,8 @@ public class CharacterSelectionPage : Page
 {
     public GameObject CharacterCard;
     public RectTransform characterCardContainer;
+    public Text playerName;
+    public Text username;
 
     private LoginController m_Controller;
     private List<GameObject> m_PlayerCards;
@@ -29,6 +31,11 @@ public class CharacterSelectionPage : Page
         if (!controller) return;
         Log(_player.player.name+" was selected");
         controller.SelectCharacter(_player);
+    }
+
+    public void CreateCharacter() {
+        if (!controller) return;
+        controller.GoToCharacterCreation();
     }
 
     public void Play() {
@@ -82,6 +89,8 @@ public class CharacterSelectionPage : Page
         base.OnPageEnabled();
         m_PlayerCards = new List<GameObject>();
         ConfigureCharacterScrollView();
+        playerName.text = "Hello, " + controller.session.account.first_name;
+        username.text = "Signed in as " + controller.session.account.username;
     }
 
     protected override void OnPageDisabled() {

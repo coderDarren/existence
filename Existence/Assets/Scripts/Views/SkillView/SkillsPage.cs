@@ -6,6 +6,7 @@ using UnityCore.Menu;
 public class SkillsPage : Page
 {
     public Text statPointLabel;
+    public Text playerLevel;
     public Button saveButton;
     public GameObject coreSection;
     public GameObject healthSection;
@@ -39,7 +40,7 @@ public class SkillsPage : Page
         }
         set {
             m_StatPoints = value;
-            statPointLabel.text = "Stat Points: "+m_StatPoints;
+            statPointLabel.text = "SP: "+m_StatPoints;
         }
     }
     
@@ -112,6 +113,8 @@ public class SkillsPage : Page
         m_Stats = session.playerData.stats.ToHashtable();
         m_OtherStats = session.player.buffStats.Combine(session.player.gearStats).ToHashtable();
         OpenSection(SkillSection.CORE);
+
+        playerLevel.text = "LV. "+session.player.data.player.level;
     }
 #endregion
 }
