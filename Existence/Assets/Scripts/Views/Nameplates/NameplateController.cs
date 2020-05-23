@@ -50,7 +50,7 @@ public class NameplateController : GameSystem
 
 #region Public Functions
     public void TrackSelectable(Selectable _selectable) {
-        string _id = _selectable.nameplate.name;
+        string _id = _selectable.gameObject.GetInstanceID().ToString();
 
         if (m_Selectables.ContainsKey(_id)) return; // already tracking
         m_Selectables.Add(_id, _selectable);
@@ -63,7 +63,7 @@ public class NameplateController : GameSystem
     }
 
     public void ForgetSelectable(Selectable _selectable) {
-        string _id = _selectable.nameplate.name;
+        string _id = _selectable.gameObject.GetInstanceID().ToString();
 
         if (!m_Selectables.ContainsKey(_id)) return; // not tracking
         m_Selectables.Remove(_id);
