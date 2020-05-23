@@ -64,9 +64,10 @@ public class LoginController : GameSystem
 #endregion
 
 #region Public Functions
+#region SIGN_IN
     public async UniTask<bool> Login(string _un, string _pass) {
         if (!session) return false;
-        AccountData _account = await DatabaseService.GetService(true).Authenticate(new AuthenticationData(_un, _pass));
+        AccountData _account = await DatabaseService.GetService(debug).Authenticate(new AuthenticationData(_un, _pass));
         if (_account != null) {
             session.InitAccount(_account);
         }
@@ -75,13 +76,29 @@ public class LoginController : GameSystem
 
     public void GoToLogin() {
         session.SignOut();
-        localMenu.TurnPageOff(PageType.CharacterSelection, PageType.Login, false);
+        localMenu.TurnPageOff(PageType.CharacterSelection);
+        localMenu.TurnPageOff(PageType.AccountCreation);
+        localMenu.TurnPageOn(PageType.Login);
     }
+#endregion
 
+#region ACCOUNT_CREATION
     public void GoToAccountCreation() {
-        
+        localMenu.TurnPageOff(PageType.Login);
+        localMenu.TurnPageOn(PageType.AccountCreation);
     }
 
+    public async UniTask<int> CreateAccount(AccountData _acct) {
+        if (!session) return -1;
+        AccountData _account = await DatabaseService.GetService(debug).CreateAccount(_acct);
+        if (_account.creationResponseCode == 200) {
+
+        }
+        return _account.creationResponseCode;
+    }
+#endregion
+
+#region CHARACTERS
     public async UniTask<bool> GoToCharacterSelection() {
         // if session does not already have character info
         if (!session) return false;
@@ -91,7 +108,7 @@ public class LoginController : GameSystem
         }
 
         if (session.accountPlayers == null) {
-            PlayerData[] _accountPlayers = await DatabaseService.GetService(true).GetAccountPlayers(session.account);
+            PlayerData[] _accountPlayers = await DatabaseService.GetService(debug).GetAccountPlayers(session.account);
             if (_accountPlayers != null) {
                 session.InitAccountPlayers(_accountPlayers);
                 localMenu.TurnPageOff(PageType.Login, PageType.CharacterSelection, false);
@@ -102,18 +119,30 @@ public class LoginController : GameSystem
             }
         }
 
-        localMenu.TurnPageOff(PageType.Login, PageType.CharacterSelection, false);
+        localMenu.TurnPageOff(PageType.Login);
+        localMenu.TurnPageOff(PageType.CharacterCreation);
+        localMenu.TurnPageOn(PageType.CharacterSelection);
 
         return true;
     }
 
-    public void GoToCharacterCreation() {
-
+    public async UniTask<int> CreateCharacter(CreatePlayerRequest _req) {
+        if (!session) return -1;
+        PlayerData _player = await DatabaseService.GetService(debug).CreatePlayer(_req);
+        if (_player.responseCode == 200) {
+            SelectCharacter(_player);
+        }
+        return _player.responseCode;
     }
 
     public void SelectCharacter(PlayerData _player) {
         m_SelectedPlayer = _player;
     }
+
+    public void GoToCharacterCreation() {
+        localMenu.TurnPageOff(PageType.CharacterSelection, PageType.CharacterCreation, false);
+    }
+#endregion
 
     public void Play() {
         if (!menu) return;

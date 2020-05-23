@@ -47,15 +47,15 @@ const enforceParamRules = function(_params) {
 
     // enforce first and last name
     if (!_params.first_name.match(_letterRegex)) {
-        return {error: 'First name cannot contain special characters or numbers', code: 1405}
+        return {error: 'First name cannot contain special characters or numbers', code: 1404}
     }
     if (!_params.last_name.match(_letterRegex)) {
-        return {error: 'Last name cannot contain special characters or numbers', code: 1406}
+        return {error: 'Last name cannot contain special characters or numbers', code: 1405}
     }
 
     // enforce email
     if (!_params.email.match(_emailRegex)) {
-        return {error: 'Email is invalid', code: 1407}
+        return {error: 'Email is not supported', code: 1406}
     }
 
     return {}
@@ -78,6 +78,7 @@ const createAccount = async function(_body) {
 
     const _sql = new SQL();
     const _result = await _sql.createAccount(_params);
+    await _sql.close();
     if (_result.error) {
         return _result;
     }

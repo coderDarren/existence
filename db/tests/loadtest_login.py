@@ -13,9 +13,11 @@ def millis():
 async def sendRequestsConcurrently(load):
     tasks = []
     sem = asyncio.Semaphore(1000)
+    testStart = millis()
     
     http = aiohttp.ClientSession()
     for i in range(load):
+        #await asyncio.sleep(0.01)
         task = asyncio.ensure_future(loginTask(sem, http))
         tasks.append(task)
     
@@ -31,6 +33,7 @@ async def sendRequestsConcurrently(load):
     print("done")
     print("success: "+str(success))
     print("failure: "+str(failure))
+    print(f"time to complete {load} requests: {millis()-testStart}ms")
 
 async def loginTask(sem, http):
     async with sem:
@@ -49,9 +52,8 @@ async def login(http):
     start = millis()
     
     async with http.post(url, json=payload, headers=headers) as res:
-        now = millis()
         body = await res.json()
-        #await res.read()
+        now = millis()
         print(f"[login]: [{now-start}ms] result: "+str(body["statusCode"]))
         if (body["statusCode"] == 502):
             return -1
@@ -59,4 +61,4 @@ async def login(http):
             return 1
 
 
-asyncio.run(sendRequestsConcurrently(250))
+asyncio.run(sendRequestsConcurrently(100))

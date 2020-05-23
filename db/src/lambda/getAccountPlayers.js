@@ -31,6 +31,7 @@ const getAccountPlayers = async function(_query) {
     }*/
 
     const _result = await _sql.getAccountPlayers(_params);
+    await _sql.close();
     if (_result.error) {
         return _result;
     }

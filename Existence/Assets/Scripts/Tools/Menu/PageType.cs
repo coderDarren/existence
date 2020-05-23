@@ -12,7 +12,8 @@
             Login,
             CharacterSelection,
             LoginLoad,
-            AccountCreation
+            AccountCreation,
+            CharacterCreation
         }
     }
 }
