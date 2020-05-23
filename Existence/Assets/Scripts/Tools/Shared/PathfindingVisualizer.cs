@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
-
+#endif
 /// <summary>
 /// PathfindingVisualizer is used to create a visual representation of node-edge based graph
 /// Right now, we use this to help us visualize graphs for server pathfinding
@@ -80,6 +81,7 @@ public class PathfindingVisualizer : GameSystem
 #endregion
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(PathfindingVisualizer))]
 public class PathfindingVisualizerEditor : Editor {
     SerializedProperty graphNodeHandle;
@@ -94,3 +96,4 @@ public class PathfindingVisualizerEditor : Editor {
         serializedObject.ApplyModifiedProperties();
     }
 }
+#endif
