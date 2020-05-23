@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimTest : MonoBehaviour
+public class SubMeshTest : MonoBehaviour
 {
-    // Start is called before the first frame update
+     
     void Start()
     {
-        
+        Mesh mesh = GetComponent<MeshFilter>().mesh;
+        Debug.Log(mesh.subMeshCount);
     }
 
     // Update is called once per frame
