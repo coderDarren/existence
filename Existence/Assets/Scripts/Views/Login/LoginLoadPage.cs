@@ -7,8 +7,10 @@ using UnityCore.Scene;
 public class LoginLoadPage : Page
 {
 
+    private Session m_Session;
     private LoginController m_Controller;
     private SceneController m_SceneController;
+    private PlayerData m_SelectedPlayer;
 
     private LoginController controller {
         get {
@@ -34,13 +36,31 @@ public class LoginLoadPage : Page
         }
     }
 
+    private Session session {
+        get {
+            if (!m_Session) {
+                m_Session = Session.instance;
+            }
+            if (!m_Session) {
+                Log("Trying to access session, but no instance was found.");
+            }
+            return m_Session;
+        }
+    }
+
 #region Private Functions
     private void OnSceneLoaded(SceneType _scene) {
+        if (!session) return;
+        if (m_SelectedPlayer == null) {
+            Log("Trying to load player, but no player was selected.");
+            return;
+        }
+
         if (_scene == SceneType.Game) {
             // subscribe to network connect event to bring down the loading page
-            controller.session.network.OnConnect += OnServerConnect;
+            session.network.OnConnect += OnServerConnect;
             // tell the session to connect
-            controller.session.ConnectPlayer(controller.selectedPlayer);
+            session.StartGame(m_SelectedPlayer);
         }
     }
 
@@ -56,14 +76,14 @@ public class LoginLoadPage : Page
 
     protected override void OnPageEnter() {
         base.OnPageEnter();
-        // start loading scene
+        m_SelectedPlayer = controller.selectedPlayer;
         if (!sceneController) return;
         sceneController.Load(SceneType.Game, OnSceneLoaded);
     }
 
     protected override void OnPageDisabled() {
         base.OnPageDisabled();
-        controller.session.network.OnConnect -= OnServerConnect;
+        session.network.OnConnect -= OnServerConnect;
     }
 #endregion
 }

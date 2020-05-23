@@ -61,7 +61,6 @@ public class Chatbox : GameSystem
             network.OnPlayerJoined += OnPlayerJoined;
             network.OnPlayerLeft += OnPlayerLeft;
             network.OnChat += OnChat;
-            Log("subscribing to events");
         }
     }
 
@@ -85,7 +84,6 @@ public class Chatbox : GameSystem
             network.OnPlayerJoined -= OnPlayerJoined;
             network.OnPlayerLeft -= OnPlayerLeft;
             network.OnChat -= OnChat;
-            Log("unsubscribing events");
         }
 
         if (session) {
@@ -148,6 +146,10 @@ public class Chatbox : GameSystem
                 }
                 Login(_args[1]);
                 break;
+            case ChatCommand.LOGOUT:
+                chatBox.text += "\nCommand arguments were not understood.";
+                session.LogoutToCharSelection();
+                break;
             case ChatCommand.XP:
                 if (_args.Count != 2) {
                     chatBox.text += "\nCommand arguments were not understood.";
@@ -169,7 +171,7 @@ public class Chatbox : GameSystem
         Log("[Login]: ["+(NetworkTimestamp.NowMilliseconds()-_start)+"ms]: "+_data);
 
         if (_data != null) {
-            session.ConnectPlayer(_data);
+            session.StartGame(_data);
         } else {
             chatBox.text += "\nNo account for "+_playerName+" exists. Create one first.";
         }

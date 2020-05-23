@@ -7,7 +7,9 @@ const {
 const getPlayer = require('./getPlayer.js');
 const createPlayer = require('./createPlayer.js');
 const updateStats = require('./updateStats.js');
+const updateSessionData = require('./updateSessionData.js');
 const updatePlayer = require('./updatePlayer.js');
+const createAccount = require('./createAccount.js');
 const authenticate = require('./authenticate.js');
 const getAccountPlayers = require('./getAccountPlayers.js');
 
@@ -37,6 +39,9 @@ const handleRoute = async function(_req) {
         case "/api/":
             _req.context.succeed(response(200, `Existence API v${versionCode}`));
             break;
+        case "/api/createAccount": // POST
+            _resp = await createAccount(_req.body);
+            break;
         case "/api/authenticate": // POST
             _resp = await authenticate(_req.body);
             break;
@@ -55,6 +60,9 @@ const handleRoute = async function(_req) {
         case "/api/updateStats": // POST
             _resp = await updateStats(_req.body);
             break;
+        case "/api/updateSessionData": // POST
+            _resp = await updateSessionData(_req.body);
+            break;
     }
 
     handleResponse(_resp, _req.context);
@@ -62,7 +70,8 @@ const handleRoute = async function(_req) {
 
 const handleResponse = function(_resp, _context) {
     if (_resp.error) {
-        _context.succeed(response(502, _resp.error));
+        const _code = _resp.code ? _resp.code : 502;
+        _context.succeed(response(_code, _resp.error));
     } else {
         _context.succeed(response(200, _resp.data))
     }

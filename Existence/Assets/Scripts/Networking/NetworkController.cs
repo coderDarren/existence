@@ -2,6 +2,15 @@
 using UnityEngine;
 using SocketIO;
 
+/// <summary>
+/// This controller is responsible for managing all network messaging..
+/// ..and transmitting events to anyone interested in subscribing
+///
+/// Aside from event transmission on the client, the controller is also..
+/// ..responsible helping send data up to the network
+///
+/// NetworkController will operate directly with the core socket engine via SocketIOComponent
+/// <summary>
 [RequireComponent(typeof(SocketIOComponent))]
 public class NetworkController : GameSystem
 {
@@ -37,6 +46,8 @@ public class NetworkController : GameSystem
     private static readonly string NETWORK_MESSAGE_CHAT = "CHAT";
     private static readonly string NETWORK_MESSAGE_INSTANCE = "INSTANCE";
     private static readonly string NETWORK_MESSAGE_HIT_MOB = "HIT_MOB";
+
+    public bool IsConnected { get { return m_Network.IsConnected; } }
 
 #region Unity Functions
     private void Awake() {
@@ -82,15 +93,15 @@ public class NetworkController : GameSystem
     private void OnNetworkPlayerJoined(SocketIOEvent _evt) {
         Log("Player joined the server.");
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkPlayerData _instance = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
-        TryRunAction(OnPlayerJoined, _instance);
+        NetworkPlayerData _player = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
+        TryRunAction(OnPlayerJoined, _player);
     }
 
     private void OnNetworkPlayerLeft(SocketIOEvent _evt) {
         Log("Player left the server.");
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkPlayerData _instance = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
-        TryRunAction(OnPlayerLeft, _instance);
+        NetworkPlayerData _player = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
+        TryRunAction(OnPlayerLeft, _player);
     }
 
     private void OnInstanceUpdate(SocketIOEvent _evt) {
@@ -155,8 +166,8 @@ public class NetworkController : GameSystem
         SendString(NETWORK_MESSAGE_CHAT, _chat);
     }
 
-    public void SendHandshake(NetworkPlayerData _data) {
-        SendNetworkData<NetworkPlayerData>(NETWORK_MESSAGE_HANDSHAKE, _data);
+    public void SendHandshake(NetworkHandshake _data) {
+        SendNetworkData<NetworkHandshake>(NETWORK_MESSAGE_HANDSHAKE, _data);
     }
 
     public void SendNetworkPlayer(NetworkPlayerData _data) {

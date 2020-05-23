@@ -1,4 +1,4 @@
-﻿
+﻿ 
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -25,7 +25,7 @@ public class PlayerController : GameSystem
     public float gravity = 20.0f;
 
     [Header("Grounding")]
-    [Range(4,12)]
+    [Range(4,24)]
     public int groundCheckDensity = 5;
     public float groundCheckRadius = 1.0f;
     public float groundCheckDist = 1.0f;
@@ -35,9 +35,7 @@ public class PlayerController : GameSystem
     private Player m_Player;
     private CharacterController m_Controller;
     private Animator m_Animator;
-    private Targeting m_Targeting;    
     private ParticleSystem[] m_Particles;
-    private GameObject[] m_Targets;
     private Vector3 m_MoveDirection;
     private Vector3 m_ForwardVec;
     private Vector3 m_RightVec;
@@ -58,17 +56,11 @@ public class PlayerController : GameSystem
     private float m_GroundBiasTimer;
     private bool m_InputIsFrozen;
     private float m_AnimationSpeed;   
-    private bool m_AttackInput;
-    private bool m_CycleTarget;
-    private int m_TargetNum;
+    private float m_Gravity;
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
     public bool grounded { get { return m_Grounded; } }
-    public bool attacking;
-    public KeyCode m_Attack;
-    public GameObject m_Target;
-    public GameObject m_CurrentTarget;    
 
 #region Unity Functions
     private void Start()
@@ -76,9 +68,6 @@ public class PlayerController : GameSystem
         m_Player = GetComponent<Player>();
         m_Controller = GetComponent<CharacterController>();
         m_Animator = GetComponent<Animator>();
-        m_Targeting = GetComponent<Targeting>();
-        m_TargetNum = 1;
-        attacking = false;
     }
 
     private void Update()
@@ -87,7 +76,6 @@ public class PlayerController : GameSystem
         Move();
         Turn();
         Animate();
-        Attack();        
     }
 
 #endregion
@@ -128,34 +116,34 @@ public class PlayerController : GameSystem
         m_RightMouseDown = Input.GetMouseButton(1);
         m_ShiftIsDown = Input.GetKey(KeyCode.LeftShift);
         m_JumpInput = Input.GetButton("Jump");
-        m_TurnInput = m_RightMouseDown ? Input.GetAxis("Mouse X")*3 : m_HorizontalAxis;
-        m_StrafeInput = m_RightMouseDown && Mathf.Abs(m_HorizontalAxis) > 0 ? m_HorizontalAxis : 0;
-        m_AttackInput = Input.GetKeyDown(m_Attack);
-        m_CycleTarget = Input.GetKeyDown(KeyCode.Tab);
-        m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
-        m_StrafeAnimation = Mathf.Abs(m_VerticalAxisRaw) == 0 ? Mathf.Lerp(m_StrafeAnimation, m_StrafeInput, 5*Time.deltaTime) : ApproachZero(m_StrafeAnimation);
+        m_TurnInput = m_RightMouseDown ? Input.GetAxis("Mouse X")*3 : m_HorizontalAxisRaw;
+        m_StrafeInput = m_RightMouseDown && Mathf.Abs(m_HorizontalAxisRaw) > 0 ? m_HorizontalAxis : 0;
+        m_StrafeAnimation = Mathf.Abs(m_VerticalAxisRaw) == 0 ? m_StrafeInput == 0 ? ApproachTarget(m_StrafeAnimation, 0) : m_StrafeInput : ApproachTarget(m_StrafeAnimation, 0);
         DetectWalking();
     }
 
     private void Move() {
+        var _playerStats = m_Player.GetAggregatedStats();
+
+        // calculate forward speed
+        m_AnimationSpeed = m_ForwardInput <= 0 || m_ShiftIsDown ? 1 : (0.75f + 0.00045f*_playerStats.runSpeed);
+        m_AnimationSpeed = Mathf.Clamp(m_AnimationSpeed, 0.25f, 3);
+        float _forwardSpeed = m_ForwardInput < 0 ? backwardSpeed : m_ShiftIsDown ? walkSpeed : (runSpeed+0.01f*_playerStats.runSpeed);
+        _forwardSpeed = Mathf.Clamp(_forwardSpeed, 0.25f, Mathf.Infinity);
+        float _strafeSpeed = m_ShiftIsDown || m_VerticalAxisRaw < 0 ? walkStrafeSpeed : runStrafeSpeed;
+        
         CheckGrounded();
         if (m_Controller.isGrounded)
         {
-            // calculate forward speed
-            var _playerStats = m_Player.GetAggregatedStats();
-            m_AnimationSpeed = m_ForwardInput <= 0 || m_ShiftIsDown ? 1 : (0.75f + 0.00045f*_playerStats.runSpeed);
-            m_AnimationSpeed = Mathf.Clamp(m_AnimationSpeed, 0.25f, 3);
-            float _forwardSpeed = m_ForwardInput < 0 ? backwardSpeed : m_ShiftIsDown ? walkSpeed : (runSpeed+0.01f*_playerStats.runSpeed);
-            _forwardSpeed = Mathf.Clamp(_forwardSpeed, 0.25f, Mathf.Infinity);
-            float _strafeSpeed = m_ShiftIsDown || m_VerticalAxisRaw < 0 ? walkStrafeSpeed : runStrafeSpeed;
-            m_MoveDirection = m_ForwardVec * m_ForwardInput * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed;
+            m_Gravity = gravity;
+            m_MoveDirection = m_ForwardVec * m_VerticalAxisRaw * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed - Vector3.up * 1000;
 
-            if (m_JumpInput)
+            if (m_JumpInput) 
+            {
                 m_MoveDirection.y = jumpSpeed + 0.01f*_playerStats.strength;
+            }
         }
-        if(m_CycleTarget){
-            m_Targeting.Search();
-        } 
+        
         m_MoveDirection.y -= gravity * Time.deltaTime;
         m_Controller.Move(m_MoveDirection * Time.deltaTime);
     }
@@ -170,7 +158,6 @@ public class PlayerController : GameSystem
         } else {
             m_ForwardInput = m_VerticalAxis;
         }
-        
     }
 
     private void Turn() {
@@ -196,9 +183,37 @@ public class PlayerController : GameSystem
         }
 
         // check radius
+        // !! TODO
+        // Make this a function
         for (int i = 0; i < groundCheckDensity; i++) {
             float _angle = (360.0F / groundCheckDensity) * i;
             _from = transform.position + m_Controller.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * groundCheckRadius;
+            if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
+                _normalAggregate += _hitInfo.normal;
+                _hit = true;
+                _hits++;
+            }
+            if (debug) {
+                Debug.DrawLine(_from, _from + Vector3.down * groundCheckDist, Color.green);
+            }
+        }
+
+        for (int i = 0; i < groundCheckDensity; i++) {
+            float _angle = (360.0F / groundCheckDensity) * i;
+            _from = transform.position + m_Controller.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * (groundCheckRadius/2.0f);
+            if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
+                _normalAggregate += _hitInfo.normal;
+                _hit = true;
+                _hits++;
+            }
+            if (debug) {
+                Debug.DrawLine(_from, _from + Vector3.down * groundCheckDist, Color.green);
+            }
+        }
+
+        for (int i = 0; i < groundCheckDensity; i++) {
+            float _angle = (360.0F / groundCheckDensity) * i;
+            _from = transform.position + m_Controller.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * (groundCheckRadius/5.0f);
             if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
                 _normalAggregate += _hitInfo.normal;
                 _hit = true;
@@ -226,17 +241,21 @@ public class PlayerController : GameSystem
                 }
             }
         }
+
+        if (!m_Grounded) {
+            m_ForwardVec = transform.forward;
+            m_RightVec = transform.right;
+        }
         
         if (debug) {
             Debug.DrawLine(transform.position, transform.position + m_ForwardVec * 1.0f, Color.blue);
             Debug.DrawLine(transform.position, transform.position + m_RightVec * 1.0f, Color.red);
-            
         }
     }
 
-    private float ApproachZero(float _val) {
-        _val = Mathf.Lerp(_val, 0, 5 * Time.deltaTime);
-        if (Mathf.Abs(_val) <= 0.025f) {
+    private float ApproachTarget(float _val, float _target) {
+        _val = Mathf.Lerp(_val, _target, 5 * Time.deltaTime);
+        if (Mathf.Abs(_val - _target) <= 0.025f) {
             _val = 0;
         }
         return _val;
@@ -249,44 +268,6 @@ public class PlayerController : GameSystem
         m_Animator.speed = m_AnimationSpeed;//Need to use a multiplier on runspeed and access that instead of accessing base animatior speed
     }
 
-    public void FindTarget(GameObject[] _targets){
-        m_CurrentTarget = _targets[0];
-        m_Targets = new GameObject[_targets.Length];
-        m_Targets = _targets;        
-    }
-    
-    public void CycleTarget(){
-        m_CurrentTarget = m_Targets[m_TargetNum];
-        m_TargetNum++;
-        if(m_TargetNum >= m_Targets.Length)
-            m_TargetNum = 0;
-        
-    }    
-
-    public void Attack(){        
-        if (!m_CurrentTarget) return;
-        if (m_AttackInput) {
-            if(!attacking){
-                attacking = true;
-                m_Target = m_CurrentTarget;
-                m_Animator.SetBool(m_Player.weapon.ToString(), true);
-                m_Animator.SetBool("cycle", false);                
-            }
-            else {
-                attacking = false;
-                m_Target = null;
-                m_Animator.SetBool(m_Player.weapon.ToString(), false);                 
-            }
-        }
-        if(m_CancelTarget){
-            m_Target = null;
-            attacking = false;
-            m_Animator.SetBool(m_Player.weapon.ToString(), false); 
-        }
-        Debug.Log(m_CurrentTarget);
-        Debug.Log(m_Target);
-    } 
-    
     
 #endregion
 }

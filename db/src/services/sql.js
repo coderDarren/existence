@@ -8,6 +8,7 @@ class SQLController {
             process.env.DB_NAME || 'existence', 
             process.env.DB_USER || 'admin', 
             process.env.DB_PASS || 'adminadmin', {
+            /*host: process.env.DB_ENDPOINT || 'stage-existence-db-proxy.proxy-c4rptbmpkq5n.us-east-1.rds.amazonaws.com',*/
             host: process.env.DB_ENDPOINT || 'stage-existence.c4rptbmpkq5n.us-east-1.rds.amazonaws.com',
             port: process.env.DB_PORT || 3306,
             dialect: process.env.DB_DIALECT || 'mysql',
@@ -30,14 +31,18 @@ class SQLController {
         if (!_acct) {
             console.log(`Unable to verify account ${_params.account}`);
             return {
-                error: `No account found for user '${_params.account}'.`
+                error: `No account found for user '${_params.account}'.`,
+                code: 1398
             }
         }
 
+        // !! TODO
+        // Alert suspicious behavior
         if (_acct.dataValues.apiKey != _params.apiKey) {
             console.log(`Invalid api key was attempted on account ${_params.account}`);
             return {
-                error: `Invalid api key was attempted on account ${_params.account}`
+                error: `Invalid api key was attempted on account ${_params.account}`,
+                code: 1399
             }
         }
 
@@ -53,6 +58,40 @@ class SQLController {
         } catch(_err) {
             this.__log__("Failed to connect: "+_err);
             return false;
+        }
+    }
+
+    async close() {
+        await this._sql.close();
+    }
+
+    async createAccount(_params) {
+        try {
+            var _check = await this._account.findOne({where: {username: _params.username}});
+            if (_check) {
+                return {
+                    error: `Account already exists for username '${_params.username}'.`,
+                    code: 1407
+                }
+            }
+
+            var _check = await this._account.findOne({where: {email: _params.email}});
+            if (_check) {
+                return {
+                    error: `Account already exists for email '${_params.email}'.`,
+                    code: 1408
+                }
+            }
+
+            const _acct = await this._account.create(_params);
+
+            return {
+                data: _acct
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
         }
     }
 
@@ -103,8 +142,9 @@ class SQLController {
             for (i in _players) {
                 const _player = _players[i];
                 const _stats = await this._stat.findByPk(_player.dataValues.statsID);
+                const _sessionData = await this._sessionData.findByPk(_player.dataValues.sessionDataID);
                 const _inventory = (await this._sql.query(`select * from items 
-                    inner join inventorySlots on inventorySlots.playerID = ${_player.dataValues.ID} and inventorySlots.itemID = items.ID`))[0];
+                    inner join inventorySlots on inventorySlots.playerID = ${_player.dataValues.id} and inventorySlots.itemID = items.ID`))[0];
                 for (var i = 0; i < _inventory.length; i++) {
                     var _item = _inventory[i];
                     _item.requirements = await this._stat.findByPk(_item.requirementsID);
@@ -114,6 +154,7 @@ class SQLController {
                 }
                 _data.push({
                     player: _player.dataValues,
+                    sessionData: _sessionData,
                     stats: _stats,
                     inventory: _inventory
                 });
@@ -132,16 +173,16 @@ class SQLController {
 
     async getPlayer(_playerName) {
         try {
-            const _player = await this._player.findAll({where: {name: _playerName}});
-            if (_player.length == 0) { 
+            const _player = await this._player.findOne({where: {name: _playerName}});
+            if (!_player) { 
                 return {
                     error: `No player found named ${_playerName}.`
                 }; 
             }
 
-            const _playerId = _player[0].dataValues.ID;
-            const _stats = await this._stat.findByPk(_player[0].dataValues.statsID);
-            //const _inventory = await this._inventorySlot.findAll({where: {playerID: _player[0].dataValues.ID}})
+            const _playerId = _player.dataValues.id;
+            const _stats = await this._stat.findByPk(_player.dataValues.statsID);
+            const _sessionData = await this._sessionData.findByPk(_player.dataValues.sessionDataID);
             const _inventory = (await this._sql.query(`select * from items 
                 inner join inventorySlots on inventorySlots.playerID = ${_playerId} and inventorySlots.itemID = items.ID`))[0];
             for (var i = 0; i < _inventory.length; i++) {
@@ -155,7 +196,8 @@ class SQLController {
             
             return {
                 data: {
-                    player: _player[0].dataValues,
+                    player: _player.dataValues,
+                    sessionData: _sessionData,
                     stats: _stats,
                     inventory: _inventory
                 }
@@ -167,28 +209,68 @@ class SQLController {
         }
     }
 
-    async createPlayer(_account, _playerName) {
+    async createPlayer(_params) {
         try {
-            const _playerExists = (await this.getPlayer(_playerName)).error == null;
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            const _playerExists = await this._player.findOne({where: {name: _params.name}});
             if (_playerExists) {
                 return {
-                    error: `Player already exists with name ${_playerName}`
+                    error: `Player already exists with name ${_params.name}`,
+                    code: 1400
                 }
             }
 
-            const _stats = await this._stat.create({});
+            const _statsInit = await this._stat.create({});
+            const _stats = await this._stat.findByPk(_statsInit.dataValues.id);
             if (_stats.id == null) {
                 return {
-                    error: `Failed to generate stats.`
+                    error: `Failed to generate stats.`,
+                    code: 1401
                 }
             }
 
-            const _player = await this._player.create({name: _playerName, serverID: 1, accountID: _account, statsID: _stats.id});
+            const _sessionInit = await this._sessionData.create({})
+            const _sessionData = await this._sessionData.findByPk(_sessionInit.dataValues.id);
+            if (_sessionData.id == null) {
+                return {
+                    error: `Failed to generate session data.`,
+                    code: 1402
+                }
+            }
+
+            const _player = await this._player.create({name: _params.name, serverID: 1, accountID: _params.account, statsID: _stats.id, sessionDataID: _sessionData.id});
+            if (_player.id == null) {
+                return {
+                    error: `Failed to create player.`,
+                    code: 1403
+                }
+            }
+
             return {
                 data: {
                     player: _player,
+                    sessionData: _sessionData,
                     stats: _stats
                 }
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
+    async updatePlayer(_player) {
+        try {
+            const _resp = await this._player.update(_player, {where: {id: _player.ID}})
+            console.log(JSON.stringify(_resp));
+            return {
+                data: _resp
             }
         } catch (_err) {
             return {
@@ -225,6 +307,20 @@ class SQLController {
         }
     }
 
+    async updateSessionData(_session) {
+        try {
+            const _resp = await this._sessionData.update(_session, {where: {id: _session.ID}})
+            console.log(JSON.stringify(_resp));
+            return {
+                data: _resp
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
     async createArmor() {
         const _reqStat = await this._stat.create({
             strength: 12,
@@ -247,7 +343,8 @@ class SQLController {
             first_name: DataTypes.CHAR(255),
             last_name: DataTypes.CHAR(255),
             apiKey: DataTypes.CHAR(255),
-            username: DataTypes.CHAR(255)
+            username: DataTypes.CHAR(255),
+            email: DataTypes.CHAR(255)
         }, {
             timestamps: false
         });
@@ -313,14 +410,28 @@ class SQLController {
 
         // PLAYERS
         this._player = this._sql.define('player', {
-            ID: {type:DataTypes.CHAR(255),primaryKey:true},
+            //ID: {type:DataTypes.CHAR(255),primaryKey:true},
             name: DataTypes.CHAR(255),
             accountID: DataTypes.INTEGER,
             serverID: DataTypes.INTEGER,
             statsID: DataTypes.INTEGER,
+            sessionDataID: DataTypes.INTEGER,
             level: DataTypes.INTEGER,
             xp: DataTypes.INTEGER,
             statPoints: DataTypes.INTEGER,
+        }, {
+            timestamps: false
+        });
+
+        // SESSION DATA
+        this._sessionData = this._sql.define('sessionData', {
+            //ID: {type:DataTypes.INTEGER,primaryKey:true},
+            posX: DataTypes.INTEGER,
+            posY: DataTypes.INTEGER,
+            posZ: DataTypes.INTEGER,
+            rotX: DataTypes.INTEGER,
+            rotY: DataTypes.INTEGER,
+            rotZ: DataTypes.INTEGER
         }, {
             timestamps: false
         });
@@ -349,7 +460,7 @@ class SQLController {
 
         // STATS
         this._stat = this._sql.define('stat', {
-            ID:{type:DataTypes.INTEGER,primaryKey:true},
+            //ID:{type:DataTypes.INTEGER,primaryKey:true},
             strength: DataTypes.INTEGER,
             dexterity: DataTypes.INTEGER,
             intelligence: DataTypes.INTEGER,

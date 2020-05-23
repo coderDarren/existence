@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using ProScripts;
 
-public class SkillBarButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class SkillBarButton : ProButton
 {
     
     public enum ModType {
@@ -18,15 +19,6 @@ public class SkillBarButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
     private bool m_ShiftIsDown;
 
 #region Unity Functions
-    private void OnEnable() {
-        m_BaseIncrement = new WaitForSeconds(0.5f);
-        m_SpeedIncrement = new WaitForSeconds(0.015f);
-    }
-
-    private void OnDisable() {
-        StopCoroutine("Press");
-    }
-
     private void Update() {
         m_ShiftIsDown = Input.GetKey(KeyCode.LeftShift);
     }
@@ -55,14 +47,27 @@ public class SkillBarButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
     }
 #endregion
 
-#region Interface Functions
-    public void OnPointerDown(PointerEventData _ped) {
+#region Public Functions
+    public void StartPress() {
         StopCoroutine("Press");
         StartCoroutine("Press");
     }
 
-    public void OnPointerUp(PointerEventData _ped) {
+    public void StopPress() {
         StopCoroutine("Press");
+    }
+#endregion
+
+#region Override Functions
+    public override void Init() {
+        base.Init();
+        m_BaseIncrement = new WaitForSeconds(0.5f);
+        m_SpeedIncrement = new WaitForSeconds(0.015f);
+    }
+
+    public override void Dispose() {
+        base.Dispose();
+        StopPress();
     }
 #endregion
 }
