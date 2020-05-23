@@ -1,12 +1,15 @@
 ﻿
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 public class GraphNodeHandle : MonoBehaviour
 {
     
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(GraphNodeHandle))]
 public class GraphNodeHandleEditor : Editor {
     private Transform m_Obj;
@@ -51,3 +54,4 @@ public class GraphNodeHandleEditor : Editor {
         }
     }
 }
+#endif
