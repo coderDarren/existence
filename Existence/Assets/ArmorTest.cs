@@ -74,5 +74,5 @@ using UnityEngine;
         equippedArmor.transform.GetChild(0).transform.localRotation = targetBone.localRotation;
         equippedArmor.transform.GetChild(0).transform.localScale = targetBone.localScale;
         //Destroy(newBone.gameObject);
-    }
+    }   //Vertices that have the designated bone index get weighted to new bone.
  }
