@@ -7,16 +7,23 @@ using UnityEngine;
  {
     public GameObject prosthetic;
     public GameObject player;
+    public string partString;    
 
-    private Transform bone;
+    private Renderer mat;    
+    private GameObject prostheticI;
+    private GameObject targetParent;
+    private GameObject targetPart;
     private Vector3[] vert;
     private Vector3[] baseVert;
     private Mesh mesh;
 
     void Start(){
-        mesh = GetComponent<SkinnedMeshRenderer>().sharedMesh;
-        baseVert = mesh.vertices;
-        bone = player.transform.Find("mixamorig:LeftForeArm");
+        //mesh = GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        //baseVert = mesh.vertices;
+        targetPart = transform.Find(partString).gameObject;
+        targetParent = transform.FindDeepChild(partString + "_Pros").gameObject;
+        mat = targetPart.GetComponent<Renderer>();        
+        
     }
     
     void Update(){
@@ -25,24 +32,30 @@ using UnityEngine;
         }
         if(Input.GetKeyDown(KeyCode.T)){
             ResetMesh();
-        }
+        }       
     }
 
     void EquipArmor(){
         
-        vert = mesh.vertices;
+        /*vert = mesh.vertices;               
         for(int i = 0; i < vert.Length; i++){
-            vert[i] -= mesh.normals[i] * 0.1f * 0.1f * 0.1f * 0.2f;
-            Debug.Log(vert[i]);
-        }
-        mesh.vertices = vert;
+            vert[i] += mesh.normals[i] * 0.1f * 0.1f * 0.1f * 0.2f;
+             
+            
+            
+        }z
+        mesh.vertices = vert;*/
+        mat.enabled = false;
         
-        Instantiate(prosthetic, bone.position, bone.rotation);
-        
+        prostheticI = Instantiate(prosthetic, targetParent.transform);
+        prostheticI.transform.localPosition = new Vector3(0f,0f,0f);           
+        //prostheticI.transform.localRotation = targetParent.transform.rotation;
 
     }
 
     void ResetMesh(){
-        mesh.vertices = baseVert;
+        //mesh.vertices = baseVert;
+        Destroy(prostheticI);
+        mat.enabled = true;
     }
  }
