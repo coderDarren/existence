@@ -5,74 +5,40 @@ using UnityEngine;
  
  public  class ArmorTest : MonoBehaviour
  {
-    public GameObject armorPiece;
-    public bool isClient;
-
-    private GameObject player;
-    private GameObject networkPlayer;
-    private Transform targetBone;
-    private Transform oldBone;
-    private Transform oldBoneNetwork;
-    private Transform newBone;
-    private Transform parentBone;
-    private Transform childBone;
-    private BoneWeight[] weight;
-    private SkinnedMeshRenderer skin;
-    private Mesh mesh;
-    private Vector3[] vertices;
-    private string boneName;
-    private int targetIndex;
-
+    public GameObject augment;
     
+    private Vector3[] vert;
+    private Vector3[] baseVert;
+    private Mesh mesh;
 
     void Start(){
-        player = GameObject.FindGameObjectWithTag("Player");
-        networkPlayer = GameObject.FindGameObjectWithTag("NetworkPlayer");
-        boneName = armorPiece.transform.GetChild(0).transform.name;        
-        oldBone = player.transform.FindDeepChild(boneName);        
-        parentBone = oldBone.parent;
-        //childBone = oldBone.GetChild(0);
-        targetBone = oldBone;
-        mesh = new Mesh();
-        skin = player.GetComponentInChildren<SkinnedMeshRenderer>();
-        
-        if(!isClient){
-            oldBoneNetwork = networkPlayer.transform.FindDeepChild(boneName);
-            targetBone = oldBoneNetwork;
-            skin = networkPlayer.GetComponentInChildren<SkinnedMeshRenderer>();
-        }
-        
-        skin.BakeMesh(mesh);
-        
-        Debug.Log(boneName);
-        //Debug.Log(skin);  
-             
-
+        mesh = GetComponent<MeshFilter>().mesh;
+        baseVert = mesh.vertices;
     }
-
+    
     void Update(){
-        if(Input.GetKeyDown(KeyCode.Z)){
-            Equip();
+        if(Input.GetKeyDown(KeyCode.R)){
+            EquipArmor();
+        }
+        if(Input.GetKeyDown(KeyCode.T)){
+            ResetMesh();
         }
     }
 
-    void Equip(){
-               
-        for(int i = 0; i < skin.bones.Length; i++){
-            if(skin.bones[i].name == boneName){
-                targetIndex = i;
-            }
-        }
-
+    void EquipArmor(){
         
-        GameObject equippedArmor = Instantiate(armorPiece, targetBone.position, targetBone.rotation);        
-        //newBone = equippedArmor.transform.Find(boneName);
-        //newBone.localScale = targetBone.localScale;        
-        equippedArmor.transform.parent = parentBone.transform.GetChild(0);
-        //childBone.SetParent(newBone);
-        equippedArmor.transform.GetChild(0).transform.localPosition = targetBone.localPosition;
-        equippedArmor.transform.GetChild(0).transform.localRotation = targetBone.localRotation;
-        equippedArmor.transform.GetChild(0).transform.localScale = targetBone.localScale;
-        //Destroy(newBone.gameObject);
-    }   //Vertices that have the designated bone index get weighted to new bone.
+        vert = mesh.vertices;
+        Debug.Log("ping");
+
+        for(int i = 0; i < vert.Length; i++){
+            vert[i] -= mesh.normals[i] * 2f;
+            Debug.Log(vert[i]);
+        }
+        
+        mesh.vertices = vert;
+    }
+
+    void ResetMesh(){
+        mesh.vertices = baseVert;
+    }
  }
