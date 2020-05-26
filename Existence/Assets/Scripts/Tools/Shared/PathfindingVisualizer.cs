@@ -64,6 +64,7 @@ public class PathfindingVisualizerEditor : Editor {
                 GraphNode _node = _t.GetComponent<GraphNode>();
                 if (_node == null) continue;
                 BuildGraph(ref _graph, _node);
+                break;
             }
             string _json = _graph.ToJsonString();
             Debug.Log("Graph finished building with result: "+_json);
@@ -74,12 +75,21 @@ public class PathfindingVisualizerEditor : Editor {
 
     private void BuildGraph(ref Graph _graph, GraphNode _graphNode) {
         Node _parent = new Node(new NetworkVector3(_graphNode.transform.position.x, _graphNode.transform.position.y, _graphNode.transform.position.z));
+        Debug.Log("Building node "+_parent.id);
         int _parentIndex = _graph.AddNode(_parent);
-        if (_parentIndex == -1) return;
+        if (_parentIndex == -1) {
+            Debug.Log("Parent node was already added");
+            return;
+        }
         foreach (GraphNode _n in _graphNode.neighbors) {
             Node _node = new Node(new NetworkVector3(_n.transform.position.x, _n.transform.position.y, _n.transform.position.z));
+            Debug.Log("Branching node "+_node.id);
             int _childIndex = _graph.AddNode(_node);
-            if (_childIndex == -1) continue;
+            if (_childIndex == -1) {
+                Debug.Log("Child node was already added");
+                continue;
+            }
+            Debug.Log("Linking nodes "+_parent.id+" <=> "+_node.id);
             _graph.LinkNodes(_parentIndex, _childIndex);
             BuildGraph(ref _graph, _n);
         }

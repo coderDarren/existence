@@ -215,7 +215,7 @@ public class NetworkPlayer : Selectable
         m_Animator.SetBool("cycle", m_AttackCycle);
        
     }
-
+    
     private void PollPredictiveSmoothing() {
         if (m_LastUpdateMillis == 0) {
             m_LastUpdateMillis = NetworkTimestamp.NowMilliseconds();
