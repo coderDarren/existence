@@ -5,15 +5,25 @@ using UnityEngine;
  
  public  class ArmorTest : MonoBehaviour
  {
-    public GameObject augment;
-    
+    public GameObject prosthetic;
+    public GameObject player;
+    public string partString;    
+
+    private Renderer mat;    
+    private GameObject prostheticI;
+    private GameObject targetParent;
+    private GameObject targetPart;
     private Vector3[] vert;
     private Vector3[] baseVert;
     private Mesh mesh;
 
     void Start(){
-        mesh = GetComponent<MeshFilter>().mesh;
-        baseVert = mesh.vertices;
+        //mesh = GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        //baseVert = mesh.vertices;
+        targetPart = transform.Find(partString).gameObject;
+        targetParent = transform.FindDeepChild(partString + "_Pros").gameObject;
+        mat = targetPart.GetComponent<Renderer>();        
+        
     }
     
     void Update(){
@@ -22,23 +32,30 @@ using UnityEngine;
         }
         if(Input.GetKeyDown(KeyCode.T)){
             ResetMesh();
-        }
+        }       
     }
 
     void EquipArmor(){
         
-        vert = mesh.vertices;
-        Debug.Log("ping");
-
+        /*vert = mesh.vertices;               
         for(int i = 0; i < vert.Length; i++){
-            vert[i] -= mesh.normals[i] * 2f;
-            Debug.Log(vert[i]);
-        }
+            vert[i] += mesh.normals[i] * 0.1f * 0.1f * 0.1f * 0.2f;
+             
+            
+            
+        }z
+        mesh.vertices = vert;*/
+        mat.enabled = false;
         
-        mesh.vertices = vert;
+        prostheticI = Instantiate(prosthetic, targetParent.transform);
+        prostheticI.transform.localPosition = new Vector3(0f,0f,0f);           
+        //prostheticI.transform.localRotation = targetParent.transform.rotation;
+
     }
 
     void ResetMesh(){
-        mesh.vertices = baseVert;
+        //mesh.vertices = baseVert;
+        Destroy(prostheticI);
+        mat.enabled = true;
     }
  }
