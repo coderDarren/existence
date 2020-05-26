@@ -492,13 +492,13 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: Dwarf Idle (1)(Clone)
+    - name: FemalePlayer(Clone)
       parentName: 
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamorig:Hips
-      parentName: Dwarf Idle (1)(Clone)
+      parentName: FemalePlayer(Clone)
       position: {x: -0.00009241253, y: 1.0997257, z: -0.016812114}
       rotation: {x: 1.795449e-10, y: -0.007275053, z: -0.000000024679395, w: 0.99997354}
       scale: {x: 1, y: 1, z: 1}
@@ -556,7 +556,7 @@ ModelImporter:
       parentName: mixamorig:Hips
       position: {x: -0, y: 0.10814468, z: -0.0009130192}
       rotation: {x: -0.004221209, y: -0.0000000037416443, z: 0.000000003869596, w: 0.9999911}
-      scale: {x: 1, y: 0.99999994, z: 1.0000001}
+      scale: {x: 1, y: 1, z: 1}
     - name: mixamorig:Spine1
       parentName: mixamorig:Spine
       position: {x: -0, y: 0.12617317, z: 2.5297169e-11}
@@ -570,11 +570,11 @@ ModelImporter:
     - name: mixamorig:LeftShoulder
       parentName: mixamorig:Spine2
       position: {x: -0.060927536, y: 0.14913715, z: -0.00006292317}
-      rotation: {x: 0.554349, y: -0.43905902, z: 0.5548276, w: 0.43828148}
+      rotation: {x: 0.55434906, y: -0.43905905, z: 0.55482763, w: 0.4382815}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamorig:LeftArm
       parentName: mixamorig:LeftShoulder
-      position: {x: -1.1088019e-11, y: 0.12576415, z: 0.0000000015428273}
+      position: {x: -0, y: 0.129, z: 0.014}
       rotation: {x: -0.077877425, y: -0.0006860941, z: 0.008782356, w: 0.99692404}
       scale: {x: 1.0000001, y: 1.0000004, z: 1.0000005}
     - name: mixamorig:LeftForeArm
@@ -695,8 +695,7 @@ ModelImporter:
     - name: mixamorig:Head
       parentName: mixamorig:Neck
       position: {x: -0, y: 0.059813842, z: -0.0002819538}
-      rotation: {x: -0.0000000037252903, y: 0.0000000032596166, z: -0.000000010957596,
-        w: 1}
+      rotation: {x: 0.11056656, y: 0.0000000044370485, z: -0.0016088949, w: 0.99386746}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamorig:HeadTop_End
       parentName: mixamorig:Head
@@ -710,7 +709,7 @@ ModelImporter:
       scale: {x: 0.99999976, y: 0.9999999, z: 1}
     - name: mixamorig:RightArm
       parentName: mixamorig:RightShoulder
-      position: {x: 1.4866348e-11, y: 0.12576416, z: 0.0000000014624837}
+      position: {x: 0, y: 0.13, z: 0.019}
       rotation: {x: -0.07787722, y: 0.0006701499, z: -0.0085785985, w: 0.99692583}
       scale: {x: 1, y: 1.0000004, z: 1.0000002}
     - name: mixamorig:RightForeArm
@@ -824,12 +823,12 @@ ModelImporter:
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Torso
-      parentName: Dwarf Idle (1)(Clone)
+      parentName: FemalePlayer(Clone)
       position: {x: 0.012240424, y: 1.3866022, z: -0.012240394}
       rotation: {x: -0.50000006, y: -0.49999994, z: -0.49999997, w: 0.50000006}
       scale: {x: 100, y: 100, z: 100}
     - name: Torso.001
-      parentName: Dwarf Idle (1)(Clone)
+      parentName: FemalePlayer(Clone)
       position: {x: 0.012240424, y: 1.3866022, z: -0.012240394}
       rotation: {x: -0.50000006, y: -0.49999994, z: -0.49999997, w: 0.50000006}
       scale: {x: 100, y: 100, z: 100}
