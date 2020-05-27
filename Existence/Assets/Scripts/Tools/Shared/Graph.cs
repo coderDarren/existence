@@ -1,43 +1,73 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class Node : NetworkModel {
-    public int objectId;
+    public string id;
     public NetworkVector3 pos;
-    public List<Edge> edges;
-    public Node(int _objectId, NetworkVector3 _pos) {
-        edges = new List<Edge>();
-        objectId = _objectId;
+    public List<Edge> paths;
+    private Hashtable m_EdgeHash;
+
+    public Node(NetworkVector3 _pos) {
+        paths = new List<Edge>();
+        m_EdgeHash = new Hashtable();
+        id = _pos.x+"-"+_pos.y+"-"+_pos.z;
         pos = _pos;
     }
     public void AddEdge(Node _to) {
-        edges.Add(new Edge(this, _to));
+        string _key = _to.pos.x+"-"+_to.pos.y+"-"+_to.pos.z;
+        if (m_EdgeHash.ContainsKey(_key)) {
+            return;
+        }
+        float _length = Vector3.Distance(new Vector3(pos.x,pos.y,pos.z), new Vector3(_to.pos.x,_to.pos.y,_to.pos.z));
+        Edge _e = new Edge(id, _to.id, _length);
+        paths.Add(_e);
+        m_EdgeHash.Add(_key, _to);
     }
 }
 
 public class Edge : NetworkModel {
-    public Node from;
-    public Node to;
+    public string from;
+    public string to;
     public float length;
-    public Edge(Node _from, Node _to) {
+    public Edge(string _from, string _to, float _length) {
         from = _from;
         to = _to;
-        length = Vector3.Distance(new Vector3(_from.pos.x,_from.pos.y,_from.pos.z), new Vector3(_to.pos.x,_to.pos.y,_to.pos.z));
+        length = _length;
     }
 }
 
 public class Graph : NetworkModel {
-    public List<Node> nodes;
+    public List<Node> waypoints;
+    private Hashtable m_NodeHash;
 
-    public void AddNode(Node _node) {
-        if (nodes == null) {
-            nodes = new List<Node>();
-        }
-        nodes.Add(_node);
+    public Graph() {
+        waypoints = new List<Node>();
+        m_NodeHash = new Hashtable();
     }
 
-    public void LinkNodes(Node _from, Node _to) {
-        _from.AddEdge(_to);
-        _to.AddEdge(_from);
+    public int AddNode(Node _node) {
+        string _key = _node.id;
+        if (m_NodeHash.ContainsKey(_key)) {
+            //Debug.Log("Node already exists: "+_key);
+            return IndexAt(_key);
+        }
+        waypoints.Add(_node);
+        m_NodeHash.Add(_key, _node);
+        return waypoints.Count - 1;
+    }
+
+    public void LinkNodes(int _from, int _to) {
+        waypoints[_from].AddEdge(waypoints[_to]);
+        waypoints[_to].AddEdge(waypoints[_from]);
+    }
+
+    private int IndexAt(string _id) {
+        for (int i = 0; i < waypoints.Count; i++) {
+            if (waypoints[i].id == _id) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
