@@ -27,6 +27,12 @@ public class Mob : Selectable
         }
     }
 
+    public string id {
+        get {
+            return m_Data.id;
+        }
+    }
+
 #region Unity Functions
     private void Update() {
         if (m_UpdateTimer > smooth) return;

@@ -82,6 +82,7 @@ public class PathfindingVisualizerEditor : Editor {
             return;
         }
         foreach (GraphNode _n in _graphNode.neighbors) {
+            Debug.Log(_n.gameObject.transform);
             Node _node = new Node(new NetworkVector3(_n.transform.position.x, _n.transform.position.y, _n.transform.position.z));
             Debug.Log("Branching node "+_node.id);
             int _childIndex = _graph.AddNode(_node);
