@@ -733,7 +733,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2983242038855219026}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: -62.4, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7277636714585736243}
@@ -751,14 +751,14 @@ SkinnedMeshRenderer:
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e2415391c47b84b46b0d5812d6ad8d1b, type: 2}
-  - {fileID: 2100000, guid: e2415391c47b84b46b0d5812d6ad8d1b, type: 2}
+  - {fileID: 2100000, guid: 7fac3e312a00bc045a1e6433c3c4b2b1, type: 2}
+  - {fileID: 2100000, guid: 7fac3e312a00bc045a1e6433c3c4b2b1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1274,6 +1274,7 @@ GameObject:
   - component: {fileID: 5940600230940397258}
   - component: {fileID: 4328090185065888592}
   - component: {fileID: 789026936810835721}
+  - component: {fileID: 7121676318585373395}
   m_Layer: 11
   m_Name: TestDummy
   m_TagString: CombatTestDummy
@@ -1338,6 +1339,22 @@ CapsuleCollider:
   m_Height: 1.92
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &7121676318585373395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4754728568438128947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c77232cf0980fef4498d2da8105540c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  relativeToPlayer: 1
+  relativeTo: {fileID: 0}
+  beginFadeDistance: 45
+  fadeLength: 5
 --- !u!1 &4762201262041314497
 GameObject:
   m_ObjectHideFlags: 0
