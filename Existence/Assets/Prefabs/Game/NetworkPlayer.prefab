@@ -167,6 +167,7 @@ GameObject:
   - component: {fileID: 800358526234658292}
   - component: {fileID: 3148826555094228214}
   - component: {fileID: -2051319278554633914}
+  - component: {fileID: 640386195351002487}
   m_Layer: 9
   m_Name: NetworkPlayer
   m_TagString: NetworkPlayer
@@ -241,6 +242,22 @@ CapsuleCollider:
   m_Height: 1.92
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &640386195351002487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1275614032009576521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c77232cf0980fef4498d2da8105540c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  relativeToPlayer: 1
+  relativeTo: {fileID: 0}
+  beginFadeDistance: 45
+  fadeLength: 5
 --- !u!1 &1291541591572603130
 GameObject:
   m_ObjectHideFlags: 0
