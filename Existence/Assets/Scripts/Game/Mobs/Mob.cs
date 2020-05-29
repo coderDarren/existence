@@ -1,9 +1,11 @@
 ﻿
 using UnityEngine;
 
+[RequireComponent(typeof(CapsuleCollider))]
 public class Mob : Selectable
 {
     public float smooth;
+    public LayerMask ground;
 
     private NetworkController m_Network;
     private NetworkMobData m_Data;
@@ -14,6 +16,7 @@ public class Mob : Selectable
     private Vector3 m_InitialRot;
     private Vector3 m_TargetRot;
     private float m_UpdateTimer;
+    private CapsuleCollider m_Collider;
 
     private NetworkController network {
         get {
@@ -40,11 +43,13 @@ public class Mob : Selectable
         
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / smooth);
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialRot), Quaternion.Euler(m_TargetRot), m_UpdateTimer / smooth);
+        FindGroundPos();
     }
 #endregion
 
 #region Public Functions
     public void Init(NetworkMobData _data) {
+        m_Collider = GetComponent<CapsuleCollider>();
         m_Data = _data;
         m_Nameplate = new NameplateData();
         m_Nameplate.name = m_Data.name;
@@ -74,6 +79,16 @@ public class Mob : Selectable
 #endregion
 
 #region Private Functions
-
+    private void FindGroundPos() {
+        RaycastHit _hit;
+        if (Physics.Raycast(transform.position + Vector3.up, -Vector3.up, out _hit, Mathf.Infinity, ground)) {
+            if (_hit.collider.gameObject != gameObject) {
+                Log(gameObject.name+" hit "+_hit.collider.gameObject.name+" at "+_hit.point.y);
+                Vector3 _pos = transform.position;
+                _pos.y = _hit.point.y + 0.01f;
+                transform.position = _pos;
+            }
+        }
+    }
 #endregion
 }

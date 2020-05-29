@@ -20,15 +20,22 @@ public class NetworkEntityHandler : GameSystem
 
     private Session m_Session;
     private NetworkController m_Network;
-    private Hashtable m_Players;
+    private Hashtable m_PlayersHash;
     private Hashtable m_MobsHash;
     private Hashtable m_MobUpdateState;
     private Hashtable m_PlayerUpdateState;
     private List<Mob> m_Mobs;
+    private List<NetworkPlayer> m_Players;
 
     public List<Mob> mobs {
         get {
             return m_Mobs;
+        }
+    }
+
+    public List<NetworkPlayer> players {
+        get {
+            return m_Players;
         }
     }
 
@@ -69,9 +76,10 @@ public class NetworkEntityHandler : GameSystem
 
         m_MobsHash = new Hashtable();
         m_MobUpdateState = new Hashtable();
-        m_PlayerUpdateState = new Hashtable();
         m_Mobs = new List<Mob>();
-        m_Players = new Hashtable();
+        m_PlayersHash = new Hashtable();
+        m_PlayerUpdateState = new Hashtable();
+        m_Players = new List<NetworkPlayer>();
 
         if (!network) return;
         network.OnHandshake += OnServerHandshake;
@@ -95,22 +103,41 @@ public class NetworkEntityHandler : GameSystem
 
 #region Private Functions
     private void OnServerHandshake(NetworkInstanceData _instance) {
-        foreach(NetworkPlayerData _player in _instance.players) {
-            SpawnPlayer(_player);
-        }
-
-        foreach(NetworkMobData _mob in _instance.mobs) {
-            //SpawnMob(_mob);
-            //m_MobUpdateState.Add(_mob.id, false);
-        }
     }
 
     private void OnInstanceUpdated(NetworkInstanceData _instance) {
-        foreach(NetworkPlayerData _player in _instance.players) {
-            MovePlayer(_player);
+        HandlePlayerUpdates(_instance.players);
+        HandleMobUpdates(_instance.mobs);
+    }
+
+    private void HandlePlayerUpdates(NetworkPlayerData[] _players) {
+        foreach (DictionaryEntry _entry in m_PlayersHash) {
+            string _key = (string)_entry.Key;
+            m_PlayerUpdateState[_key] = false;
+        }
+        
+        foreach(NetworkPlayerData _player in _players) {
+            // find mobs that did not update
+            if (m_PlayerUpdateState.ContainsKey(_player.name)) {
+                MovePlayer(_player);
+                m_PlayerUpdateState[_player.name] = true;
+            } else {
+                SpawnPlayer(_player);
+                m_PlayerUpdateState.Add(_player.name, true);
+            }
         }
 
-        HandleMobUpdates(_instance.mobs);
+        // compare old mob hash to this new stuff
+        for (int i = m_Players.Count - 1; i >= 0; i--) {
+            string _key = m_Players[i].name;
+            if (_key == string.Empty) continue;
+            bool _didUpdate = (bool)m_PlayerUpdateState[_key];
+            if (!_didUpdate) {
+                NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_key];
+                RemovePlayer(_player);
+                m_Players.RemoveAt(i);
+            }
+        }
     }
 
     private void HandleMobUpdates(NetworkMobData[] _mobs) {
@@ -146,7 +173,8 @@ public class NetworkEntityHandler : GameSystem
         SpawnPlayer(_player);
     }
     
-    private void OnPlayerLeft(NetworkPlayerData _player) {
+    private void OnPlayerLeft(NetworkPlayerData _data) {
+        NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_data.name];
         RemovePlayer(_player);
     }
 
@@ -154,30 +182,32 @@ public class NetworkEntityHandler : GameSystem
         string _name = _data.name;
         if (_name == null) return;
         if (_name == session.playerData.player.name) return; //this is you..
-        if (m_Players.ContainsKey(_name)) return; // player already exists
+        if (m_PlayersHash.ContainsKey(_name)) return; // player already exists
         GameObject _obj = Instantiate(networkPlayerObject);
         NetworkPlayer _player = _obj.GetComponent<NetworkPlayer>();
         _player.Init(_data);
-        m_Players.Add(_name, _player);
+        m_PlayersHash.Add(_name, _player);
+        m_Players.Add(_player);
         NameplateController.instance.TrackSelectable((Selectable)_player);
     }
 
-    private void RemovePlayer(NetworkPlayerData _data) {
+    private void RemovePlayer(NetworkPlayer _data) {
         string _playerName = _data.name;
         if (_playerName == session.playerData.player.name) return; //this is you..
-        if (!m_Players.ContainsKey(_playerName)) return;
-        NetworkPlayer _player = (NetworkPlayer)m_Players[_playerName];
-        m_Players.Remove(_playerName);
-        Destroy(_player.gameObject);
-        NameplateController.instance.ForgetSelectable((Selectable)_player);
+        if (!m_PlayersHash.ContainsKey(_playerName)) return;
+        //NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_playerName];
+        m_PlayersHash.Remove(_playerName);
+        m_PlayerUpdateState.Remove(_playerName);
+        Destroy(_data.gameObject);
+        NameplateController.instance.ForgetSelectable((Selectable)_data);
     }
 
     private void MovePlayer(NetworkPlayerData _data) {
         string _name = _data.name;
 
         if (_name == session.playerData.player.name) return; //this is you..
-        if (!m_Players.ContainsKey(_name)) return; // could not find player
-        NetworkPlayer _player = (NetworkPlayer)m_Players[_name];
+        if (!m_PlayersHash.ContainsKey(_name)) return; // could not find player
+        NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_name];
         _player.UpdateServerPlayer(_data);
     }
 

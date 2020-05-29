@@ -76,6 +76,15 @@ public class NetworkPlayer : Selectable
         }
     }
 
+    public string name {
+        get {
+            if (m_LastFrameData == null) {
+                return string.Empty;
+            }
+            return m_LastFrameData.name;
+        }
+    }
+
 #region Unity Functions
     private void Start() {
         m_Animator = GetComponent<Animator>();
