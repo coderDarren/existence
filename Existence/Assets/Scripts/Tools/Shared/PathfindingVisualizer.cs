@@ -44,6 +44,7 @@ public class PathfindingVisualizer : GameSystem
 #endregion
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(PathfindingVisualizer))]
 public class PathfindingVisualizerEditor : Editor {
     public SerializedProperty debug;
@@ -104,3 +105,4 @@ public class PathfindingVisualizerEditor : Editor {
         Files.WriteToFile(fileName, _graph.ToJsonString(), false);
     }
 }
+#endif
