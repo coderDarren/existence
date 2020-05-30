@@ -12,7 +12,7 @@ using UnityEngine;
     private Renderer mat;    
     private GameObject prostheticI;
     private GameObject targetParent;
-    private GameObject targetPart;
+    private GameObject targetPart;    
     private Vector3[] vert;
     private Vector3[] equipVert;
     private Mesh equipMesh;
@@ -46,8 +46,11 @@ using UnityEngine;
         
         prostheticI = Instantiate(prosthetic, targetParent.transform);
         prostheticI.transform.localPosition = new Vector3(0f,0f,0f);
+        //prostheticI.transform.rotation =
         equipMesh = prostheticI.GetComponentInChildren<SkinnedMeshRenderer>().sharedMesh;
         equipVert = equipMesh.vertices;
+        
+
         
 
         for(int i = 0; i < equipVert.Length; i++){
