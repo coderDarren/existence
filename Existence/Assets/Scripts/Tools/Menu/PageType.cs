@@ -13,7 +13,8 @@
             CharacterSelection,
             LoginLoad,
             AccountCreation,
-            CharacterCreation
+            CharacterCreation,
+            Inventory
         }
     }
 }
