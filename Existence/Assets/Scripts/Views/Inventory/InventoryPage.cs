@@ -41,11 +41,9 @@ public class InventoryPage : Page
             if (_t == slotParent) continue;
             if (m_PlayerData.inventory.Length < _index + 1) 
                 return;
-            
+
+            _t.GetComponent<InventorySlot>().AssignIcon(_item.icon);
             _index++;
-            // apply item to slot
-            Sprite _sprite = Utilities.LoadStreamingAssetsSprite(_item.icon, 2, 2);
-            _t.GetComponent<InventorySlot>().AssignIcon(_sprite);
         }
     }
 #endregion
