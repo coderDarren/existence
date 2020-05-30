@@ -83,7 +83,6 @@ public class Mob : Selectable
         RaycastHit _hit;
         if (Physics.Raycast(transform.position + Vector3.up, -Vector3.up, out _hit, Mathf.Infinity, ground)) {
             if (_hit.collider.gameObject != gameObject) {
-                Log(gameObject.name+" hit "+_hit.collider.gameObject.name+" at "+_hit.point.y);
                 Vector3 _pos = transform.position;
                 _pos.y = _hit.point.y + 0.01f;
                 transform.position = _pos;

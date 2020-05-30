@@ -16,7 +16,7 @@ public class ObjectDistanceFader : MonoBehaviour
     private MeshRenderer[] m_Renderers;
 
 #region Unity Functions
-    private void Awake() {
+    private void Start() {
         m_SkinRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
         m_Renderers = GetComponentsInChildren<MeshRenderer>();
         if (relativeToPlayer) {
@@ -30,6 +30,9 @@ public class ObjectDistanceFader : MonoBehaviour
     }
 
     private void Update() {
+        CheckIntegrity();
+        if (!relativeTo) return;
+
         m_Distance = Vector3.Distance(relativeTo.position, transform.position);
         if (m_Distance >= beginFadeDistance && !m_IsFading) {
             m_IsFading = true;
@@ -48,6 +51,14 @@ public class ObjectDistanceFader : MonoBehaviour
 #endregion
 
 #region Private Functions
+    private void CheckIntegrity() {
+        if (!relativeTo) {
+            if (relativeToPlayer) {
+                relativeTo = GameObject.FindObjectOfType<Player>().transform;
+            }
+        }
+    }
+    
     private void ApplyMaterialBlendModes(string BLEND_MODE) {
         foreach (SkinnedMeshRenderer _smr in m_SkinRenderers) {
             foreach (Material _m in _smr.materials) {

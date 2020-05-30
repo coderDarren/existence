@@ -13,7 +13,7 @@ public class SkillBar : GameSystem
 
     private Session m_Session;
     private SkillSection m_Section;
-    private int m_SkillMax=10000;
+    private int m_SkillMax=100000;
 
     // get Session with integrity
     private Session session {
