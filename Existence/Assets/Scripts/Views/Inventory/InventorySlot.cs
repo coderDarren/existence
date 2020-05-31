@@ -12,8 +12,10 @@ public class InventorySlot : MonoBehaviour
         icon.sprite = null;
     }
 
-    public void AssignIcon(Sprite _sprite) {
+    public void AssignIcon(string _icon) {
+        Sprite _sprite = Utilities.LoadStreamingAssetsSprite(_icon);
         if (_sprite == null) return;
+
         UpdateAlpha(1);
         icon.sprite = _sprite;
     }

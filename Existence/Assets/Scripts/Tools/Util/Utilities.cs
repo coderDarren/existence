@@ -37,7 +37,7 @@ public class Utilities
         }
     }
 
-    public static Sprite LoadStreamingAssetsSprite(string _path, int _width, int _height) {
+    public static Sprite LoadStreamingAssetsSprite(string _path) {
         string _fullPath = Application.streamingAssetsPath + _path;
         if (!Files.FileExists(_fullPath)) {
             Debug.Log("Trying to load sprite from streaming assets path ["+_path+"], but could not find file.");
@@ -45,7 +45,7 @@ public class Utilities
         }
 
         byte[] _data = Files.GetBytesFromFile(_fullPath);
-        Texture2D _tex = new Texture2D(_width, _height);
+        Texture2D _tex = new Texture2D(2, 2);
         _tex.LoadImage(_data);
         Sprite _ret = Sprite.Create(_tex, new Rect(0,0,_tex.width, _tex.height), Vector2.one*0.5f, 100);
         return _ret;
