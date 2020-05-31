@@ -403,7 +403,8 @@ class SQLController {
             rarity: DataTypes.INTEGER,
             shopBuyable: DataTypes.TINYINT,
             stackable: DataTypes.TINYINT,
-            tradeskillable: DataTypes.TINYINT
+            tradeskillable: DataTypes.TINYINT,
+            icon: DataTypes.CHAR(255)
         }, {
             timestamps: false
         });

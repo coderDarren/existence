@@ -9,4 +9,5 @@ public class ItemData
     public bool shopBuyable;
     public bool stackable;
     public bool tradeskillable;
+    public string icon;
 }
