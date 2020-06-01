@@ -307,6 +307,47 @@ class SQLController {
         }
     }
 
+    async addInventory(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            const _player = await this._player.findByPk(_params.playerID);
+            if (!_player) {
+                return {
+                    error: `Player does not exist with id ${_params.playerID}`,
+                    code: 1400
+                }
+            }
+
+            var _item = await this._item.findByPk(_params.itemID);
+            if (!_item) {
+                return {
+                    error: `Item does not exist with id ${_params.itemID}`,
+                    code: 1401
+                }
+            }
+
+            _item.dataValues.requirements = (await this._stat.findByPk(_item.dataValues.requirementsID)).dataValues;
+            _item.dataValues.effects = (await this._stat.findByPk(_item.dataValues.effectsID)).dataValues;
+            delete _item.dataValues["requirementsID"];
+            delete _item.dataValues["effectsID"];
+
+            const _slot = await this._inventorySlot.create({playerID: _params.playerID, itemID: _params.itemID});
+
+            return {
+                data: _item.dataValues
+            }
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
     async updateStats(_stats) {
         try {
             const _resp = await this._stat.update(_stats, {where: {id: _stats.ID}})

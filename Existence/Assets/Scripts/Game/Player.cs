@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -65,8 +66,6 @@ public class Player : GameSystem
         m_GearStats = new StatData();
         m_BuffStats = new StatData();
         m_TrickleStats = new StatData();        
-
-
     }
 
     public void SaveBaselineStats(StatData _stats) {
@@ -108,6 +107,13 @@ public class Player : GameSystem
 
     public int MaxHealth() {
         return m_Data.player.level * 100;
+    }
+
+    public void AddInventory(ItemData _item) {
+        List<ItemData> _inventory = new List<ItemData>(m_Data.inventory);
+        _inventory.Add(_item);
+        m_Data.inventory = _inventory.ToArray();
+        Log("inventory added: "+_item.slotLoc+": "+m_Data.inventory.Length);
     }
 #endregion
 

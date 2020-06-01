@@ -6,7 +6,8 @@ public enum ChatCommand
     UNKNOWN,
     LOGIN,
     LOGOUT,
-    XP
+    XP,
+    INVENTORY
 }
 
 public class ChatCommandParser
@@ -20,6 +21,7 @@ public class ChatCommandParser
             case "login": return ChatCommand.LOGIN;
             case "logout": return ChatCommand.LOGOUT;
             case "xp": return ChatCommand.XP;
+            case "inventory": return ChatCommand.INVENTORY;
             default: return ChatCommand.UNKNOWN;
         }
     }

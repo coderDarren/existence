@@ -4,22 +4,20 @@ const SQL = require('../services/sql.js');
 const validateParams = function(_body)
 {
     if (!_body) return -1;
-    const _slotID = _body.slotID;
-    const _slotLoc = _body.slotLoc;
+    const _itemID = _body.itemID;
     const _playerID = _body.playerID;
     const _account = _body.id;
     const _apiKey = _body.apiKey;
-    if (!_account || !_apiKey || _slotID == undefined || _slotLoc == undefined || !_playerID) return -1;
+    if (!_account || !_apiKey || _itemID == undefined || !_playerID) return -1;
     return {
-        slotID: _slotID,
-        slotLoc: _slotLoc,
+        itemID: _itemID,
         playerID: _playerID,
         account: _account,
         apiKey: _apiKey,
     };
 }
 
-const updateInventory = async function(_body) {
+const addInventory = async function(_body) {
     console.log(`body: ${JSON.stringify(_body)}`);
     const _params = validateParams(_body);
 
@@ -29,15 +27,15 @@ const updateInventory = async function(_body) {
         }
     }
 
-    const _sql = new SQL();   
-    const _result = await _sql.updateInventory(_params);
+    const _sql = new SQL();    
+    const _result = await _sql.addInventory(_params);
     if (_result.error) {
         return _result;
     }
 
     return {
-        data: {status: "Success"}
+        data: _result.data
     }
 }
 
-module.exports = updateInventory
+module.exports = addInventory
