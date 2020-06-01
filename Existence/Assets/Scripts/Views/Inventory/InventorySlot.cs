@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventorySlot : MonoBehaviour
+public class InventorySlot : InspectableItem
 {
     /*
      * Create an event system for all inventory slots to listen to
@@ -21,33 +21,12 @@ public class InventorySlot : MonoBehaviour
 
     // keep an id that will refer to the db inventory slot id
     private int m_Id;
-    // keep a reference to the actual item data in this slot
-    private ItemData m_Item;
-    private CursorController m_Cursor;
     // keep track of the currently grabbed slot
     private InventorySlot m_GrabbedSlot;
-
-    private CursorController cursor {
-        get {
-            if (!m_Cursor) {
-                m_Cursor = CursorController.instance;
-            }
-            if (!m_Cursor) {
-                Debug.LogWarning("Inventory Slot is trying to access cursor, but no instance of CursorController was found.");
-            }
-            return m_Cursor;
-        }
-    }
 
     public int id {
         get {
             return m_Id;
-        }
-    }
-
-    public ItemData item {
-        get {
-            return m_Item;
         }
     }
 
