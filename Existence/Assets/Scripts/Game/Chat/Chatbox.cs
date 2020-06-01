@@ -61,6 +61,8 @@ public class Chatbox : GameSystem
             network.OnPlayerJoined += OnPlayerJoined;
             network.OnPlayerLeft += OnPlayerLeft;
             network.OnChat += OnChat;
+            network.OnInventoryAdded += OnInventoryAdded;
+            network.OnAddInventoryFail += OnAddInventoryFail;
         }
     }
 
@@ -84,6 +86,8 @@ public class Chatbox : GameSystem
             network.OnPlayerJoined -= OnPlayerJoined;
             network.OnPlayerLeft -= OnPlayerLeft;
             network.OnChat -= OnChat;
+            network.OnInventoryAdded -= OnInventoryAdded;
+            network.OnAddInventoryFail -= OnAddInventoryFail;
         }
 
         if (session) {
@@ -157,6 +161,28 @@ public class Chatbox : GameSystem
                 }
                 session.player.AddXp(int.Parse(_args[1]));
                 break;
+            case ChatCommand.INVENTORY:
+                if (_args.Count < 2) {
+                    chatBox.text += "\nCommand arguments were not understood.";
+                    return;
+                }
+                if (_args[1] == "add") {
+                    if (_args.Count < 3) {
+                        chatBox.text += "\nExpected format [/inventory add <id>].";
+                        return;
+                    }
+                    int _id;
+                    if (System.Int32.TryParse(_args[2], out _id)) {
+                        session.network.AddInventory(new ItemData(_id));
+                    } else {
+                        chatBox.text += "\nThe add parameter must be a number.";
+                        return;
+                    }
+                } else {
+                    chatBox.text += "\nCommand arguments were not understood.";
+                    return;
+                }
+                break;
             case ChatCommand.UNKNOWN:
                 chatBox.text += "\nCommand not recognized.";
                 break;
@@ -203,6 +229,15 @@ public class Chatbox : GameSystem
 
     private void OnPlayerXpAdded(int _xp) {
         chatBox.text += "\n<color=#fc0>You earned "+_xp+"xp.</color>";
+    }
+
+    private void OnInventoryAdded(ItemData _item) {
+        chatBox.text += "\nItem "+_item.name+" was added to your inventory.";
+        session.player.AddInventory(_item);
+    }
+
+    private void OnAddInventoryFail(string _msg) {
+        chatBox.text += "\n<color=#f00>"+_msg+"</color>";
     }
 
     private void TryRunAction(BasicAction _action) {

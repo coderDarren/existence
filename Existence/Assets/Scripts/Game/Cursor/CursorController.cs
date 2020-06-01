@@ -7,6 +7,7 @@ public class CursorController : GameSystem
     public static CursorController instance;
 
     public Image cursor;
+    public Image pickup;
     public Sprite main;
     public Sprite scaleHorizontal;
     public Sprite scaleVertical;
@@ -15,6 +16,13 @@ public class CursorController : GameSystem
     public Sprite drag;
 
     private RectTransform m_Rect;
+    private ItemData m_SelectedItem;
+
+    public ItemData selectedItem {
+        get {
+            return m_SelectedItem;
+        }
+    }
 
 #region Unity Functions
     private void Awake() {
@@ -31,6 +39,14 @@ public class CursorController : GameSystem
         _cursorPos.x *= Screen.width;
         _cursorPos.y *= Screen.height;
         transform.position = _cursorPos;
+    }
+#endregion
+
+#region Private Functions
+    private void SetImageAlpha(Image _img, float _alpha) {
+        Color _c = _img.color;
+        _c.a = _alpha;
+        _img.color = _c;
     }
 #endregion
 
@@ -75,6 +91,17 @@ public class CursorController : GameSystem
         cursor.material.mainTexture = cursor.sprite.texture;
         m_Rect.pivot = Vector2.one * 0.5f;
         m_Rect.localScale = Vector2.one * 1.35f;
+    }
+
+    public void SelectItem(ItemData _item) {
+        m_SelectedItem = _item;
+        pickup.sprite = Utilities.LoadStreamingAssetsSprite(m_SelectedItem.icon);
+        SetImageAlpha(pickup, 1);
+    }
+
+    public void DropItem() {
+        m_SelectedItem = null;
+        SetImageAlpha(pickup, 0);
     }
 #endregion
 }

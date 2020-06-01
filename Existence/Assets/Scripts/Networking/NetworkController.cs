@@ -26,12 +26,15 @@ public class NetworkController : GameSystem
     public event BasicAction OnDisconnect;
     public delegate void StringAction(string _msg);
     public event StringAction OnChat;
+    public event StringAction OnAddInventoryFail;
     public delegate void PlayerAction(NetworkPlayerData _player);
     public event PlayerAction OnPlayerJoined;
     public event PlayerAction OnPlayerLeft;
     public delegate void InstanceUpdateAction(NetworkInstanceData _data);
     public event InstanceUpdateAction OnHandshake;
     public event InstanceUpdateAction OnInstanceUpdated;
+    public delegate void InventoryUpdateAction(ItemData _data);
+    public event InventoryUpdateAction OnInventoryAdded;
 
     public bool usePredictiveSmoothing=true;
 
@@ -46,6 +49,10 @@ public class NetworkController : GameSystem
     private static readonly string NETWORK_MESSAGE_CHAT = "CHAT";
     private static readonly string NETWORK_MESSAGE_INSTANCE = "INSTANCE";
     private static readonly string NETWORK_MESSAGE_HIT_MOB = "HIT_MOB";
+    private static readonly string NETWORK_MESSAGE_INVENTORY_CHANGED = "INVENTORY_CHANGE";
+    private static readonly string NETWORK_MESSAGE_ADD_INVENTORY = "ADD_INVENTORY";
+    private static readonly string NETWORK_MESSAGE_ADD_INVENTORY_SUCCESS = "ADD_INVENTORY_SUCCESS";
+    private static readonly string NETWORK_MESSAGE_ADD_INVENTORY_FAILURE = "ADD_INVENTORY_FAILURE";
 
     public bool IsConnected { get { return m_Network.IsConnected; } }
 
@@ -65,6 +72,8 @@ public class NetworkController : GameSystem
         m_Network.On(NETWORK_MESSAGE_PLAYER_JOINED, OnNetworkPlayerJoined);
         m_Network.On(NETWORK_MESSAGE_PLAYER_LEFT, OnNetworkPlayerLeft);
         m_Network.On(NETWORK_MESSAGE_CHAT, OnNetworkChat);
+        m_Network.On(NETWORK_MESSAGE_ADD_INVENTORY_SUCCESS, OnAddInventorySuccess);
+        m_Network.On(NETWORK_MESSAGE_ADD_INVENTORY_FAILURE, OnAddInventoryFailure);
     }
 
     private void OnDisable() {
@@ -117,6 +126,19 @@ public class NetworkController : GameSystem
         TryRunAction(OnChat, _msg);
     }
 
+    private void OnAddInventorySuccess(SocketIOEvent _evt) {
+        Log("Add inventory success.");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        ItemData _item = ItemData.FromJsonStr<ItemData>(_msg);
+        TryRunAction(OnInventoryAdded, _item);
+    }
+
+    private void OnAddInventoryFailure(SocketIOEvent _evt) {
+        Log("Add inventory fail.");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        TryRunAction(OnAddInventoryFail, _msg);
+    }
+
     private void TryRunAction(BasicAction _action) {
         try {
             _action();
@@ -138,6 +160,12 @@ public class NetworkController : GameSystem
     private void TryRunAction(InstanceUpdateAction _action, NetworkInstanceData _data) {
         try {
             _action(_data);
+        } catch (System.Exception) {}
+    }
+
+    private void TryRunAction(InventoryUpdateAction _action, ItemData _item) {
+        try {
+            _action(_item);
         } catch (System.Exception) {}
     }
 
@@ -176,6 +204,14 @@ public class NetworkController : GameSystem
 
     public void HitMob(NetworkMobHitInfo _data) {
         SendNetworkData<NetworkMobHitInfo>(NETWORK_MESSAGE_HIT_MOB, _data);
+    }
+
+    public void SaveInventory(NetworkInventoryUpdate _data) {
+        SendNetworkData<NetworkInventoryUpdate>(NETWORK_MESSAGE_INVENTORY_CHANGED, _data);
+    }
+
+    public void AddInventory(ItemData _data) {
+        SendNetworkData<ItemData>(NETWORK_MESSAGE_ADD_INVENTORY, _data);
     }
 #endregion
 }

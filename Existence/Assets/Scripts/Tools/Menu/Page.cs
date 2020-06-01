@@ -7,7 +7,6 @@ namespace UnityCore {
 
         public class Page : GameSystem
         {
-            
             public static readonly string FLAG_ON = "On";
             public static readonly string FLAG_OFF = "Off";
             public static readonly string FLAG_NONE = "None";
@@ -125,6 +124,7 @@ namespace UnityCore {
             }
 
             protected virtual void OnPageEnabled() {}
+
             protected virtual void OnPageDisabled() {}
 #endregion
         }

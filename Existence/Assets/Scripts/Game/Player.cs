@@ -1,6 +1,8 @@
-﻿
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityCore.Menu;
 
 /// <summary>
 /// Hold data about the player
@@ -18,6 +20,7 @@ public class Player : GameSystem
     private StatData m_BuffStats;
     private StatData m_TrickleStats;
     private Session m_Session;
+    private InventoryPage m_InventoryWindow;
 
     public PlayerData data {
         get {
@@ -53,6 +56,15 @@ public class Player : GameSystem
         }
     }
 
+    private InventoryPage inventoryWindow {
+        get {
+            if (!m_InventoryWindow) {
+                m_InventoryWindow = InventoryPage.instance;
+            }
+            return m_InventoryWindow;
+        }
+    }
+
 #region Unity Functions
 #endregion
 
@@ -65,8 +77,6 @@ public class Player : GameSystem
         m_GearStats = new StatData();
         m_BuffStats = new StatData();
         m_TrickleStats = new StatData();        
-
-
     }
 
     public void SaveBaselineStats(StatData _stats) {
@@ -108,6 +118,17 @@ public class Player : GameSystem
 
     public int MaxHealth() {
         return m_Data.player.level * 100;
+    }
+
+    public void AddInventory(ItemData _item) {
+        List<ItemData> _inventory = new List<ItemData>(m_Data.inventory);
+        _inventory.Add(_item);
+        m_Data.inventory = _inventory.ToArray();
+
+        // redraw inventory if the window is open
+        if (inventoryWindow) {
+            inventoryWindow.Redraw();
+        }
     }
 #endregion
 
