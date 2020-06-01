@@ -24,7 +24,7 @@ using UnityEngine;
         
         
         targetPart = transform.Find(partString).gameObject;
-        targetParent = transform.FindDeepChild(partString + "_Pros").gameObject;
+        targetParent = transform.FindDeepChild("Prosthetic_spawn").gameObject;
         mat = targetPart.GetComponent<Renderer>();
         mesh = targetPart.GetComponent<SkinnedMeshRenderer>().sharedMesh;
         //layerName = LayerMask.GetMask("Mesh");
@@ -36,13 +36,13 @@ using UnityEngine;
     void Update(){
         
 
-        if(Input.GetKey(KeyCode.R)){
+        if(Input.GetKeyDown(KeyCode.R)){
             EquipArmor();
         }
         if(Input.GetKeyDown(KeyCode.T)){
             ResetMesh();
         }
-        if(prostheticI){  
+       /* if(prostheticI){  
             equipMesh = prostheticI.GetComponentInChildren<SkinnedMeshRenderer>().sharedMesh;
             equipVert = equipMesh.vertices;
             for(int i = 0; i < equipVert.Length; i++){
@@ -66,10 +66,10 @@ using UnityEngine;
                 }
                 
             }
-        }
+        }*/
     }
 
-    void EquipArmor(){
+    private async void EquipArmor(){
                 
         prostheticI = Instantiate(prosthetic, targetParent.transform);
         prostheticI.transform.localPosition = new Vector3(0f,0f,0f);
@@ -83,7 +83,7 @@ using UnityEngine;
 
         
         //mesh.vertices = vert;
-        //mat.enabled = false;
+        mat.enabled = false;
         
                    
         //prostheticI.transform.localRotation = targetParent.transform.rotation;
