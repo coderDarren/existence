@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityCore.Menu;
 
 /// <summary>
 /// Hold data about the player
@@ -19,6 +20,7 @@ public class Player : GameSystem
     private StatData m_BuffStats;
     private StatData m_TrickleStats;
     private Session m_Session;
+    private InventoryPage m_InventoryWindow;
 
     public PlayerData data {
         get {
@@ -51,6 +53,15 @@ public class Player : GameSystem
                 LogError("Trying to use Session, but no instance could be found.");
             }
             return m_Session;
+        }
+    }
+
+    private InventoryPage inventoryWindow {
+        get {
+            if (!m_InventoryWindow) {
+                m_InventoryWindow = InventoryPage.instance;
+            }
+            return m_InventoryWindow;
         }
     }
 
@@ -113,7 +124,11 @@ public class Player : GameSystem
         List<ItemData> _inventory = new List<ItemData>(m_Data.inventory);
         _inventory.Add(_item);
         m_Data.inventory = _inventory.ToArray();
-        Log("inventory added: "+_item.slotLoc+": "+m_Data.inventory.Length);
+
+        // redraw inventory if the window is open
+        if (inventoryWindow) {
+            inventoryWindow.Redraw();
+        }
     }
 #endregion
 

@@ -5,7 +5,10 @@ using UnityCore.Menu;
 
 public class InventoryPage : Page
 {
+    public static InventoryPage instance;
+
     public Transform slotParent;
+
     private Session m_Session;
     private PlayerData m_PlayerData;
 
@@ -31,7 +34,6 @@ public class InventoryPage : Page
     }
 
     private void DrawInventory() {
-        EraseInventory();
         if (m_PlayerData.inventory == null || m_PlayerData.inventory.Length == 0) 
             return;
 
@@ -71,6 +73,11 @@ public class InventoryPage : Page
         NetworkInventoryUpdate _data = new NetworkInventoryUpdate(_item.slotID, _item.slotLoc);
         session.network.SaveInventory(_data);
     }
+
+    public void Redraw() {
+        EraseInventory();
+        DrawInventory();
+    }
 #endregion
 
 #region Override Functions
@@ -78,13 +85,17 @@ public class InventoryPage : Page
         base.OnPageEnabled();
         if (!session) return;
         if (session.playerData == null) return;
+        if (!instance) {
+            instance = this;
+        }
 
         m_PlayerData = session.playerData;
-        DrawInventory();
+        Redraw();
     }
 
     protected override void OnPageDisabled() {
         base.OnPageDisabled();
+        instance = null;
     }
 #endregion
 }
