@@ -149,6 +149,7 @@ class SQLController {
                     var _item = _inventory[i];
                     _item.requirements = await this._stat.findByPk(_item.requirementsID);
                     _item.effects = await this._stat.findByPk(_item.effectsID);
+                    _item.slotID = _item.slotID;
                     delete _item["requirementsID"];
                     delete _item["effectsID"];
                 }
@@ -189,6 +190,7 @@ class SQLController {
                 var _item = _inventory[i];
                 _item.requirements = await this._stat.findByPk(_item.requirementsID);
                 _item.effects = await this._stat.findByPk(_item.effectsID);
+                _item.slotID = _item.slotID;
                 delete _item["requirementsID"];
                 delete _item["effectsID"];
             }
@@ -337,7 +339,8 @@ class SQLController {
             delete _item.dataValues["effectsID"];
 
             const _slot = await this._inventorySlot.create({playerID: _params.playerID, itemID: _params.itemID});
-
+            _item.dataValues.slotID = _slot.id;
+            
             return {
                 data: _item.dataValues
             }

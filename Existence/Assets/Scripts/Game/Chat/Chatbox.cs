@@ -162,11 +162,26 @@ public class Chatbox : GameSystem
                 session.player.AddXp(int.Parse(_args[1]));
                 break;
             case ChatCommand.INVENTORY:
-                if (_args.Count != 2 || _args[1] != "add") {
+                if (_args.Count < 2) {
                     chatBox.text += "\nCommand arguments were not understood.";
                     return;
                 }
-                session.network.AddInventory(new ItemData(4));
+                if (_args[1] == "add") {
+                    if (_args.Count < 3) {
+                        chatBox.text += "\nExpected format [/inventory add <id>].";
+                        return;
+                    }
+                    int _id;
+                    if (System.Int32.TryParse(_args[2], out _id)) {
+                        session.network.AddInventory(new ItemData(_id));
+                    } else {
+                        chatBox.text += "\nThe add parameter must be a number.";
+                        return;
+                    }
+                } else {
+                    chatBox.text += "\nCommand arguments were not understood.";
+                    return;
+                }
                 break;
             case ChatCommand.UNKNOWN:
                 chatBox.text += "\nCommand not recognized.";

@@ -36,7 +36,7 @@ const updateInventory = async function(_body) {
     }
 
     return {
-        data: {status: "Success"}
+        data: _result.data
     }
 }
 
