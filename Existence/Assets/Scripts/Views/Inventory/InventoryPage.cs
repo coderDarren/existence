@@ -35,16 +35,29 @@ public class InventoryPage : Page
         if (m_PlayerData.inventory == null || m_PlayerData.inventory.Length == 0) 
             return;
 
+        // !! TODO 
+        // Looping through children to assign index id.. init ids a better way..
         int _index = 0;
-        ItemData _item = m_PlayerData.inventory[_index];
         foreach (Transform _t in slotParent) {
             if (_t == slotParent) continue;
-            if (m_PlayerData.inventory.Length < _index + 1) 
-                return;
-
-            _t.GetComponent<InventorySlot>().AssignIcon(_item.icon);
+            _t.GetComponent<InventorySlot>().Init(_index);
             _index++;
         }
+
+        foreach (ItemData _item in m_PlayerData.inventory) {
+            if (_item.slotLoc == -1) continue;
+            InventorySlot _slot = slotParent.transform.GetChild(_item.slotLoc).GetComponent<InventorySlot>();
+            _slot.AssignIcon(_item);
+        }
+    }
+#endregion
+
+#region Public Functions
+    public void SaveInventory(ItemData _item) {
+        if (!session) return;
+        if (!session.network) return;
+        NetworkInventoryUpdate _data = new NetworkInventoryUpdate(_item.slotID, _item.slotLoc);
+        session.network.SaveInventory(_data);
     }
 #endregion
 

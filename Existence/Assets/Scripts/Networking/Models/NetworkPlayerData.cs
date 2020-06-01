@@ -10,7 +10,7 @@
 /// </summary>
 public class NetworkPlayerData : NetworkModel
 {
-    
+    public int id;
     public string name;
     public string weaponName;
     public NetworkPlayerInput input;

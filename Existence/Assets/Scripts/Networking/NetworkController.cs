@@ -46,6 +46,7 @@ public class NetworkController : GameSystem
     private static readonly string NETWORK_MESSAGE_CHAT = "CHAT";
     private static readonly string NETWORK_MESSAGE_INSTANCE = "INSTANCE";
     private static readonly string NETWORK_MESSAGE_HIT_MOB = "HIT_MOB";
+    private static readonly string NETWORK_MESSAGE_INVENTORY_CHANGED = "INVENTORY_CHANGE";
 
     public bool IsConnected { get { return m_Network.IsConnected; } }
 
@@ -176,6 +177,10 @@ public class NetworkController : GameSystem
 
     public void HitMob(NetworkMobHitInfo _data) {
         SendNetworkData<NetworkMobHitInfo>(NETWORK_MESSAGE_HIT_MOB, _data);
+    }
+
+    public void SaveInventory(NetworkInventoryUpdate _data) {
+        SendNetworkData<NetworkInventoryUpdate>(NETWORK_MESSAGE_INVENTORY_CHANGED, _data);
     }
 #endregion
 }

@@ -10,4 +10,8 @@ public class ItemData
     public bool stackable;
     public bool tradeskillable;
     public string icon;
+
+    // location in inventory. -1 by default
+    public int slotLoc;
+    public int slotID;
 }

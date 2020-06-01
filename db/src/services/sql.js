@@ -143,7 +143,7 @@ class SQLController {
                 const _player = _players[i];
                 const _stats = await this._stat.findByPk(_player.dataValues.statsID);
                 const _sessionData = await this._sessionData.findByPk(_player.dataValues.sessionDataID);
-                const _inventory = (await this._sql.query(`select * from items 
+                const _inventory = (await this._sql.query(`select items.*, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
                     inner join inventorySlots on inventorySlots.playerID = ${_player.dataValues.id} and inventorySlots.itemID = items.ID`))[0];
                 for (var i = 0; i < _inventory.length; i++) {
                     var _item = _inventory[i];
@@ -183,7 +183,7 @@ class SQLController {
             const _playerId = _player.dataValues.id;
             const _stats = await this._stat.findByPk(_player.dataValues.statsID);
             const _sessionData = await this._sessionData.findByPk(_player.dataValues.sessionDataID);
-            const _inventory = (await this._sql.query(`select * from items 
+            const _inventory = (await this._sql.query(`select items.*, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
                 inner join inventorySlots on inventorySlots.playerID = ${_playerId} and inventorySlots.itemID = items.ID`))[0];
             for (var i = 0; i < _inventory.length; i++) {
                 var _item = _inventory[i];
@@ -192,7 +192,7 @@ class SQLController {
                 delete _item["requirementsID"];
                 delete _item["effectsID"];
             }
-            // console.log(JSON.stringify(_inventory));
+            console.log(JSON.stringify(_inventory));
             
             return {
                 data: {
@@ -268,7 +268,7 @@ class SQLController {
     async updatePlayer(_player) {
         try {
             const _resp = await this._player.update(_player, {where: {id: _player.ID}})
-            console.log(JSON.stringify(_resp));
+            //console.log(JSON.stringify(_resp));
             return {
                 data: _resp
             }
@@ -279,10 +279,24 @@ class SQLController {
         }
     }
 
-    async updatePlayer(_player) {
+    async updateInventory(_params) {
         try {
-            const _resp = await this._player.update(_player, {where: {id: _player.ID}})
-            console.log(JSON.stringify(_resp));
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            const _player = await this._player.findByPk(_params.playerID);
+            if (!_player) {
+                return {
+                    error: `Player does not exist with id ${_params.playerID}`,
+                    code: 1400
+                }
+            }
+
+            const _resp = await this._inventorySlot.update({loc: _params.slotLoc}, {where: {id: _params.slotID}});
+
             return {
                 data: _resp
             }
@@ -389,7 +403,8 @@ class SQLController {
         // INVENTORY SLOTS
         this._inventorySlot = this._sql.define('inventorySlot', {
             playerID: DataTypes.INTEGER,
-            itemID: DataTypes.INTEGER
+            itemID: DataTypes.INTEGER,
+            loc: DataTypes.INTEGER
         }, {
             timestamps: false
         });

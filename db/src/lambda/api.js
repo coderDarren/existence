@@ -9,6 +9,7 @@ const createPlayer = require('./createPlayer.js');
 const updateStats = require('./updateStats.js');
 const updateSessionData = require('./updateSessionData.js');
 const updatePlayer = require('./updatePlayer.js');
+const updateInventory = require('./updateInventory.js');
 const createAccount = require('./createAccount.js');
 const authenticate = require('./authenticate.js');
 const getAccountPlayers = require('./getAccountPlayers.js');
@@ -62,6 +63,9 @@ const handleRoute = async function(_req) {
             break;
         case "/api/updateSessionData": // POST
             _resp = await updateSessionData(_req.body);
+            break;
+        case "/api/updateInventory": // POST
+            _resp = await updateInventory(_req.body);
             break;
     }
 
