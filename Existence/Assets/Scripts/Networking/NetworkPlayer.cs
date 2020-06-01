@@ -118,6 +118,7 @@ public class NetworkPlayer : Selectable
 
     public void Init(PlayerData _data) {
         m_ClientData = new NetworkPlayerData();
+        m_ClientData.id = _data.player.ID;
         m_ClientData.name = _data.player.name;
         m_ClientData.weaponName = Player.Weapon.oneHandRanged.ToString();
     }

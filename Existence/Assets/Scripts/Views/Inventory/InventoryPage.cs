@@ -5,7 +5,10 @@ using UnityCore.Menu;
 
 public class InventoryPage : Page
 {
+    public static InventoryPage instance;
+
     public Transform slotParent;
+
     private Session m_Session;
     private PlayerData m_PlayerData;
 
@@ -31,20 +34,49 @@ public class InventoryPage : Page
     }
 
     private void DrawInventory() {
-        EraseInventory();
         if (m_PlayerData.inventory == null || m_PlayerData.inventory.Length == 0) 
             return;
 
+        // !! TODO 
+        // Looping through children to assign index id.. init ids a better way..
         int _index = 0;
-        ItemData _item = m_PlayerData.inventory[_index];
         foreach (Transform _t in slotParent) {
             if (_t == slotParent) continue;
-            if (m_PlayerData.inventory.Length < _index + 1) 
-                return;
-
-            _t.GetComponent<InventorySlot>().AssignIcon(_item.icon);
+            _t.GetComponent<InventorySlot>().Init(_index);
             _index++;
         }
+
+        foreach (ItemData _item in m_PlayerData.inventory) {
+            if (_item.slotLoc == -1) {
+                for (int i = 0; i < slotParent.transform.childCount; i++) {
+                    InventorySlot _check = slotParent.transform.GetChild(i).GetComponent<InventorySlot>();
+                    if (_check.item == null) {
+                        // this is an available slot
+                        _item.slotLoc = i;
+                        SaveInventory(_item);
+                        _check.AssignIcon(_item);
+                        break;
+                    }
+                }
+                continue;
+            }
+            InventorySlot _slot = slotParent.transform.GetChild(_item.slotLoc).GetComponent<InventorySlot>();
+            _slot.AssignIcon(_item);
+        }
+    }
+#endregion
+
+#region Public Functions
+    public void SaveInventory(ItemData _item) {
+        if (!session) return;
+        if (!session.network) return;
+        NetworkInventoryUpdate _data = new NetworkInventoryUpdate(_item.slotID, _item.slotLoc);
+        session.network.SaveInventory(_data);
+    }
+
+    public void Redraw() {
+        EraseInventory();
+        DrawInventory();
     }
 #endregion
 
@@ -53,13 +85,17 @@ public class InventoryPage : Page
         base.OnPageEnabled();
         if (!session) return;
         if (session.playerData == null) return;
+        if (!instance) {
+            instance = this;
+        }
 
         m_PlayerData = session.playerData;
-        DrawInventory();
+        Redraw();
     }
 
     protected override void OnPageDisabled() {
         base.OnPageDisabled();
+        instance = null;
     }
 #endregion
 }

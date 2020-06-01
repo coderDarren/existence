@@ -164,7 +164,7 @@ public class Session : GameSystem
 #region Private Functions
     private void OnServerConnect() {
         m_Player.ConnectWithData(playerData);
-        network.SendHandshake(new NetworkHandshake(m_NetworkPlayer.clientData, playerData.sessionData.ID));
+        network.SendHandshake(new NetworkHandshake(m_NetworkPlayer.clientData, account, playerData.sessionData.ID));
         TryRunAction(OnPlayerConnected);
     }
 
