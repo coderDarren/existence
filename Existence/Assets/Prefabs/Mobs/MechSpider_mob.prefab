@@ -228,6 +228,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2250627127803859576}
   - component: {fileID: 8192565263138291458}
+  - component: {fileID: 1474989571}
+  - component: {fileID: 1474989570}
   m_Layer: 0
   m_Name: MechSpider_mob
   m_TagString: Untagged
@@ -270,6 +272,40 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!136 &1474989571
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2981537615713247339}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1474989570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2981537615713247339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa8734c1d8475de4ba0330d4c529e79b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+  nameplateOffset: {x: 0, y: 0, z: 0}
+  smooth: 0
+  ground:
+    serializedVersion: 2
+    m_Bits: 1
+  attacking: 0
+  combat: 0
 --- !u!1 &3816670898024978174
 GameObject:
   m_ObjectHideFlags: 0
