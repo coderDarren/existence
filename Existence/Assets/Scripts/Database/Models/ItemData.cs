@@ -3,6 +3,7 @@ public class ItemData : NetworkModel
 {
     public int id;
     public string name;
+    public string description;
     public StatData requirements;
     public StatData effects;
     public int level;

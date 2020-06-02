@@ -340,7 +340,7 @@ class SQLController {
 
             const _slot = await this._inventorySlot.create({playerID: _params.playerID, itemID: _params.itemID});
             _item.dataValues.slotID = _slot.id;
-            
+
             return {
                 data: _item.dataValues
             }
@@ -456,6 +456,7 @@ class SQLController {
         // ITEMS
         this._item = this._sql.define('item', {
             name: DataTypes.CHAR(255),
+            description: DataTypes.CHAR(255),
             requirementsID: DataTypes.INTEGER,
             effectsID: DataTypes.INTEGER,
             level: DataTypes.INTEGER,
