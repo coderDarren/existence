@@ -6,10 +6,13 @@ public class Mob : Selectable
 {
     public float smooth;
     public LayerMask ground;
+    public bool attacking;
+    public bool combat;
 
     private NetworkController m_Network;
     private NetworkMobData m_Data;
     private PlayerController m_Controller;
+    private Animator m_Animator;
     //private CanvasGroup m_NamePlate;
     private Vector3 m_InitialPos;
     private Vector3 m_TargetPos;
@@ -37,13 +40,30 @@ public class Mob : Selectable
     }
 
 #region Unity Functions
+    private void Start(){
+        m_Animator = GetComponent<Animator>();
+    }
+
     private void Update() {
+        if(Input.GetKeyDown(KeyCode.Z)){
+            m_Animator.SetBool("Attacking", true);
+            m_Animator.SetBool("Combat", true);
+        }
+        if(Input.GetKeyDown(KeyCode.X)){
+            m_Animator.SetBool("Attacking", false);
+            m_Animator.SetBool("Combat", false);
+        }
+        if(Input.GetKeyDown(KeyCode.C)){
+            m_Animator.SetFloat("Speed", 0);
+        }
+        
         if (m_UpdateTimer > smooth) return;
         m_UpdateTimer += Time.deltaTime;
         
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / smooth);
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialRot), Quaternion.Euler(m_TargetRot), m_UpdateTimer / smooth);
         FindGroundPos();
+
     }
 #endregion
 
@@ -90,4 +110,16 @@ public class Mob : Selectable
         }
     }
 #endregion
+
+    public void Global_Mob_AttackEnd(){
+        Debug.Log("ping");
+        m_Animator.ResetTrigger("Cycle");
+        m_Animator.SetTrigger("Recharge");
+    }
+        
+    public void Global_Mob_RechargeEnd(){
+        Debug.Log("pong");
+        m_Animator.ResetTrigger("Recharge");
+        m_Animator.SetTrigger("Cycle");
+    }
 }
