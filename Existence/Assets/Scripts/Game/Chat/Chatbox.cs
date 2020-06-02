@@ -63,6 +63,7 @@ public class Chatbox : GameSystem
             network.OnChat += OnChat;
             network.OnInventoryAdded += OnInventoryAdded;
             network.OnAddInventoryFail += OnAddInventoryFail;
+            network.OnPlayerHit += OnPlayerHit;
         }
     }
 
@@ -88,6 +89,7 @@ public class Chatbox : GameSystem
             network.OnChat -= OnChat;
             network.OnInventoryAdded -= OnInventoryAdded;
             network.OnAddInventoryFail -= OnAddInventoryFail;
+            network.OnPlayerHit -= OnPlayerHit;
         }
 
         if (session) {
@@ -232,12 +234,20 @@ public class Chatbox : GameSystem
     }
 
     private void OnInventoryAdded(ItemData _item) {
+        if (!session) return;
         chatBox.text += "\nItem "+_item.name+" was added to your inventory.";
         session.player.AddInventory(_item);
     }
 
     private void OnAddInventoryFail(string _msg) {
         chatBox.text += "\n<color=#f00>"+_msg+"</color>";
+    }
+
+    private void OnPlayerHit(NetworkPlayerHitInfo _info) {
+        if (!session) return;
+        if (session.player.data.player.name != _info.playerName) return;
+        
+        chatBox.text += "\n"+_info.mobName+" hit you for "+_info.dmg+" points of damage.";
     }
 
     private void TryRunAction(BasicAction _action) {

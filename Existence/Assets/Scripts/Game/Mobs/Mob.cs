@@ -6,8 +6,6 @@ public class Mob : Selectable
 {
     public float smooth;
     public LayerMask ground;
-    public bool attacking;
-    public bool combat;
 
     private NetworkController m_Network;
     private NetworkMobData m_Data;
@@ -20,6 +18,7 @@ public class Mob : Selectable
     private Vector3 m_TargetRot;
     private float m_UpdateTimer;
     private CapsuleCollider m_Collider;
+    private Vector3 m_LastFramePos;
 
     private NetworkController network {
         get {
@@ -45,7 +44,7 @@ public class Mob : Selectable
     }
 
     private void Update() {
-        if(Input.GetKeyDown(KeyCode.Z)){
+        /*if(Input.GetKeyDown(KeyCode.Z)){
             m_Animator.SetBool("Attacking", true);
             m_Animator.SetBool("Combat", true);
         }
@@ -55,7 +54,7 @@ public class Mob : Selectable
         }
         if(Input.GetKeyDown(KeyCode.C)){
             m_Animator.SetFloat("Speed", 0);
-        }
+        }*/
         
         if (m_UpdateTimer > smooth) return;
         m_UpdateTimer += Time.deltaTime;
@@ -64,6 +63,15 @@ public class Mob : Selectable
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialRot), Quaternion.Euler(m_TargetRot), m_UpdateTimer / smooth);
         FindGroundPos();
 
+        float _dist = Vector3.Distance(m_LastFramePos, transform.position);
+        //Log(_dist.ToString());
+        if (_dist > 0.01f) {
+            m_Animator.SetBool("Moving", true);
+        } else {
+            m_Animator.SetBool("Moving", false);
+        }
+
+        m_LastFramePos = transform.position;
     }
 #endregion
 
@@ -87,6 +95,8 @@ public class Mob : Selectable
         m_InitialRot = transform.eulerAngles;
         m_InitialPos = transform.position;
         m_UpdateTimer = 0;
+        m_Animator.SetBool("Attacking", _data.inAttackRange);
+        m_Animator.SetBool("Combat", _data.inCombat);
 
         UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth);
     }
@@ -95,6 +105,10 @@ public class Mob : Selectable
         if (!network) return;
         NetworkMobHitInfo _hitInfo = new NetworkMobHitInfo(m_Data.id, _dmg);
         network.HitMob(_hitInfo);
+    }
+
+    public void ForceAttackAnim() {
+        m_Animator.SetTrigger("Cycle");
     }
 #endregion
 
@@ -112,14 +126,13 @@ public class Mob : Selectable
 #endregion
 
     public void Global_Mob_AttackEnd(){
-        Debug.Log("ping");
         m_Animator.ResetTrigger("Cycle");
         m_Animator.SetTrigger("Recharge");
     }
         
     public void Global_Mob_RechargeEnd(){
-        Debug.Log("pong");
         m_Animator.ResetTrigger("Recharge");
         m_Animator.SetTrigger("Cycle");
     }
+
 }

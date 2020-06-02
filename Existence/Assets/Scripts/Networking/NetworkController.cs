@@ -35,6 +35,10 @@ public class NetworkController : GameSystem
     public event InstanceUpdateAction OnInstanceUpdated;
     public delegate void InventoryUpdateAction(ItemData _data);
     public event InventoryUpdateAction OnInventoryAdded;
+    public delegate void PlayerHitAction(NetworkPlayerHitInfo _data);
+    public event PlayerHitAction OnPlayerHit;
+    public delegate void MobAttackAction(NetworkMobAttackData _data);
+    public event MobAttackAction OnMobAttack;
 
     public bool usePredictiveSmoothing=true;
 
@@ -49,6 +53,8 @@ public class NetworkController : GameSystem
     private static readonly string NETWORK_MESSAGE_CHAT = "CHAT";
     private static readonly string NETWORK_MESSAGE_INSTANCE = "INSTANCE";
     private static readonly string NETWORK_MESSAGE_HIT_MOB = "HIT_MOB";
+    private static readonly string NETWORK_MESSAGE_MOB_ATTACK = "MOB_ATTACK";
+    private static readonly string NETWORK_MESSAGE_HIT_PLAYER = "HIT_PLAYER";
     private static readonly string NETWORK_MESSAGE_INVENTORY_CHANGED = "INVENTORY_CHANGE";
     private static readonly string NETWORK_MESSAGE_ADD_INVENTORY = "ADD_INVENTORY";
     private static readonly string NETWORK_MESSAGE_ADD_INVENTORY_SUCCESS = "ADD_INVENTORY_SUCCESS";
@@ -72,6 +78,8 @@ public class NetworkController : GameSystem
         m_Network.On(NETWORK_MESSAGE_PLAYER_JOINED, OnNetworkPlayerJoined);
         m_Network.On(NETWORK_MESSAGE_PLAYER_LEFT, OnNetworkPlayerLeft);
         m_Network.On(NETWORK_MESSAGE_CHAT, OnNetworkChat);
+        m_Network.On(NETWORK_MESSAGE_HIT_PLAYER, OnNetworkHitPlayer);
+        m_Network.On(NETWORK_MESSAGE_MOB_ATTACK, OnNetworkMobAttack);
         m_Network.On(NETWORK_MESSAGE_ADD_INVENTORY_SUCCESS, OnAddInventorySuccess);
         m_Network.On(NETWORK_MESSAGE_ADD_INVENTORY_FAILURE, OnAddInventoryFailure);
     }
@@ -139,6 +147,20 @@ public class NetworkController : GameSystem
         TryRunAction(OnAddInventoryFail, _msg);
     }
 
+    private void OnNetworkHitPlayer(SocketIOEvent _evt) {
+        Log("Player was hit");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkPlayerHitInfo _info = NetworkPlayerHitInfo.FromJsonStr<NetworkPlayerHitInfo>(_msg);
+        TryRunAction(OnPlayerHit, _info);
+    }
+    
+    private void OnNetworkMobAttack(SocketIOEvent _evt) {
+        Log("Mob attacked");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkMobAttackData _info = NetworkMobAttackData.FromJsonStr<NetworkMobAttackData>(_msg);
+        TryRunAction(OnMobAttack, _info);
+    }
+
     private void TryRunAction(BasicAction _action) {
         try {
             _action();
@@ -166,6 +188,18 @@ public class NetworkController : GameSystem
     private void TryRunAction(InventoryUpdateAction _action, ItemData _item) {
         try {
             _action(_item);
+        } catch (System.Exception) {}
+    }
+
+    private void TryRunAction(PlayerHitAction _action, NetworkPlayerHitInfo _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception) {}
+    }
+
+    private void TryRunAction(MobAttackAction _action, NetworkMobAttackData _data) {
+        try {
+            _action(_data);
         } catch (System.Exception) {}
     }
 

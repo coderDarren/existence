@@ -1,4 +1,10 @@
-﻿using UnityEngine;
+﻿
+public class NetworkPlayerHitInfo : NetworkModel {
+    public string mobId;
+    public string mobName; 
+    public string playerName;
+    public int dmg;
+}
 
 /// <summary>
 /// Data for individual players

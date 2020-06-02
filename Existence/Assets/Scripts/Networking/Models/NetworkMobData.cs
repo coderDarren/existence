@@ -8,6 +8,10 @@ public class NetworkMobHitInfo : NetworkModel {
     }
 }
 
+public class NetworkMobAttackData : NetworkModel {
+    public string id;
+}
+
 public class NetworkMobData : NetworkModel {
     public string id;
     public string name;
@@ -18,6 +22,7 @@ public class NetworkMobData : NetworkModel {
     public int energy;
     public float attackSpeed;
     public float aggroRange;
+    public bool inAttackRange;
     public bool inCombat;
     public NetworkVector3 pos;
     public NetworkVector3 rot;
