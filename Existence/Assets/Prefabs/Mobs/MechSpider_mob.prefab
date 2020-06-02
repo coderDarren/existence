@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1750273486475229322}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RightForwardLeg_upper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 478538133402542300}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RightRearLeg_lower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71,7 +71,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8970057941434016089}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LeftForwardLeg_upper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1665286117095675099}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -136,7 +136,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2877400835659286010}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RightRearLeg_upper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -167,7 +167,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8493626281861996914}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LeftForwardLeg_lower_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -197,7 +197,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6580519744296354216}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RightRearLeg_lower_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -230,7 +230,7 @@ GameObject:
   - component: {fileID: 8192565263138291458}
   - component: {fileID: 1474989571}
   - component: {fileID: 1474989570}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: MechSpider_mob
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -280,7 +280,7 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2981537615713247339}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   m_Radius: 0.5
   m_Height: 1
@@ -299,11 +299,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 0
-  nameplateOffset: {x: 0, y: 0, z: 0}
-  smooth: 0
+  nameplateOffset: {x: 0, y: 1, z: 0}
+  smooth: 0.15
   ground:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 4097
   attacking: 0
   combat: 0
 --- !u!1 &3816670898024978174
@@ -316,7 +316,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4201988259205465015}
   - component: {fileID: 814483953702868601}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -410,7 +410,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7558812727422811342}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LeftRearLeg_middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -441,7 +441,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5994469955794702928}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RightForwardLeg_lower_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -471,7 +471,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4223922136027911941}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LeftForwardLeg_lower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -502,7 +502,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5652349271716276838}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LeftRearLeg_lower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -533,7 +533,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5689473222975854}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LeftRearLeg_lower_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -563,7 +563,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2564201667289111030}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Armature
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -594,7 +594,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8245101480797616513}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LeftForwardLeg_middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -625,7 +625,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2885432670590598473}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RightRearLeg_middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -656,7 +656,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8073949135897445452}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RightForwardLeg_middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -687,7 +687,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 267405151560965679}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RightForwardLeg_lower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -718,7 +718,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 705403229970559500}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LeftRearLeg_upper
   m_TagString: Untagged
   m_Icon: {fileID: 0}

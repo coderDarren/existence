@@ -16,16 +16,17 @@ public class MobCombat : StateMachineBehaviour
     //}
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        clips = animator.runtimeAnimatorController.animationClips;
-        
-        for(int i=0; i < clips.Length; i++){
+        try {
+            clips = animator.runtimeAnimatorController.animationClips;
             
-            if(clips[i].name == "MechSpider_attack")
-                attackSpeed = animator.runtimeAnimatorController.animationClips[i].length;
-            if(clips[i].name == "MechSpider_attackRecharge")
-                rechargeSpeed = animator.runtimeAnimatorController.animationClips[i].length;
-        }
-     
+            for(int i=0; i < clips.Length; i++){
+                
+                if(clips[i].name == "MechSpider_attack")
+                    attackSpeed = animator.runtimeAnimatorController.animationClips[i].length;
+                if(clips[i].name == "MechSpider_attackRecharge")
+                    rechargeSpeed = animator.runtimeAnimatorController.animationClips[i].length;
+            }
+        } catch (System.Exception _e) {}
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state

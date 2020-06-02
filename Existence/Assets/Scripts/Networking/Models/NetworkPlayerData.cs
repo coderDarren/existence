@@ -1,5 +1,6 @@
 ﻿
 public class NetworkPlayerHitInfo : NetworkModel {
+    public string mobId;
     public string mobName; 
     public string playerName;
     public int dmg;

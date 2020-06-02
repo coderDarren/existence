@@ -24,34 +24,42 @@ public class MobAttack : StateMachineBehaviour
     
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        attackName = animator.GetCurrentAnimatorClipInfo(1)[0].clip.name;
-        attackSpeed = animator.GetCurrentAnimatorClipInfo(1)[0].clip.length;
-        attacking = animator.GetBool("Attacking");
-        combat = animator.GetBool("Combat");
+        try {
+            attackName = animator.GetCurrentAnimatorClipInfo(1)[0].clip.name;
+            attackSpeed = animator.GetCurrentAnimatorClipInfo(1)[0].clip.length;
+            attacking = animator.GetBool("Attacking");
+            combat = animator.GetBool("Combat");
 
-        for(int i=0; i < clips.Length; i++){
-                    
+            for(int i=0; i < clips.Length; i++){
+                        
 
-            if(clips[i].name == attackName){ //check for changes from server in attacking/combat bool set pause event based on attack as long as combat is true, 
-                attackEnd = new AnimationEvent();                
-                attackEnd.time = attackSpeed;
-                attackEnd.functionName = "Global_Mob_AttackEnd";
-                currentClip = animator.runtimeAnimatorController.animationClips[i];
-                if(animator.runtimeAnimatorController.animationClips[i].events.Length == 0){
-                    currentClip.AddEvent(attackEnd);
+                if(clips[i].name == attackName){ //check for changes from server in attacking/combat bool set pause event based on attack as long as combat is true, 
+                    attackEnd = new AnimationEvent();                
+                    attackEnd.time = attackSpeed;
+                    attackEnd.functionName = "Global_Mob_AttackEnd";
+                    currentClip = animator.runtimeAnimatorController.animationClips[i];
+                    if(animator.runtimeAnimatorController.animationClips[i].events.Length == 0){
+                        currentClip.AddEvent(attackEnd);
+                    }
                 }
             }
-        }
 
-        if(!attacking && combat)
-            animator.SetFloat("Speed", 0);                
-    
-        if(attacking && combat)
-            animator.SetFloat("Speed", 1);
+            if(!attacking && combat) {
+                animator.SetFloat("Speed", 0);  
+                //animator.SetLayerWeight(1, 0);
+            }              
         
-        if(!combat)
-            animator.SetFloat("Speed", 1);
-         
+            if(attacking && combat) {
+                animator.SetFloat("Speed", 1);
+                //animator.SetLayerWeight(1, 1);
+            }
+            
+            if(!combat)
+                animator.SetFloat("Speed", 1);
+        } catch (System.Exception _e) {
+            
+        }
+        
     } 
 
     
