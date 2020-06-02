@@ -12,28 +12,30 @@ public class MobRecharge : StateMachineBehaviour
     private AnimationClip currentClip;
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        startName = animator.GetCurrentAnimatorClipInfo(1)[0].clip.name;
+        //startName = animator.GetCurrentAnimatorClipInfo(1)[0].clip.name;
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        rechargeName = animator.GetCurrentAnimatorClipInfo(1)[0].clip.name;
-        rechargeSpeed = animator.GetCurrentAnimatorClipInfo(1)[0].clip.length;
-        clips = animator.runtimeAnimatorController.animationClips;
-        Debug.Log(rechargeName);
-        if(rechargeName != startName){    
-            for(int i=0; i < clips.Length; i++){
-                    if(clips[i].name == rechargeName){ 
-                    rechargeEnd = new AnimationEvent();
-                    rechargeEnd.time = rechargeSpeed;
-                    rechargeEnd.functionName = "Global_Mob_RechargeEnd";
-                    currentClip = animator.runtimeAnimatorController.animationClips[i];
-                    if(animator.runtimeAnimatorController.animationClips[i].events.Length == 0){
-                        currentClip.AddEvent(rechargeEnd);
+        try {
+            rechargeName = animator.GetCurrentAnimatorClipInfo(1)[0].clip.name;
+            rechargeSpeed = animator.GetCurrentAnimatorClipInfo(1)[0].clip.length;
+            clips = animator.runtimeAnimatorController.animationClips;
+            Debug.Log(rechargeName);
+            if(rechargeName != startName){    
+                for(int i=0; i < clips.Length; i++){
+                        if(clips[i].name == rechargeName){ 
+                        rechargeEnd = new AnimationEvent();
+                        rechargeEnd.time = rechargeSpeed;
+                        rechargeEnd.functionName = "Global_Mob_RechargeEnd";
+                        currentClip = animator.runtimeAnimatorController.animationClips[i];
+                        if(animator.runtimeAnimatorController.animationClips[i].events.Length == 0){
+                            currentClip.AddEvent(rechargeEnd);
+                        }
+                        //Debug.Log(clips[i].name);
                     }
-                    Debug.Log(clips[i].name);
                 }
             }
-        }
+        } catch (System.Exception _e) {}
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state

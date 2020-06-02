@@ -86,6 +86,7 @@ public class NetworkEntityHandler : GameSystem
         network.OnPlayerJoined += OnPlayerJoined;
         network.OnPlayerLeft += OnPlayerLeft;
         network.OnInstanceUpdated += OnInstanceUpdated;
+        network.OnMobAttack += OnMobAttack;
     }
 
     private void OnDisable() {
@@ -94,6 +95,7 @@ public class NetworkEntityHandler : GameSystem
         network.OnPlayerJoined -= OnPlayerJoined;
         network.OnPlayerLeft -= OnPlayerLeft;
         network.OnInstanceUpdated -= OnInstanceUpdated;
+        network.OnMobAttack -= OnMobAttack;
     }
 #endregion
 
@@ -167,6 +169,14 @@ public class NetworkEntityHandler : GameSystem
                 m_Mobs.RemoveAt(i);
             }
         }
+    }
+
+    private void OnMobAttack(NetworkMobAttackData _data) {
+        string _key = _data.id;
+        if (_key == null) return;
+        if (!m_MobsHash.ContainsKey(_key)) return;
+        Mob _mob = (Mob)m_MobsHash[_key];
+        _mob.ForceAttackAnim();
     }
 
     private void OnPlayerJoined(NetworkPlayerData _player) {

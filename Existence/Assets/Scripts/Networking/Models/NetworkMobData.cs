@@ -8,6 +8,10 @@ public class NetworkMobHitInfo : NetworkModel {
     }
 }
 
+public class NetworkMobAttackData : NetworkModel {
+    public string id;
+}
+
 public class NetworkMobData : NetworkModel {
     public string id;
     public string name;
