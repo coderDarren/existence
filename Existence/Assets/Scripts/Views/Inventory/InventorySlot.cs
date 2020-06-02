@@ -1,7 +1,11 @@
 ﻿
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
+/*
+ * Derive InspectableItem to access the cursor, the item data, and hover events
+ */
 public class InventorySlot : InspectableItem
 {
     /*
@@ -128,4 +132,5 @@ public class InventorySlot : InspectableItem
         }
     }
 #endregion
+
 }

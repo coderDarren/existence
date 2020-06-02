@@ -21,28 +21,28 @@ quantumMechanics,
 symbiotics,
 processing)
 values (
-	3, #strength
-    3, #dexterity
-    3, #intelligence
-    3, #fortitude
-    3, #nanoPool
-    3, #nanoResist
-    3, #treatment
-    3, #firstAid
-    3, #oneHandEdged
-    3, #twoHandEdged
-    3, #pistol
-    3, #shotgun
-    3, #evades
-    3, #crit
-    3, #attackSpeed
-    3, #hacking
-    3, #engineering
-    3, #programming
-    3, #quantumMechanics
-    3, #symbiotics
-    3 #processing
-);
-*/
+	0, #strength
+    1, #dexterity
+    0, #intelligence
+    0, #fortitude
+    0, #nanoPool
+    0, #nanoResist
+    5, #treatment
+    0, #firstAid
+    0, #oneHandEdged
+    0, #twoHandEdged
+    0, #pistol
+    0, #shotgun
+    0, #evades
+    1, #crit
+    0, #attackSpeed
+    0, #hacking
+    0, #engineering
+    0, #programming
+    0, #quantumMechanics
+    0, #symbiotics
+    0 #processing
+);*/
+
 #delete from stats where id != 26;
 select * from stats;
