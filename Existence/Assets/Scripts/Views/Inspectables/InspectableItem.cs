@@ -1,8 +1,13 @@
 ﻿
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class InspectableItem : MonoBehaviour
+public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHandler
 {
+    [Header("Inspectable Events")]
+    public bool displayOnHover;
+    public bool displayDetail;
+
     protected ItemData m_Item;
     protected CursorController m_Cursor;
 
@@ -12,7 +17,7 @@ public class InspectableItem : MonoBehaviour
                 m_Cursor = CursorController.instance;
             }
             if (!m_Cursor) {
-                Debug.LogWarning("Inventory Slot is trying to access cursor, but no instance of CursorController was found.");
+                LogWarning("Trying to access cursor, but no instance of CursorController was found.");
             }
             return m_Cursor;
         }
@@ -23,4 +28,19 @@ public class InspectableItem : MonoBehaviour
             return m_Item;
         }
     }
+
+#region Interface Functions
+    public void OnPointerEnter(PointerEventData _ped) {
+        if (!displayOnHover) return;
+        if (m_Item == null) return;
+        if (!cursor) return;
+        cursor.OpenHoverItem(m_Item);
+    }
+
+    public void OnPointerExit(PointerEventData _ped) {
+        if (!displayOnHover) return;
+        if (m_Item == null) return;
+        cursor.CloseHoverItem();
+    }
+#endregion
 }

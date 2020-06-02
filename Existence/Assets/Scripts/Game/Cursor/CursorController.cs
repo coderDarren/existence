@@ -8,6 +8,7 @@ public class CursorController : GameSystem
 
     public Image cursor;
     public Image pickup;
+    public InspectableItemView inspectableItemView;
     public Sprite main;
     public Sprite scaleHorizontal;
     public Sprite scaleVertical;
@@ -102,6 +103,14 @@ public class CursorController : GameSystem
     public void DropItem() {
         m_SelectedItem = null;
         SetImageAlpha(pickup, 0);
+    }
+
+    public void OpenHoverItem(ItemData _item) {
+        inspectableItemView.Open(_item);
+    }
+
+    public void CloseHoverItem() {
+        inspectableItemView.Close();
     }
 #endregion
 }
