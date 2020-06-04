@@ -230,6 +230,7 @@ GameObject:
   - component: {fileID: 8192565263138291458}
   - component: {fileID: 1474989571}
   - component: {fileID: 1474989570}
+  - component: {fileID: -1620651643589166765}
   m_Layer: 11
   m_Name: MechSpider_mob
   m_TagString: Untagged
@@ -298,14 +299,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa8734c1d8475de4ba0330d4c529e79b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debug: 0
+  debug: 1
   nameplateOffset: {x: 0, y: 1, z: 0}
-  smooth: 0.15
+  smooth: 0.2
   ground:
     serializedVersion: 2
     m_Bits: 4097
-  attacking: 0
-  combat: 0
+--- !u!114 &-1620651643589166765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2981537615713247339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c77232cf0980fef4498d2da8105540c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  relativeToPlayer: 1
+  relativeTo: {fileID: 0}
+  beginFadeDistance: 45
+  fadeLength: 5
 --- !u!1 &3816670898024978174
 GameObject:
   m_ObjectHideFlags: 0

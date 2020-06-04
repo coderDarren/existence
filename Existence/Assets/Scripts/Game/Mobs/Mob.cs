@@ -11,14 +11,13 @@ public class Mob : Selectable
     private NetworkMobData m_Data;
     private PlayerController m_Controller;
     private Animator m_Animator;
-    //private CanvasGroup m_NamePlate;
+    private CapsuleCollider m_Collider;
     private Vector3 m_InitialPos;
     private Vector3 m_TargetPos;
     private Vector3 m_InitialRot;
     private Vector3 m_TargetRot;
-    private float m_UpdateTimer;
-    private CapsuleCollider m_Collider;
     private Vector3 m_LastFramePos;
+    private float m_UpdateTimer;
 
     private NetworkController network {
         get {
@@ -44,17 +43,7 @@ public class Mob : Selectable
     }
 
     private void Update() {
-        /*if(Input.GetKeyDown(KeyCode.Z)){
-            m_Animator.SetBool("Attacking", true);
-            m_Animator.SetBool("Combat", true);
-        }
-        if(Input.GetKeyDown(KeyCode.X)){
-            m_Animator.SetBool("Attacking", false);
-            m_Animator.SetBool("Combat", false);
-        }
-        if(Input.GetKeyDown(KeyCode.C)){
-            m_Animator.SetFloat("Speed", 0);
-        }*/
+        //Test();
         
         if (m_UpdateTimer > smooth) return;
         m_UpdateTimer += Time.deltaTime;
@@ -62,16 +51,7 @@ public class Mob : Selectable
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / smooth);
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialRot), Quaternion.Euler(m_TargetRot), m_UpdateTimer / smooth);
         FindGroundPos();
-
-        float _dist = Vector3.Distance(m_LastFramePos, transform.position);
-        //Log(_dist.ToString());
-        if (_dist > 0.01f) {
-            m_Animator.SetBool("Moving", true);
-        } else {
-            m_Animator.SetBool("Moving", false);
-        }
-
-        m_LastFramePos = transform.position;
+        DetectMoveAnimation();
     }
 #endregion
 
@@ -82,10 +62,21 @@ public class Mob : Selectable
         m_Nameplate = new NameplateData();
         m_Nameplate.name = m_Data.name;
         m_Controller = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+
+        transform.rotation = Quaternion.Euler(_data.rot.x, _data.rot.y, _data.rot.z);
+        transform.position = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
+        FindGroundPos();
+        m_InitialRot = transform.eulerAngles;
+        m_InitialPos = transform.position;
+        m_TargetRot = m_InitialPos;
+        m_TargetPos = m_InitialPos;
+        m_UpdateTimer = smooth + 1;
     }
 
-    public void UpdateData(NetworkMobData _data) {
-        m_Data = _data;
+    public void UpdateTransform(NetworkMobData _data) {
+        m_Data.pos = _data.pos;
+        m_Data.rot = _data.rot;
+
         m_TargetPos.x = m_Data.pos.x;
         m_TargetPos.y = m_Data.pos.y;
         m_TargetPos.z = m_Data.pos.z;
@@ -95,20 +86,30 @@ public class Mob : Selectable
         m_InitialRot = transform.eulerAngles;
         m_InitialPos = transform.position;
         m_UpdateTimer = 0;
-        m_Animator.SetBool("Attacking", _data.inAttackRange);
-        m_Animator.SetBool("Combat", _data.inCombat);
 
         UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth);
+    }
+
+    public void UpdateCombatState(NetworkMobData _data) {
+        m_Animator.SetBool("Combat", _data.inCombat);
+    }
+
+    public void UpdateAttackRangeState(NetworkMobData _data) {
+        m_Animator.SetBool("Attacking", _data.inAttackRange);
+
+        if (_data.inAttackRange) {
+            m_Animator.SetBool("Combat", true);
+        }
+    }
+
+    public void Attack() {
+        m_Animator.SetTrigger("Cycle");
     }
 
     public void Hit(int _dmg) {
         if (!network) return;
         NetworkMobHitInfo _hitInfo = new NetworkMobHitInfo(m_Data.id, _dmg);
         network.HitMob(_hitInfo);
-    }
-
-    public void ForceAttackAnim() {
-        m_Animator.SetTrigger("Cycle");
     }
 #endregion
 
@@ -122,6 +123,31 @@ public class Mob : Selectable
                 transform.position = _pos;
             }
         }
+    }
+
+    private void DetectMoveAnimation() {
+        float _dist = Vector3.Distance(m_LastFramePos, transform.position);
+        if (_dist > 0.01f) {
+            m_Animator.SetBool("Moving", true);
+        } else {
+            m_Animator.SetBool("Moving", false);
+        }
+
+        m_LastFramePos = transform.position;
+    }
+
+    private void Test() {
+        /*if(Input.GetKeyDown(KeyCode.Z)){
+            m_Animator.SetBool("Attacking", true);
+            m_Animator.SetBool("Combat", true);
+        }
+        if(Input.GetKeyDown(KeyCode.X)){
+            m_Animator.SetBool("Attacking", false);
+            m_Animator.SetBool("Combat", false);
+        }
+        if(Input.GetKeyDown(KeyCode.C)){
+            m_Animator.SetFloat("Speed", 0);
+        }*/
     }
 #endregion
 

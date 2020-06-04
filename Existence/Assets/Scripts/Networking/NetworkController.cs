@@ -27,38 +27,57 @@ public class NetworkController : GameSystem
     public delegate void StringAction(string _msg);
     public event StringAction OnChat;
     public event StringAction OnAddInventoryFail;
-    public delegate void PlayerAction(NetworkPlayerData _player);
-    public event PlayerAction OnPlayerJoined;
-    public event PlayerAction OnPlayerLeft;
     public delegate void InstanceUpdateAction(NetworkInstanceData _data);
     public event InstanceUpdateAction OnHandshake;
     public event InstanceUpdateAction OnInstanceUpdated;
+
+#region PLAYER NETWORK EVENTS
+    public delegate void PlayerAction(NetworkPlayerData _player);
+    public event PlayerAction OnPlayerJoined;
+    public event PlayerAction OnPlayerLeft;
+    public event PlayerAction OnPlayerSpawn;
+    public event StringAction OnPlayerExit;
     public delegate void InventoryUpdateAction(ItemData _data);
     public event InventoryUpdateAction OnInventoryAdded;
     public delegate void PlayerHitAction(NetworkPlayerHitInfo _data);
     public event PlayerHitAction OnPlayerHit;
+#endregion
+
+#region MOB NETWORK EVENTS
+    public delegate void MobAction(NetworkMobData _mob);
+    public event MobAction OnMobSpawn;
+    public event StringAction OnMobExit;
+    public event MobAction OnMobAttackRangeStateChange;
+    public event MobAction OnMobCombatStateChange;
     public delegate void MobAttackAction(NetworkMobAttackData _data);
     public event MobAttackAction OnMobAttack;
+#endregion
 
     public bool usePredictiveSmoothing=true;
 
     private SocketIOComponent m_Network;
 
-    private static readonly string NETWORK_MESSAGE_CONNECT = "connect";
-    private static readonly string NETWORK_MESSAGE_DISCONNECT = "disconnect";
-    private static readonly string NETWORK_MESSAGE_HANDSHAKE = "HANDSHAKE";
-    private static readonly string NETWORK_MESSAGE_PLAYER_DATA = "PLAYER";
-    private static readonly string NETWORK_MESSAGE_PLAYER_LEFT = "PLAYER_LEFT";
-    private static readonly string NETWORK_MESSAGE_PLAYER_JOINED = "PLAYER_JOINED";
-    private static readonly string NETWORK_MESSAGE_CHAT = "CHAT";
-    private static readonly string NETWORK_MESSAGE_INSTANCE = "INSTANCE";
-    private static readonly string NETWORK_MESSAGE_HIT_MOB = "HIT_MOB";
-    private static readonly string NETWORK_MESSAGE_MOB_ATTACK = "MOB_ATTACK";
-    private static readonly string NETWORK_MESSAGE_HIT_PLAYER = "HIT_PLAYER";
-    private static readonly string NETWORK_MESSAGE_INVENTORY_CHANGED = "INVENTORY_CHANGE";
-    private static readonly string NETWORK_MESSAGE_ADD_INVENTORY = "ADD_INVENTORY";
-    private static readonly string NETWORK_MESSAGE_ADD_INVENTORY_SUCCESS = "ADD_INVENTORY_SUCCESS";
-    private static readonly string NETWORK_MESSAGE_ADD_INVENTORY_FAILURE = "ADD_INVENTORY_FAILURE";
+    private static readonly string NETMSG_CONNECT = "connect";
+    private static readonly string NETMSG_DISCONNECT = "disconnect";
+    private static readonly string NETMSG_HANDSHAKE = "HANDSHAKE";
+    private static readonly string NETMSG_PLAYER_DATA = "PLAYER";
+    private static readonly string NETMSG_PLAYER_LEFT = "PLAYER_LEFT";
+    private static readonly string NETMSG_PLAYER_JOINED = "PLAYER_JOINED";
+    private static readonly string NETMSG_CHAT = "CHAT";
+    private static readonly string NETMSG_INSTANCE = "INSTANCE";
+    private static readonly string NETMSG_HIT_MOB = "HIT_MOB";
+    private static readonly string NETMSG_MOB_ATTACK = "MOB_ATTACK";
+    private static readonly string NETMSG_MOB_HIT_PLAYER = "MOB_HIT_PLAYER";
+    private static readonly string NETMSG_INVENTORY_CHANGED = "INVENTORY_CHANGE";
+    private static readonly string NETMSG_ADD_INVENTORY = "ADD_INVENTORY";
+    private static readonly string NETMSG_ADD_INVENTORY_SUCCESS = "ADD_INVENTORY_SUCCESS";
+    private static readonly string NETMSG_ADD_INVENTORY_FAILURE = "ADD_INVENTORY_FAILURE";
+    private static readonly string NETMSG_MOB_SPAWN = "MOB_SPAWN";
+    private static readonly string NETMSG_MOB_EXIT = "MOB_EXIT";
+    private static readonly string NETMSG_PLAYER_SPAWN = "PLAYER_SPAWN";
+    private static readonly string NETMSG_PLAYER_EXIT = "PLAYER_EXIT";
+    private static readonly string NETMSG_MOB_COMBAT_STATE_CHANGE = "MOB_COMBAT_STATE_CHANGE";
+    private static readonly string NETMSG_MOB_ATTACK_RANGE_CHANGE = "MOB_ATTACK_RANGE_STATE_CHANGE";
 
     public bool IsConnected { get { return m_Network.IsConnected; } }
 
@@ -71,17 +90,23 @@ public class NetworkController : GameSystem
 
     private void Start() {
         m_Network = GetComponent<SocketIOComponent>();
-        m_Network.On(NETWORK_MESSAGE_CONNECT, OnNetworkConnected);
-        m_Network.On(NETWORK_MESSAGE_DISCONNECT, OnNetworkDisconnected);
-        m_Network.On(NETWORK_MESSAGE_HANDSHAKE, OnNetworkHandshake);
-        m_Network.On(NETWORK_MESSAGE_INSTANCE, OnInstanceUpdate);
-        m_Network.On(NETWORK_MESSAGE_PLAYER_JOINED, OnNetworkPlayerJoined);
-        m_Network.On(NETWORK_MESSAGE_PLAYER_LEFT, OnNetworkPlayerLeft);
-        m_Network.On(NETWORK_MESSAGE_CHAT, OnNetworkChat);
-        m_Network.On(NETWORK_MESSAGE_HIT_PLAYER, OnNetworkHitPlayer);
-        m_Network.On(NETWORK_MESSAGE_MOB_ATTACK, OnNetworkMobAttack);
-        m_Network.On(NETWORK_MESSAGE_ADD_INVENTORY_SUCCESS, OnAddInventorySuccess);
-        m_Network.On(NETWORK_MESSAGE_ADD_INVENTORY_FAILURE, OnAddInventoryFailure);
+        m_Network.On(NETMSG_CONNECT, OnNetworkConnected);
+        m_Network.On(NETMSG_DISCONNECT, OnNetworkDisconnected);
+        m_Network.On(NETMSG_HANDSHAKE, OnNetworkHandshake);
+        m_Network.On(NETMSG_INSTANCE, OnInstanceUpdate);
+        m_Network.On(NETMSG_PLAYER_JOINED, OnNetworkPlayerJoined);
+        m_Network.On(NETMSG_PLAYER_LEFT, OnNetworkPlayerLeft);
+        m_Network.On(NETMSG_CHAT, OnNetworkChat);
+        m_Network.On(NETMSG_MOB_HIT_PLAYER, OnNetworkHitPlayer);
+        m_Network.On(NETMSG_MOB_ATTACK, OnNetworkMobAttack);
+        m_Network.On(NETMSG_ADD_INVENTORY_SUCCESS, OnAddInventorySuccess);
+        m_Network.On(NETMSG_ADD_INVENTORY_FAILURE, OnAddInventoryFailure);
+        m_Network.On(NETMSG_PLAYER_SPAWN, OnNetworkPlayerSpawn);
+        m_Network.On(NETMSG_PLAYER_EXIT, OnNetworkPlayerExit);
+        m_Network.On(NETMSG_MOB_SPAWN, OnNetworkMobSpawn);
+        m_Network.On(NETMSG_MOB_EXIT, OnNetworkMobExit);
+        m_Network.On(NETMSG_MOB_COMBAT_STATE_CHANGE, OnNetworkMobCombatStateChange);
+        m_Network.On(NETMSG_MOB_ATTACK_RANGE_CHANGE, OnNetworkMobAttackRangeStateChange);
     }
 
     private void OnDisable() {
@@ -157,8 +182,48 @@ public class NetworkController : GameSystem
     private void OnNetworkMobAttack(SocketIOEvent _evt) {
         Log("Mob attacked");
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkMobAttackData _info = NetworkMobAttackData.FromJsonStr<NetworkMobAttackData>(_msg);
-        TryRunAction(OnMobAttack, _info);
+        NetworkMobAttackData _data = NetworkMobAttackData.FromJsonStr<NetworkMobAttackData>(_msg);
+        TryRunAction(OnMobAttack, _data);
+    }
+
+    private void OnNetworkPlayerSpawn(SocketIOEvent _evt) {
+        Log("Player spawned");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkPlayerData _data = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
+        TryRunAction(OnPlayerSpawn, _data);
+    }
+
+    private void OnNetworkPlayerExit(SocketIOEvent _evt) {
+        Log("Player out of range");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        TryRunAction(OnPlayerExit, _msg);
+    }
+
+    private void OnNetworkMobSpawn(SocketIOEvent _evt) {
+        Log("Mob spawned");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkMobData _data = NetworkMobData.FromJsonStr<NetworkMobData>(_msg);
+        TryRunAction(OnMobSpawn, _data);
+    }
+
+    private void OnNetworkMobExit(SocketIOEvent _evt) {
+        Log("Mob out of range");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        TryRunAction(OnMobExit, _msg);
+    }
+
+    private void OnNetworkMobAttackRangeStateChange(SocketIOEvent _evt) {
+        Log("Mob attack range state changed");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkMobData _data = NetworkMobData.FromJsonStr<NetworkMobData>(_msg);
+        TryRunAction(OnMobAttackRangeStateChange, _data);
+    }
+
+    private void OnNetworkMobCombatStateChange(SocketIOEvent _evt) {
+        Log("Mob combat state changed");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkMobData _data = NetworkMobData.FromJsonStr<NetworkMobData>(_msg);
+        TryRunAction(OnMobCombatStateChange, _data);
     }
 
     private void TryRunAction(BasicAction _action) {
@@ -203,6 +268,12 @@ public class NetworkController : GameSystem
         } catch (System.Exception) {}
     }
 
+    private void TryRunAction(MobAction _action, NetworkMobData _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception) {}
+    }
+
     private void SendString(string _id, string _data) {
         //Log("Sending {\"message\":\""+_data+"\"} to "+_id);
         m_Network.Emit(_id, new JSONObject("{\"message\":\""+_data+"\"}"));
@@ -225,27 +296,27 @@ public class NetworkController : GameSystem
     }
 
     public void SendChat(string _chat) {
-        SendString(NETWORK_MESSAGE_CHAT, _chat);
+        SendString(NETMSG_CHAT, _chat);
     }
 
     public void SendHandshake(NetworkHandshake _data) {
-        SendNetworkData<NetworkHandshake>(NETWORK_MESSAGE_HANDSHAKE, _data);
+        SendNetworkData<NetworkHandshake>(NETMSG_HANDSHAKE, _data);
     }
 
     public void SendNetworkPlayer(NetworkPlayerData _data) {
-        SendNetworkData<NetworkPlayerData>(NETWORK_MESSAGE_PLAYER_DATA, _data);
+        SendNetworkData<NetworkPlayerData>(NETMSG_PLAYER_DATA, _data);
     }
 
     public void HitMob(NetworkMobHitInfo _data) {
-        SendNetworkData<NetworkMobHitInfo>(NETWORK_MESSAGE_HIT_MOB, _data);
+        SendNetworkData<NetworkMobHitInfo>(NETMSG_HIT_MOB, _data);
     }
 
     public void SaveInventory(NetworkInventoryUpdate _data) {
-        SendNetworkData<NetworkInventoryUpdate>(NETWORK_MESSAGE_INVENTORY_CHANGED, _data);
+        SendNetworkData<NetworkInventoryUpdate>(NETMSG_INVENTORY_CHANGED, _data);
     }
 
     public void AddInventory(ItemData _data) {
-        SendNetworkData<ItemData>(NETWORK_MESSAGE_ADD_INVENTORY, _data);
+        SendNetworkData<ItemData>(NETMSG_ADD_INVENTORY, _data);
     }
 #endregion
 }
