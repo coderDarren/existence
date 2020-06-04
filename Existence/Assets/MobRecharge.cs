@@ -20,7 +20,6 @@ public class MobRecharge : StateMachineBehaviour
             rechargeName = animator.GetCurrentAnimatorClipInfo(1)[0].clip.name;
             rechargeSpeed = animator.GetCurrentAnimatorClipInfo(1)[0].clip.length;
             clips = animator.runtimeAnimatorController.animationClips;
-            Debug.Log(rechargeName);
             if(rechargeName != startName){    
                 for(int i=0; i < clips.Length; i++){
                         if(clips[i].name == rechargeName){ 

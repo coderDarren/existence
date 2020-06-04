@@ -1,15 +1,20 @@
 ﻿
 public class NetworkMobHitInfo : NetworkModel {
     public string id;
+    public string mobName;
+    public string playerName;
     public int dmg;
-    public NetworkMobHitInfo(string _id, int _dmg) {
+    public NetworkMobHitInfo(string _id, string _mobName, int _dmg) {
         id = _id;
+        mobName = _mobName;
         dmg = _dmg;
     }
 }
 
 public class NetworkMobAttackData : NetworkModel {
     public string id;
+    public string mobName;
+    public string playerName;
 }
 
 public class NetworkMobData : NetworkModel {
