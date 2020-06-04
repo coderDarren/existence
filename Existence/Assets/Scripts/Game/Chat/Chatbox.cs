@@ -64,6 +64,8 @@ public class Chatbox : GameSystem
             network.OnInventoryAdded += OnInventoryAdded;
             network.OnAddInventoryFail += OnAddInventoryFail;
             network.OnPlayerHit += OnPlayerHit;
+            network.OnMobAttackStart += OnMobAttackStart;
+            network.OnMobHit += OnMobHit;
         }
     }
 
@@ -90,6 +92,8 @@ public class Chatbox : GameSystem
             network.OnInventoryAdded -= OnInventoryAdded;
             network.OnAddInventoryFail -= OnAddInventoryFail;
             network.OnPlayerHit -= OnPlayerHit;
+            network.OnMobAttackStart -= OnMobAttackStart;
+            network.OnMobHit -= OnMobHit;
         }
 
         if (session) {
@@ -247,7 +251,21 @@ public class Chatbox : GameSystem
         if (!session) return;
         if (session.player.data.player.name != _info.playerName) return;
         
-        chatBox.text += "\n"+_info.mobName+" hit you for "+_info.dmg+" points of damage.";
+        chatBox.text += "\n<color=#ccc>"+_info.mobName+" hit you for "+_info.dmg+" points of damage.</color>";
+    }
+
+    private void OnMobAttackStart(NetworkMobAttackData _data) {
+        if (!session) return;
+        if (session.player.data.player.name != _data.playerName) return;
+
+        chatBox.text += "\n<color=#f00>"+_data.mobName+" started attacking you.</color>";
+    }
+
+    private void OnMobHit(NetworkMobHitInfo _data) {
+        if (!session) return;
+        if (session.player.data.player.name != _data.playerName) return;
+
+        chatBox.text += "\n<color=#fff>You hit "+_data.mobName+" for "+_data.dmg+" points of damage.</color>";
     }
 
     private void TryRunAction(BasicAction _action) {

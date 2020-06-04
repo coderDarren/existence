@@ -49,8 +49,12 @@ public class NetworkController : GameSystem
     public event StringAction OnMobExit;
     public event MobAction OnMobAttackRangeStateChange;
     public event MobAction OnMobCombatStateChange;
+    public event MobAction OnMobHealthChange;
     public delegate void MobAttackAction(NetworkMobAttackData _data);
     public event MobAttackAction OnMobAttack;
+    public event MobAttackAction OnMobAttackStart;
+    public delegate void MobHitAction(NetworkMobHitInfo _data);
+    public event MobHitAction OnMobHit;
 #endregion
 
     public bool usePredictiveSmoothing=true;
@@ -67,6 +71,7 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_INSTANCE = "INSTANCE";
     private static readonly string NETMSG_HIT_MOB = "HIT_MOB";
     private static readonly string NETMSG_MOB_ATTACK = "MOB_ATTACK";
+    private static readonly string NETMSG_MOB_ATTACK_START = "MOB_ATTACK_START";
     private static readonly string NETMSG_MOB_HIT_PLAYER = "MOB_HIT_PLAYER";
     private static readonly string NETMSG_INVENTORY_CHANGED = "INVENTORY_CHANGE";
     private static readonly string NETMSG_ADD_INVENTORY = "ADD_INVENTORY";
@@ -78,6 +83,8 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_PLAYER_EXIT = "PLAYER_EXIT";
     private static readonly string NETMSG_MOB_COMBAT_STATE_CHANGE = "MOB_COMBAT_STATE_CHANGE";
     private static readonly string NETMSG_MOB_ATTACK_RANGE_CHANGE = "MOB_ATTACK_RANGE_STATE_CHANGE";
+    private static readonly string NETMSG_MOB_HEALTH_CHANGE = "MOB_HEALTH_CHANGE";
+    private static readonly string NETMSG_PLAYER_HIT_MOB_CONFIRMATION = "PLAYER_HIT_MOB_CONFIRMATION";
 
     public bool IsConnected { get { return m_Network.IsConnected; } }
 
@@ -107,6 +114,9 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_MOB_EXIT, OnNetworkMobExit);
         m_Network.On(NETMSG_MOB_COMBAT_STATE_CHANGE, OnNetworkMobCombatStateChange);
         m_Network.On(NETMSG_MOB_ATTACK_RANGE_CHANGE, OnNetworkMobAttackRangeStateChange);
+        m_Network.On(NETMSG_MOB_HEALTH_CHANGE, OnNetworkMobHealthChange);
+        m_Network.On(NETMSG_MOB_ATTACK_START, OnNetworkMobAttackStart);
+        m_Network.On(NETMSG_PLAYER_HIT_MOB_CONFIRMATION, OnNetworkPlayerHitMobConfirmation);
     }
 
     private void OnDisable() {
@@ -186,6 +196,13 @@ public class NetworkController : GameSystem
         TryRunAction(OnMobAttack, _data);
     }
 
+    private void OnNetworkMobAttackStart(SocketIOEvent _evt) {
+        Log("Mob started attacking");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkMobAttackData _data = NetworkMobAttackData.FromJsonStr<NetworkMobAttackData>(_msg);
+        TryRunAction(OnMobAttackStart, _data);
+    }
+
     private void OnNetworkPlayerSpawn(SocketIOEvent _evt) {
         Log("Player spawned");
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
@@ -224,6 +241,20 @@ public class NetworkController : GameSystem
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
         NetworkMobData _data = NetworkMobData.FromJsonStr<NetworkMobData>(_msg);
         TryRunAction(OnMobCombatStateChange, _data);
+    }
+
+    private void OnNetworkMobHealthChange(SocketIOEvent _evt) {
+        Log("Mob health changed");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkMobData _data = NetworkMobData.FromJsonStr<NetworkMobData>(_msg);
+        TryRunAction(OnMobHealthChange, _data);
+    }
+
+    private void OnNetworkPlayerHitMobConfirmation(SocketIOEvent _evt) {
+        Log("Received confirmation of player hitting mob");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkMobHitInfo _data = NetworkMobHitInfo.FromJsonStr<NetworkMobHitInfo>(_msg);
+        TryRunAction(OnMobHit, _data);
     }
 
     private void TryRunAction(BasicAction _action) {
@@ -269,6 +300,12 @@ public class NetworkController : GameSystem
     }
 
     private void TryRunAction(MobAction _action, NetworkMobData _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception) {}
+    }
+
+    private void TryRunAction(MobHitAction _action, NetworkMobHitInfo _data) {
         try {
             _action(_data);
         } catch (System.Exception) {}

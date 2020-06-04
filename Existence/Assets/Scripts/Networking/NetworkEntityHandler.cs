@@ -83,6 +83,7 @@ public class NetworkEntityHandler : GameSystem
         m_Players = new List<NetworkPlayer>();
 
         if (!network) return;
+        network.OnConnect += OnConnect;
         network.OnPlayerLeft += OnPlayerLeft;
         network.OnInstanceUpdated += OnInstanceUpdated;
         network.OnMobAttack += OnMobAttack;
@@ -92,10 +93,12 @@ public class NetworkEntityHandler : GameSystem
         network.OnMobExit += OnMobExit;
         network.OnMobAttackRangeStateChange += OnMobAttackRangeStateChange;
         network.OnMobCombatStateChange += OnMobCombatStateChange;
+        network.OnMobHealthChange += OnMobHealthChange;
     }
 
     private void OnDisable() {
         if (!network) return;
+        network.OnConnect -= OnConnect;
         network.OnPlayerLeft -= OnPlayerLeft;
         network.OnInstanceUpdated -= OnInstanceUpdated;
         network.OnMobAttack -= OnMobAttack;
@@ -105,12 +108,31 @@ public class NetworkEntityHandler : GameSystem
         network.OnMobExit -= OnMobExit;
         network.OnMobAttackRangeStateChange -= OnMobAttackRangeStateChange;
         network.OnMobCombatStateChange -= OnMobCombatStateChange;
+        network.OnMobHealthChange -= OnMobHealthChange;
     }
 #endregion
 
 // delete existing entities on connect to ensure a smooth reconnect scenario 
 
 #region Private Functions
+    private void OnConnect() {
+        // reset players
+        for (int i = m_Players.Count - 1; i >= 0; i--) {
+            string _key = m_Players[i].name;
+            if (_key == string.Empty) continue;
+            NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_key];
+            RemovePlayer(_player);
+            m_Players.RemoveAt(i);
+        }
+
+        // reset mobs
+        for (int i = m_Mobs.Count - 1; i >= 0; i--) {
+            string _key = m_Mobs[i].id;
+            RemoveMob(_key);
+            m_Mobs.RemoveAt(i);
+        }
+    }
+
     private void OnPlayerSpawn(NetworkPlayerData _player) {
         SpawnPlayer(_player);
     }
@@ -142,69 +164,6 @@ public class NetworkEntityHandler : GameSystem
             MoveMob(_mob);
         }
     }
-
-    /*private void OnInstanceUpdated(NetworkInstanceData _instance) {
-        HandlePlayerUpdates(_instance.players);
-        HandleMobUpdates(_instance.mobs);
-    }
-
-    private void HandlePlayerUpdates(NetworkPlayerData[] _players) {
-        foreach (DictionaryEntry _entry in m_PlayersHash) {
-            string _key = (string)_entry.Key;
-            m_PlayerUpdateState[_key] = false;
-        }
-        
-        foreach(NetworkPlayerData _player in _players) {
-            // find mobs that did not update
-            if (m_PlayerUpdateState.ContainsKey(_player.name)) {
-                MovePlayer(_player);
-                m_PlayerUpdateState[_player.name] = true;
-            } else {
-                //SpawnPlayer(_player);
-                m_PlayerUpdateState.Add(_player.name, true);
-            }
-        }
-
-        // compare old mob hash to this new stuff
-        for (int i = m_Players.Count - 1; i >= 0; i--) {
-            string _key = m_Players[i].name;
-            if (_key == string.Empty) continue;
-            bool _didUpdate = (bool)m_PlayerUpdateState[_key];
-            if (!_didUpdate) {
-                NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_key];
-                RemovePlayer(_player);
-                m_Players.RemoveAt(i);
-            }
-        }
-    }
-
-    private void HandleMobUpdates(NetworkMobData[] _mobs) {
-        foreach (DictionaryEntry _entry in m_MobsHash) {
-            string _key = (string)_entry.Key;
-            m_MobUpdateState[_key] = false;
-        }
-        
-        foreach(NetworkMobData _mob in _mobs) {
-            // find mobs that did not update
-            if (m_MobUpdateState.ContainsKey(_mob.id)) {
-                MoveMob(_mob);
-                m_MobUpdateState[_mob.id] = true;
-            } else {
-                //SpawnMob(_mob);
-                m_MobUpdateState.Add(_mob.id, true);
-            }
-        }
-
-        // compare old mob hash to this new stuff
-        for (int i = m_Mobs.Count - 1; i >= 0; i--) {
-            string _key = m_Mobs[i].id;
-            bool _didUpdate = (bool)m_MobUpdateState[_key];
-            if (!_didUpdate) {
-                RemoveMob(_key);
-                m_Mobs.RemoveAt(i);
-            }
-        }
-    }*/
 
     private void SpawnPlayer(NetworkPlayerData _data) {
         string _name = _data.name;
@@ -278,6 +237,13 @@ public class NetworkEntityHandler : GameSystem
         if (!m_MobsHash.ContainsKey(_name)) return; // could not find mob
         Mob _mob = (Mob)m_MobsHash[_name];
         _mob.UpdateCombatState(_data);
+    }
+
+    private void OnMobHealthChange(NetworkMobData _data) {
+        string _name = _data.id;
+        if (!m_MobsHash.ContainsKey(_name)) return; // could not find mob
+        Mob _mob = (Mob)m_MobsHash[_name];
+        _mob.UpdateHealth(_data);
     }
 
     private void RemoveMob(string _id) {

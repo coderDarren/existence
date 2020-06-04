@@ -71,6 +71,8 @@ public class Mob : Selectable
         m_TargetRot = m_InitialPos;
         m_TargetPos = m_InitialPos;
         m_UpdateTimer = smooth + 1;
+
+        UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth);
     }
 
     public void UpdateTransform(NetworkMobData _data) {
@@ -86,8 +88,6 @@ public class Mob : Selectable
         m_InitialRot = transform.eulerAngles;
         m_InitialPos = transform.position;
         m_UpdateTimer = 0;
-
-        UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth);
     }
 
     public void UpdateCombatState(NetworkMobData _data) {
@@ -102,13 +102,17 @@ public class Mob : Selectable
         }
     }
 
+    public void UpdateHealth(NetworkMobData _data) {
+        UpdateNameplate(m_Data.name, _data.health, m_Data.maxHealth);
+    }
+
     public void Attack() {
         m_Animator.SetTrigger("Cycle");
     }
 
     public void Hit(int _dmg) {
         if (!network) return;
-        NetworkMobHitInfo _hitInfo = new NetworkMobHitInfo(m_Data.id, _dmg);
+        NetworkMobHitInfo _hitInfo = new NetworkMobHitInfo(m_Data.id, m_Data.name, _dmg);
         network.HitMob(_hitInfo);
     }
 #endregion
