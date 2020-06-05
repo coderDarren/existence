@@ -65,18 +65,27 @@ public class Player : GameSystem
         }
     }
 
-#region Unity Functions
-#endregion
-
 #region Public Functions
     /// <summary>
     /// Call from session when network connects
     /// </summary>
     public void ConnectWithData(PlayerData _data) {
+        Dispose();
         m_Data = _data;
         m_GearStats = new StatData();
         m_BuffStats = new StatData();
-        m_TrickleStats = new StatData();        
+        m_TrickleStats = new StatData();
+
+        if (session && session.network) {
+            Log("subscribing");
+            session.network.OnMobDeath += OnMobDeath;
+        } 
+    }
+
+    public void Dispose() {
+        if (!session) return;
+        if (!session.network) return;
+        session.network.OnMobDeath -= OnMobDeath;
     }
 
     public void SaveBaselineStats(StatData _stats) {
@@ -148,17 +157,14 @@ public class Player : GameSystem
         return _factor * 30;
     }
 
-    private string RandomString(int length)
-    {
-        var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        var stringChars = new char[length];
-
-        for (int i = 0; i < stringChars.Length; i++)
-        {
-            stringChars[i] = chars[Random.Range(0,chars.Length)];
+    private void OnMobDeath(NetworkMobDeathData _data) {
+        foreach (NetworkMobXpAllottment _mxa in _data.xpAllottment) {
+            if (m_Data.player.name == _mxa.playerName) {
+                Log("adding xp: "+_mxa.xp);
+                AddXp(_mxa.xp);
+                break;
+            }
         }
-
-        return new string(stringChars);
     }
 
     private void TryRunAction(IntAction _action, int _data) {

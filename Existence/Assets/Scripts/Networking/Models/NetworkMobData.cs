@@ -17,6 +17,18 @@ public class NetworkMobAttackData : NetworkModel {
     public string playerName;
 }
 
+public class NetworkMobDeathData : NetworkModel {
+    public string id;
+    public string[] lootRights; // array of player names who can loot
+    public NetworkMobXpAllottment[] xpAllottment;
+    public int[] loot; // array of item ids
+}
+
+public class NetworkMobXpAllottment : NetworkModel {
+    public string playerName;
+    public int xp;
+}
+
 public class NetworkMobData : NetworkModel {
     public string id;
     public string name;

@@ -55,6 +55,8 @@ public class NetworkController : GameSystem
     public event MobAttackAction OnMobAttackStart;
     public delegate void MobHitAction(NetworkMobHitInfo _data);
     public event MobHitAction OnMobHit;
+    public delegate void MobDeathAction(NetworkMobDeathData _data);
+    public event MobDeathAction OnMobDeath;
 #endregion
 
     public bool usePredictiveSmoothing=true;
@@ -85,6 +87,7 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_MOB_ATTACK_RANGE_CHANGE = "MOB_ATTACK_RANGE_STATE_CHANGE";
     private static readonly string NETMSG_MOB_HEALTH_CHANGE = "MOB_HEALTH_CHANGE";
     private static readonly string NETMSG_PLAYER_HIT_MOB_CONFIRMATION = "PLAYER_HIT_MOB_CONFIRMATION";
+    private static readonly string NETMSG_MOB_DEATH = "MOB_DEATH";
 
     public bool IsConnected { get { return m_Network.IsConnected; } }
 
@@ -117,6 +120,7 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_MOB_HEALTH_CHANGE, OnNetworkMobHealthChange);
         m_Network.On(NETMSG_MOB_ATTACK_START, OnNetworkMobAttackStart);
         m_Network.On(NETMSG_PLAYER_HIT_MOB_CONFIRMATION, OnNetworkPlayerHitMobConfirmation);
+        m_Network.On(NETMSG_MOB_DEATH, OnNetworkMobDeath);
     }
 
     private void OnDisable() {
@@ -257,6 +261,13 @@ public class NetworkController : GameSystem
         TryRunAction(OnMobHit, _data);
     }
 
+    private void OnNetworkMobDeath(SocketIOEvent _evt) {
+        Log("Mob died");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkMobDeathData _data = NetworkMobDeathData.FromJsonStr<NetworkMobDeathData>(_msg);
+        TryRunAction(OnMobDeath, _data);
+    }
+
     private void TryRunAction(BasicAction _action) {
         try {
             _action();
@@ -306,6 +317,12 @@ public class NetworkController : GameSystem
     }
 
     private void TryRunAction(MobHitAction _action, NetworkMobHitInfo _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception) {}
+    }
+
+    private void TryRunAction(MobDeathAction _action, NetworkMobDeathData _data) {
         try {
             _action(_data);
         } catch (System.Exception) {}
