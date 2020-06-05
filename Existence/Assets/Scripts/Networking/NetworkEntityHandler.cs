@@ -139,6 +139,7 @@ public class NetworkEntityHandler : GameSystem
 
     private void OnPlayerExit(string _name) {
         NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_name];
+        if (_player == null) return;
         RemovePlayer(_player);
     }
 
@@ -152,6 +153,7 @@ public class NetworkEntityHandler : GameSystem
 
     private void OnPlayerLeft(NetworkPlayerData _data) {
         NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_data.name];
+        if (_player == null) return;
         RemovePlayer(_player);
     }
 
