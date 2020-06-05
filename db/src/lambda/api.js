@@ -14,6 +14,9 @@ const addInventory = require('./addInventory.js');
 const createAccount = require('./createAccount.js');
 const authenticate = require('./authenticate.js');
 const getAccountPlayers = require('./getAccountPlayers.js');
+const modifyMob = require('./modifyMob.js');
+const modifyMobLoot = require('./modifyMobLoot.js');
+const modifyItem = require('./modifyItem.js');
 
 const versionCode = '0.1';
 const api = async function(_event, _context) {
@@ -70,6 +73,15 @@ const handleRoute = async function(_req) {
             break;
         case "/api/addInventory": // POST
             _resp = await addInventory(_req.body);
+            break;
+        case "/api/modifyMob": // POST
+            _resp = await modifyMob(_req.body,);
+            break;
+        case "/api/modifyMobLoot": // POST
+            _resp = await modifyMobLoot(_req.body);
+            break;
+        case "/api/modifyItem": // POST
+            _resp = await modifyItem(_req.body);
             break;
     }
 
