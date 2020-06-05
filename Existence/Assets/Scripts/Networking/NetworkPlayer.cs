@@ -158,8 +158,9 @@ public class NetworkPlayer : Selectable
         m_UpdateTimer = 0;
 
         UpdateNameplate(_data.name, _data.health, _data.maxHealth);
-
+        
         m_LastFrameData = _data;
+        
     }
 #endregion
 
