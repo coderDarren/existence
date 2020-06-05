@@ -38,9 +38,6 @@ public class Mob : Selectable
     }
 
 #region Unity Functions
-    private void Start(){
-        m_Animator = GetComponent<Animator>();
-    }
 
     private void Update() {
         //Test();
@@ -57,6 +54,7 @@ public class Mob : Selectable
 
 #region Public Functions
     public void Init(NetworkMobData _data) {
+        m_Animator = GetComponent<Animator>();
         m_Collider = GetComponent<CapsuleCollider>();
         m_Data = _data;
         m_Nameplate = new NameplateData();
@@ -72,6 +70,8 @@ public class Mob : Selectable
         m_TargetPos = m_InitialPos;
         m_UpdateTimer = smooth + 1;
 
+        UpdateCombatState(_data);
+        UpdateAttackRangeState(_data);
         UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth);
     }
 

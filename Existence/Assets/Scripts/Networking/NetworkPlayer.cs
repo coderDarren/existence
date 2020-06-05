@@ -131,7 +131,7 @@ public class NetworkPlayer : Selectable
     public void UpdateServerPlayer(NetworkPlayerData _data) {
         if (isClient) return;
 
-        if (network.usePredictiveSmoothing) {
+        if (network.usePredictiveSmoothing && _data.timestamp != null && m_LastFrameData != null && m_LastFrameData.timestamp != null) {
             if (m_LastFrameData == null) {
                 m_LastFrameData = _data;
             }
@@ -158,8 +158,9 @@ public class NetworkPlayer : Selectable
         m_UpdateTimer = 0;
 
         UpdateNameplate(_data.name, _data.health, _data.maxHealth);
-
+        
         m_LastFrameData = _data;
+        
     }
 #endregion
 
