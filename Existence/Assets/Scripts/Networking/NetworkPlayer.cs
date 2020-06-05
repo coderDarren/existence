@@ -131,7 +131,7 @@ public class NetworkPlayer : Selectable
     public void UpdateServerPlayer(NetworkPlayerData _data) {
         if (isClient) return;
 
-        if (network.usePredictiveSmoothing) {
+        if (network.usePredictiveSmoothing && _data.timestamp != null && m_LastFrameData != null && m_LastFrameData.timestamp != null) {
             if (m_LastFrameData == null) {
                 m_LastFrameData = _data;
             }
