@@ -149,6 +149,11 @@ public class NetworkEntityHandler : GameSystem
 
     private void OnMobExit(string _id) {
         RemoveMob(_id);
+        for (int i = m_Mobs.Count - 1; i >= 0; i--) {
+            if (m_Mobs[i].id == _id) {
+                m_Mobs.RemoveAt(i);
+            }
+        }
     }
 
     private void OnPlayerLeft(NetworkPlayerData _data) {
