@@ -424,9 +424,44 @@ class SQLController {
                 return _authCheck;
             }
 
-            return {
-                data: ""
+            switch (_params.method) {
+                case "c": 
+                    if (await this._mob.findOne({where: {name: _params.mob.name}})) {
+                        return {
+                            error: `Cannot create. Mob ${_params.mob.name} already exists.`,
+                            code: 1401
+                        }
+                    }
+
+                    const _newMob = await this._mob.create(_params.mob);
+
+                    return {
+                        data: _newMob
+                    }
+                case "d": 
+
+                    break;
+                case "u": 
+                    const _check = await this._mob.findOne({where: {name: _params.job.mobName}});
+                    if (!_check) {
+                        return {
+                            error: `Cannot update. Mob ${_params.job.mobName} does not exist.`,
+                            code: 1402
+                        }
+                    }
+
+                    const _mob = await this._mob.update(_params.mob, {where: {name: _params.job.mobName}});
+
+                    return {
+                        data: _mob
+                    }
+                default:
+                    return {
+                        error: 'Unknown method',
+                        code: 1400
+                    }
             }
+
         } catch (_err) {
             return {
                 error: _err
@@ -442,9 +477,45 @@ class SQLController {
                 return _authCheck;
             }
 
-            return {
-                data: ""
+            const _check = await this._mobLootItem.findOne({where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
+
+            switch (_params.method) {
+                case "c": 
+                    if (_check) {
+                        return {
+                            error: `Cannot create. Mob loot ${JSON.stringify(_params.mobLoot)} already exists.`,
+                            code: 1401
+                        }
+                    }
+
+                    const _newMobLoot = await this._mobLootItem.create(_params.mobLoot);
+
+                    return {
+                        data: _newMobLoot
+                    }
+                case "d": 
+
+                    break;
+                case "u": 
+                    if (!_check) {
+                        return {
+                            error: `Cannot update. Mob loot ${JSON.stringify(_params.mobLoot)} does not exist.`,
+                            code: 1402
+                        }
+                    }
+
+                    const _mobLoot = await this._mobLootItem.update(_params.mobLoot, {where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
+
+                    return {
+                        data: _mobLoot
+                    }
+                default:
+                    return {
+                        error: 'Unknown method',
+                        code: 1400
+                    }
             }
+
         } catch (_err) {
             return {
                 error: _err

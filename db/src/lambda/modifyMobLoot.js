@@ -3,16 +3,20 @@ const SQL = require('../services/sql.js');
 
 const validateParams = function(_body)
 {
-    const _playerID = _body.playerID;
     const _account = _body.id;
     const _apiKey = _body.apiKey;
+    const _method = _body.method;
+    const _mobLoot = _body.mobLoot;
+    var _job = {};
 
-    if (!_account || !_apiKey || !_playerID) return -1;
+    if (!_account || !_apiKey || !_method || !_mobLoot) return -1;
 
     return {
-        playerID: _playerID,
         account: _account,
         apiKey: _apiKey,
+        method: _method,
+        mobLoot: _mobLoot,
+        job: _job,
     };
 }
 
@@ -33,7 +37,7 @@ const modifyMobLoot = async function(_body) {
     }
 
     return {
-        data: {status: "Success"}
+        data: _result.data
     }
 }
 
