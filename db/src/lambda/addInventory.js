@@ -18,7 +18,7 @@ const validateParams = function(_body)
 }
 
 const addInventory = async function(_body) {
-    console.log(`body: ${JSON.stringify(_body)}`);
+    //console.log(`body: ${JSON.stringify(_body)}`);
     const _params = validateParams(_body);
 
     if (_params == -1) {

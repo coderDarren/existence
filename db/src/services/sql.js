@@ -351,6 +351,178 @@ class SQLController {
         }
     }
 
+    async modifyItem(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            switch (_params.method) {
+                case "c": 
+                    if (await this._item.findOne({where: {name: _params.item.name}})) {
+                        return {
+                            error: `Cannot create. Item ${_params.item.name} already exists.`,
+                            code: 1401
+                        }
+                    }
+
+                    const _reqStat = await this._stat.create(_params.job.requirements)
+                    const _effStat = await this._stat.create(_params.job.effects)
+                    const _newItem = await this._item.create({
+                        ..._params.item,
+                        requirementsID: _reqStat.id,
+                        effectsID: _effStat.id,
+                    });
+
+                    return {
+                        data: _newItem
+                    }
+                case "d": 
+
+                    break;
+                case "u": 
+                    const _check = await this._item.findOne({where: {name: _params.job.itemName}});
+                    if (!_check) {
+                        return {
+                            error: `Cannot update. Item ${_params.job.itemName} does not exist.`,
+                            code: 1402
+                        }
+                    }
+
+                    const _item = await this._item.update(_params.item, {where: {name: _params.job.itemName}});
+                    if (_params.requirements) {
+                        await this._stat.update(_params.requirements, {where: {id: _check.dataValues.requirementsID}});
+                    }
+                    if (_params.effects) {
+                        await this._stat.update(_params.effects, {where: {id: _check.dataValues.effectsID}});
+                    }
+
+                    return {
+                        data: _item
+                    }
+                default:
+                    return {
+                        error: 'Unknown method',
+                        code: 1400
+                    }
+            }
+
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
+    async modifyMob(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            switch (_params.method) {
+                case "c": 
+                    if (await this._mob.findOne({where: {name: _params.mob.name}})) {
+                        return {
+                            error: `Cannot create. Mob ${_params.mob.name} already exists.`,
+                            code: 1401
+                        }
+                    }
+
+                    const _newMob = await this._mob.create(_params.mob);
+
+                    return {
+                        data: _newMob
+                    }
+                case "d": 
+
+                    break;
+                case "u": 
+                    const _check = await this._mob.findOne({where: {name: _params.job.mobName}});
+                    if (!_check) {
+                        return {
+                            error: `Cannot update. Mob ${_params.job.mobName} does not exist.`,
+                            code: 1402
+                        }
+                    }
+
+                    const _mob = await this._mob.update(_params.mob, {where: {name: _params.job.mobName}});
+
+                    return {
+                        data: _mob
+                    }
+                default:
+                    return {
+                        error: 'Unknown method',
+                        code: 1400
+                    }
+            }
+
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
+    async modifyMobLoot(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            const _check = await this._mobLootItem.findOne({where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
+
+            switch (_params.method) {
+                case "c": 
+                    if (_check) {
+                        return {
+                            error: `Cannot create. Mob loot ${JSON.stringify(_params.mobLoot)} already exists.`,
+                            code: 1401
+                        }
+                    }
+
+                    const _newMobLoot = await this._mobLootItem.create(_params.mobLoot);
+
+                    return {
+                        data: _newMobLoot
+                    }
+                case "d": 
+
+                    break;
+                case "u": 
+                    if (!_check) {
+                        return {
+                            error: `Cannot update. Mob loot ${JSON.stringify(_params.mobLoot)} does not exist.`,
+                            code: 1402
+                        }
+                    }
+
+                    const _mobLoot = await this._mobLootItem.update(_params.mobLoot, {where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
+
+                    return {
+                        data: _mobLoot
+                    }
+                default:
+                    return {
+                        error: 'Unknown method',
+                        code: 1400
+                    }
+            }
+
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
     async updateStats(_stats) {
         try {
             const _resp = await this._stat.update(_stats, {where: {id: _stats.ID}})
@@ -559,11 +731,27 @@ class SQLController {
         });
 
         // WEAPON ITEMS
-        this._weaponItem = this._sql.define('weaponItems', {
+        this._weaponItem = this._sql.define('weaponItem', {
             itemID: DataTypes.INTEGER,
             weaponType: DataTypes.INTEGER,
             damageMin: DataTypes.INTEGER,
             damageMax: DataTypes.INTEGER
+        }, {
+            timestamps: false
+        });
+
+        // MOBS
+        this._mob = this._sql.define('mob', {
+            name: DataTypes.CHAR(255),
+        }, {
+            timestamps: false
+        });
+
+        // MOB LOOT ITEMS
+        this._mobLootItem = this._sql.define('mobLootItem', {
+            mobID: DataTypes.INTEGER,
+            itemID: DataTypes.INTEGER,
+            dropRate: DataTypes.FLOAT
         }, {
             timestamps: false
         });

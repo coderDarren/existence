@@ -19,7 +19,7 @@ const validateParams = function(_params)
 }
 
 const authenticate = async function(_body) {
-    console.log(`query: ${JSON.stringify(_body)}`);
+    //console.log(`query: ${JSON.stringify(_body)}`);
     const _params = validateParams(_body);
 
     if (_params == -1) {

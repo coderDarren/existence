@@ -227,7 +227,7 @@ MonoBehaviour:
   isClient: 0
   sendRate: 0.2
   idleDetectionSeconds: 5
-  moveSmooth: 0.1
+  moveSmooth: 0.2
 --- !u!136 &-2051319278554633914
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -256,7 +256,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   relativeToPlayer: 1
   relativeTo: {fileID: 0}
-  beginFadeDistance: 500
+  beginFadeDistance: 45
   fadeLength: 5
 --- !u!1 &1291541591572603130
 GameObject:

@@ -77,7 +77,6 @@ public class Player : GameSystem
         m_TrickleStats = new StatData();
 
         if (session && session.network) {
-            Log("subscribing");
             session.network.OnMobDeath += OnMobDeath;
         } 
     }
@@ -160,7 +159,6 @@ public class Player : GameSystem
     private void OnMobDeath(NetworkMobDeathData _data) {
         foreach (NetworkMobXpAllottment _mxa in _data.xpAllottment) {
             if (m_Data.player.name == _mxa.playerName) {
-                Log("adding xp: "+_mxa.xp);
                 AddXp(_mxa.xp);
                 break;
             }

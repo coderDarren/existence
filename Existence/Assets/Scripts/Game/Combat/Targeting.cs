@@ -105,10 +105,7 @@ public class Targeting : GameSystem
             m_TargetNum = 0;
     }    
 
-    private void Attack(){        
-        if (!m_CurrentTarget) {
-            Cancel();
-        }
+    private void Attack(){
         if (m_AttackInput) {
             if(!m_Attacking){
                 m_Attacking = true;
@@ -118,14 +115,16 @@ public class Targeting : GameSystem
                 m_Target = m_CurrentTarget;
                 m_Animator.SetBool(m_Player.weapon.ToString(), true);
                 m_Animator.SetBool("cycle", false);
+                m_Animator.SetBool("attacking", true);
             }
             else {
                 m_Attacking = false;
                 CancelTarget(ref m_Target);
                 m_Animator.SetBool(m_Player.weapon.ToString(), false);    
+                m_Animator.SetBool("attacking", false);
             }
         }
-        if(m_CancelTarget){
+        if(m_CancelTarget || !m_CurrentTarget){
             Cancel();
         }
     } 

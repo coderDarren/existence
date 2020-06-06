@@ -14,7 +14,7 @@ const validateParams = function(_query)
 }
 
 const getAccountPlayers = async function(_query) {
-    console.log(`query: ${JSON.stringify(_query)}`);
+    //console.log(`query: ${JSON.stringify(_query)}`);
     const _params = validateParams(_query);
 
     if (_params == -1) {
