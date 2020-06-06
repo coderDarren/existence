@@ -78,7 +78,6 @@ public class Targeting : GameSystem
                 m_CurrentTarget.nameplate.isVisible = false;
             }
             m_CurrentTarget = (Mob)_s;
-            Log("setting current target with selection");
         }
 
         if (m_Target) {
@@ -107,7 +106,9 @@ public class Targeting : GameSystem
     }    
 
     private void Attack(){        
-        if (!m_CurrentTarget) return;
+        if (!m_CurrentTarget) {
+            Cancel();
+        }
         if (m_AttackInput) {
             if(!m_Attacking){
                 m_Attacking = true;
@@ -125,13 +126,17 @@ public class Targeting : GameSystem
             }
         }
         if(m_CancelTarget){
-            CancelTarget(ref m_Target);
-            CancelTarget(ref m_CurrentTarget);
-            SelectionController.instance.selection = null;
-            m_Attacking = false;
-            m_Animator.SetBool(m_Player.weapon.ToString(), false); 
+            Cancel();
         }
     } 
+
+    private void Cancel() {
+        CancelTarget(ref m_Target);
+        CancelTarget(ref m_CurrentTarget);
+        SelectionController.instance.selection = null;
+        m_Attacking = false;
+        m_Animator.SetBool(m_Player.weapon.ToString(), false); 
+    }
 
     private void CancelTarget(ref Mob _target) {
         if (_target) {

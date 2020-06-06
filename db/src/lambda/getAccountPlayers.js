@@ -23,13 +23,7 @@ const getAccountPlayers = async function(_query) {
         }
     }
 
-    const _sql = new SQL();    
-    /*if (!(await _sql.connect())) {
-        return {
-            error: "Failed to connect to db."
-        }
-    }*/
-
+    const _sql = new SQL();
     const _result = await _sql.getAccountPlayers(_params);
     await _sql.close();
     if (_result.error) {
