@@ -3,23 +3,31 @@ const SQL = require('../services/sql.js');
 
 const validateParams = function(_body)
 {
-    if (!_body) return -1;
-    const _slotID = _body.slotID;
-    const _slotLoc = _body.slotLoc;
-    const _playerID = _body.playerID;
     const _account = _body.id;
     const _apiKey = _body.apiKey;
-    if (!_account || !_apiKey || _slotID == undefined || _slotLoc == undefined || !_playerID) return -1;
+    const _method = _body.method;
+    const _mob = _body.mob;
+    var _job = {};
+
+    if (_body.method == "c") {
+        
+    } else if (_body.method == "u") {
+        if (!_body.mobName) return -1;
+        _job.mobName = _body.mobName;
+    }
+
+    if (!_account || !_apiKey || !_method || !_mob) return -1;
+
     return {
-        slotID: _slotID,
-        slotLoc: _slotLoc,
-        playerID: _playerID,
         account: _account,
         apiKey: _apiKey,
+        method: _method,
+        mob: _mob,
+        job: _job,
     };
 }
 
-const updateInventory = async function(_body) {
+const modifyMob = async function(_body) {
     //console.log(`body: ${JSON.stringify(_body)}`);
     const _params = validateParams(_body);
 
@@ -29,8 +37,8 @@ const updateInventory = async function(_body) {
         }
     }
 
-    const _sql = new SQL();   
-    const _result = await _sql.updateInventory(_params);
+    const _sql = new SQL();    
+    const _result = await _sql.modifyMob(_params);
     if (_result.error) {
         return _result;
     }
@@ -40,4 +48,4 @@ const updateInventory = async function(_body) {
     }
 }
 
-module.exports = updateInventory
+module.exports = modifyMob;
