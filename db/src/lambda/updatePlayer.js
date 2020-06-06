@@ -18,13 +18,7 @@ const updatePlayer = async function(_body) {
         }
     }
 
-    const _sql = new SQL();    
-    if (!(await _sql.connect())) {
-        return {
-            error: "Failed to connect to db."
-        }
-    }
-    
+    const _sql = new SQL();
     const _result = await _sql.updatePlayer(_params);
     if (_result.error) {
         return _result;
