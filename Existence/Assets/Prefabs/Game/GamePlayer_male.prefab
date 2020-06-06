@@ -230,11 +230,11 @@ GameObject:
   - component: {fileID: 1018841130582279839}
   - component: {fileID: 6381518467958525373}
   - component: {fileID: 3816624030529754258}
-  - component: {fileID: 8989531338930049703}
   - component: {fileID: 79233259317150007}
   - component: {fileID: 8296278051369282303}
   - component: {fileID: 3327728183344730517}
   - component: {fileID: 1687152072407394284}
+  - component: {fileID: 8722967843097326811}
   m_Layer: 9
   m_Name: GamePlayer_male
   m_TagString: Player
@@ -309,28 +309,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acf38ac00cd445c4092d470e9b7d911f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-
-  debug: 1
-  weapon: 1
---- !u!114 &8722967843097326811
-
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 660851259399661731}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 305b08405bd9f534fa27e3e3dd51f9da, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
   debug: 0
-  nameplateOffset: {x: 0, y: 2.15, z: 0}
-  isClient: 1
-  sendRate: 0.2
-  idleDetectionSeconds: 5
-  moveSmooth: 0.2
+  weapon: 1
 --- !u!114 &79233259317150007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -408,6 +388,24 @@ MonoBehaviour:
   layerName:
     serializedVersion: 2
     m_Bits: 8192
+--- !u!114 &8722967843097326811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660851259399661731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 305b08405bd9f534fa27e3e3dd51f9da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+  nameplateOffset: {x: 0, y: 2.15, z: 0}
+  isClient: 1
+  sendRate: 0.2
+  idleDetectionSeconds: 5
+  moveSmooth: 0.2
 --- !u!1 &679855329711234498
 GameObject:
   m_ObjectHideFlags: 0
