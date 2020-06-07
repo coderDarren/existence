@@ -13745,7 +13745,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000091552734}
+  m_AnchoredPosition: {x: 0, y: 0.000061035156}
   m_SizeDelta: {x: -9.3, y: -5.699997}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!1 &620196540856927673
@@ -14130,7 +14130,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 620196539675752446}
   m_HandleRect: {fileID: 620196539675752447}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -62831,7 +62831,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 1
   testing: 1
-  playerObject: {fileID: 929112264822263519, guid: 6f47b3c6bbe51cb41a7da647689f2600,
+  playerObject: {fileID: 660851259399661731, guid: 6f47b3c6bbe51cb41a7da647689f2600,
     type: 3}
   entryPage: 6
 --- !u!4 &9201544658032431765
@@ -62895,7 +62895,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   url: ws://ec2-52-205-254-61.compute-1.amazonaws.com:8081/socket.io/?EIO=4&transport=websocket
-  localhost: 1
+  localhost: 0
   autoConnect: 0
   reconnectDelay: 4
   ackExpirationTime: 1800
