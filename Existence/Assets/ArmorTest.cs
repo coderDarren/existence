@@ -23,7 +23,7 @@ using UnityEngine;
     void Start(){
         
         
-        targetPart = transform.Find(partString).gameObject;
+        targetPart = transform.FindDeepChild(partString).gameObject;
         targetParent = transform.FindDeepChild("Prosthetic_spawn").gameObject;
         mat = targetPart.GetComponent<Renderer>();
         mesh = targetPart.GetComponent<SkinnedMeshRenderer>().sharedMesh;
