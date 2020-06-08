@@ -978,7 +978,9 @@ Animator:
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
-  m_WarningMessage: 
+  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
+    are already bound by a Humanoid avatar. These transforms can only be changed
+    by Humanoid clips.\n\tTransform 'mixamorig:Hips'\n\tFrom animation clip 'RightOneHandMelee_attack'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
@@ -4395,7 +4397,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4925828700769220783}
   - component: {fileID: 5008174316795017799}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: VFX_Checker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
