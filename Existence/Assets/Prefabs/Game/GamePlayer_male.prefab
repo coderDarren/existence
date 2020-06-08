@@ -704,7 +704,7 @@ SkinnedMeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 540f817b33f58864e98d526ea9a2e4bc, type: 2}
-  - {fileID: 2100000, guid: 13fecc3a2183d594c86a8b3210fc6b96, type: 2}
+  - {fileID: 2100000, guid: 540f817b33f58864e98d526ea9a2e4bc, type: 2}
   - {fileID: 2100000, guid: 13fecc3a2183d594c86a8b3210fc6b96, type: 2}
   - {fileID: 2100000, guid: 13fecc3a2183d594c86a8b3210fc6b96, type: 2}
   - {fileID: 2100000, guid: 13fecc3a2183d594c86a8b3210fc6b96, type: 2}
@@ -3157,6 +3157,36 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.0026253313, y: 0.77425086, z: -0.042237014}
     m_Extent: {x: 0.07785237, y: 0.18530029, z: 0.13087577}
   m_DirtyAABB: 0
+--- !u!1 &4407260624711110932
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6862947970466113674}
+  m_Layer: 0
+  m_Name: Sword_spawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6862947970466113674
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4407260624711110932}
+  m_LocalRotation: {x: 0.43729183, y: -0.5408048, z: 0.59452593, w: 0.40354055}
+  m_LocalPosition: {x: -0.276, y: 0.097, z: -0.059}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4402801596915206175}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 84.858, y: 68.664, z: 175.61601}
 --- !u!1 &4523839022920678896
 GameObject:
   m_ObjectHideFlags: 0
@@ -4492,6 +4522,7 @@ Transform:
   - {fileID: 5095198873107250000}
   - {fileID: 1718486408071514914}
   - {fileID: 4649620986610052060}
+  - {fileID: 6862947970466113674}
   m_Father: {fileID: 643901785635815299}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
