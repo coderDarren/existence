@@ -523,6 +523,47 @@ class SQLController {
         }
     }
 
+    async getMobLoot(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            const _mob = await this._mob.findOne({where: {name: _params.mobName}});
+            if (!_mob) {
+                return {
+                    error: `No mob exists named ${_params.mobName}`,
+                    code: 1400
+                }
+            }
+
+            const _potential = await this._mobLootItem.findAll({where: {mobID: _mob.dataValues.id}});
+            
+            var _loot = [];
+            var i = 0;
+            while (i < _potential.length) {
+                var _item = _potential[i].dataValues;
+                
+                if (Math.random() < _item.dropRate) {
+                    _loot.push(_item);
+                }
+
+                i++;
+            }
+            
+            return {
+                data: _loot
+            }
+
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
     async updateStats(_stats) {
         try {
             const _resp = await this._stat.update(_stats, {where: {id: _stats.ID}})
