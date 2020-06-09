@@ -7,20 +7,28 @@ public class Targeting : GameSystem
 {
     public float radius;
     public KeyCode attack;
+    public enum SpecialOne{chargeShot, quickSlice};
+    public SpecialOne m_Special;
+    public float specialOneTimer;
 
     private Player m_Player;
     private Animator m_Animator;
+    private PlayerController m_PlayerController;
     private Mob m_CurrentTarget;
     public Mob m_Target;
     private Mob[] m_Targets;
     private float[] m_Distances;
+    private float specialOneRecharge;
     private int m_Amount;
     private Vector3 m_Position; 
     private bool m_AttackInput;
     private bool m_CycleTarget;
     private bool m_CancelTarget;
     private bool m_Attacking;
+    private bool m_Targeting;
+    private bool m_SpecialOne;
     private int m_TargetNum;
+    
 
     public bool attacking {
         get {
@@ -30,9 +38,11 @@ public class Targeting : GameSystem
 
     private void Start()
     {
+        specialOneRecharge = specialOneTimer;
         m_Amount = 0;
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
+        m_PlayerController = GetComponent<PlayerController>();
     }
 
     private void Update(){   
@@ -40,6 +50,10 @@ public class Targeting : GameSystem
         if(m_CycleTarget){
             Search();
         }
+        if(m_Target != null || m_CurrentTarget != null) m_Targeting = true;
+        else m_Targeting = false;
+        
+        
         Select();
         Attack();
     }
@@ -49,6 +63,7 @@ public class Targeting : GameSystem
         m_AttackInput = Input.GetKeyDown(attack);
         m_CycleTarget = Input.GetKeyDown(KeyCode.Tab);
         m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
+        m_SpecialOne = Input.GetKeyDown(KeyCode.Alpha1);
     }
 
     private void Search(){
@@ -106,6 +121,9 @@ public class Targeting : GameSystem
     }    
 
     private void Attack(){
+        specialOneTimer = 5.0f;
+        specialOneRecharge += Time.deltaTime;
+        
         if (m_AttackInput) {
             if(!m_Attacking){
                 m_Attacking = true;
@@ -114,7 +132,7 @@ public class Targeting : GameSystem
                 }
                 m_Target = m_CurrentTarget;
                 m_Animator.SetBool(m_Player.weapon.ToString(), true);
-                m_Animator.SetBool("cycle", false);
+                m_Animator.ResetTrigger("cycle");
                 m_Animator.SetBool("attacking", true);
             }
             else {
@@ -127,7 +145,33 @@ public class Targeting : GameSystem
         if(m_CancelTarget || !m_CurrentTarget){
             Cancel();
         }
+        
+        if (m_SpecialOne){
+            Debug.Log("Attempting to use special");
+            if(!m_Targeting){
+                Debug.Log("You have no target");
+                return;
+            }
+            if(m_Target == null)m_Target = m_CurrentTarget;
+            
+            if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){
+                Debug.Log("Too far away" + Vector3.Distance(transform.position, m_Target.transform.position));
+                return;
+            }
+            if(specialOneRecharge >= specialOneTimer){          
+                specialOneRecharge = 0;
+                if(!attacking){ 
+                    m_Attacking = true;
+                }                    
+                m_Animator.SetTrigger(m_Special.ToString());
+                m_PlayerController.GetComponent<Targeting>().m_Target.Hit(25);
+            }
+            else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialOneTimer - specialOneRecharge) +" seconds");
+
+        }
     } 
+
+
 
     private void Cancel() {
         CancelTarget(ref m_Target);
