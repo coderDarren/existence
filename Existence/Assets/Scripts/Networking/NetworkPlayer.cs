@@ -244,10 +244,16 @@ public class NetworkPlayer : Selectable
         if(!isClient) return;
         if(!m_PlayerController.GetComponent<Targeting>().m_Target) return;
         m_PlayerController.GetComponent<Targeting>().m_Target.Hit(50);
-        m_Animator.SetBool("cycle", true);
+        m_Animator.SetTrigger("cycle");
         /*foreach(ParticleSystem particle in m_Particles){
                 particle.Play();                    
             }*/
+    }
+
+    public void SetCycle(){
+        if(!isClient) return;
+        m_Animator.SetTrigger("cycle");
+
     }
 #endregion
 

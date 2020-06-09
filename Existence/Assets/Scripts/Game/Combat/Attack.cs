@@ -5,8 +5,7 @@ using System.Collections.Generic;
 public class Attack : StateMachineBehaviour
 {
     
-    public float range;   
-    
+    private float range;
     private Player m_Player;
     private Targeting m_PlayerController;
     private AnimationEvent attackEnd;   
@@ -31,10 +30,12 @@ public class Attack : StateMachineBehaviour
     
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex    ){
         
+        animator.ResetTrigger("cycle");
         pauseSpeed = animator.GetFloat("totalSpeed");
         i=0;
         tickBool =  false;
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        range = m_Player.range;
         m_PlayerController = GameObject.FindGameObjectWithTag("Player").GetComponent<Targeting>();
         safetySpeed = 0;
     }
@@ -77,7 +78,7 @@ public class Attack : StateMachineBehaviour
         #region Cancel/Pause Animaton
         if(!attacking){//Cancel animation
             animator.SetFloat("totalSpeed", pauseSpeed);
-            animator.SetBool("cycle", true);            
+            animator.SetTrigger("cycle");            
         }
         if(m_PlayerController.m_Target){            
             if (!target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
