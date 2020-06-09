@@ -48,7 +48,7 @@ public class Targeting : GameSystem
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
         m_PlayerController = GetComponent<PlayerController>();
-        m_Glow = GetComponentInChildren<ParticleSystem>();
+        m_Glow = transform.FindDeepChild("Glow").GetComponent<ParticleSystem>();
         m_Projectile = transform.FindDeepChild("Projectile").GetComponent<ParticleSystem>();
         bladeMat = transform.FindDeepChild("Effect").GetComponent<Renderer>().material;
         
@@ -133,7 +133,7 @@ public class Targeting : GameSystem
         specialOneRecharge += Time.deltaTime;
         if(specialOneRecharge >= specialOneTimer){
             //bladeMat.SetFloat("_Opacity", 0.7f);
-            m_Glow.Play();
+            //m_Glow.Play();
         }
         
         if (m_AttackInput) {
@@ -176,10 +176,10 @@ public class Targeting : GameSystem
                     m_Attacking = true;
                 }                    
                 m_Animator.SetTrigger(m_Special.ToString());
-                m_Projectile.Play();
+                //m_Projectile.Play();
                
                 m_PlayerController.GetComponent<Targeting>().m_Target.Hit(25);
-                m_Glow.Stop();
+                //m_Glow.Stop();
                 //bladeMat.SetFloat("_Opacity", 1.0f);
                 
             }

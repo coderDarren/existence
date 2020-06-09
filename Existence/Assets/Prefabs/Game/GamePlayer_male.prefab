@@ -998,6 +998,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   weapon: 1
+  range: 5
 --- !u!114 &6591656521640595287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1059,6 +1060,9 @@ MonoBehaviour:
   debug: 0
   radius: 25
   attack: 113
+  m_Special: 1
+  specialOneTimer: 5
+  projectileSpeed: 1
   m_Target: {fileID: 0}
 --- !u!136 &690467565503056997
 CapsuleCollider:
