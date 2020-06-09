@@ -2,34 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Looper : StateMachineBehaviour
-{   
-    public float atkSpeed;
-    public float buffSpeed;
-    
-    
-    private Player m_Player;
-    private bool attacking;
-    private Animation animation;
-    private float totalSpeed;
-    
-
-
+public class Recharge : StateMachineBehaviour
+{
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
-    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        //animator.SetBool("cycle", false);
-        m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-    }
+    //override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    //{
+    //    
+    //}
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-    override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        attacking = animator.GetBool(m_Player.weapon.ToString());
-        if(attacking){
-            totalSpeed = buffSpeed * atkSpeed;//Mash the raw wpn speed and buffspeed potatoes
-            animator.SetFloat("totalSpeed", totalSpeed);//pour gravy on potatoes           
-            //  animator.Play(wpnAnim, 1);
-        }
-    }
+    //override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    //{
+    //    
+    //}
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     //override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
