@@ -72,6 +72,9 @@ public class Mob : Selectable
 
         UpdateCombatState(_data);
         UpdateAttackRangeState(_data);
+        if (_data.dead) {
+            m_Animator.Play("Death", 1, 1);
+        }
         UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth);
     }
 
@@ -110,7 +113,13 @@ public class Mob : Selectable
         m_Animator.SetTrigger("Cycle");
     }
 
+    public void Die() {
+        m_Animator.SetBool("Death", true);
+        m_Data.dead = true;
+    }
+
     public void Hit(int _dmg) {
+        if (m_Data.dead) return;
         if (!network) return;
         NetworkMobHitInfo _hitInfo = new NetworkMobHitInfo(m_Data.id, m_Data.name, _dmg);
         network.HitMob(_hitInfo);

@@ -525,11 +525,6 @@ class SQLController {
 
     async getMobLoot(_params) {
         try {
-            // verify account
-            const _authCheck = await this.__validate_account__(_params);
-            if (_authCheck.error) {
-                return _authCheck;
-            }
 
             const _mob = await this._mob.findOne({where: {name: _params.mobName}});
             if (!_mob) {
@@ -547,7 +542,7 @@ class SQLController {
                 var _item = _potential[i].dataValues;
                 
                 if (Math.random() < _item.dropRate) {
-                    _loot.push(_item);
+                    _loot.push(_item.itemID);
                 }
 
                 i++;
@@ -558,6 +553,44 @@ class SQLController {
             }
 
         } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
+    async getItem(_params) {
+        try {
+            const _item = await this._item.findByPk(_params.id);
+            if (!_item) {
+                return {
+                    error: `Item does not exist with id ${_params.id}`,
+                    code: 1400
+                }
+            }
+
+            var _requirements = await this._stat.findByPk(_item.dataValues.requirementsID);
+            var _effects = await this._stat.findByPk(_item.dataValues.effectsID);
+            Object.keys(_requirements.dataValues).forEach((_key, _index) => {
+                if (_key.toLowerCase() != 'id') {
+                    _requirements.dataValues[_key] *= _params.ql;
+                }
+            });
+            Object.keys(_effects.dataValues).forEach((_key, _index) => {
+                if (_key.toLowerCase() != 'id') {
+                    _effects.dataValues[_key] *= _params.ql;
+                }
+            });
+            _item.dataValues.requirements = _requirements;
+            _item.dataValues.effects = _effects;
+            delete _item.dataValues.requirementsID;
+            delete _item.dataValues.effectsID;
+
+            return {
+                data: _item
+            }
+        } catch (_err) {
+            console.log(_err);
             return {
                 error: _err
             }

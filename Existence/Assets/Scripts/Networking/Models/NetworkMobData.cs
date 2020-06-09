@@ -41,6 +41,7 @@ public class NetworkMobData : NetworkModel {
     public float aggroRange;
     public bool inAttackRange;
     public bool inCombat;
+    public bool dead;
     public NetworkVector3 pos;
     public NetworkVector3 rot;
 

@@ -3,15 +3,11 @@ const SQL = require('../services/sql.js');
 
 const validateParams = function(_query)
 {
-    const _account = _query.account;
-    const _apiKey = _query.apiKey;
     const _mobName = _query.mobName;
 
-    if (!_account || !_apiKey || !_mobName) return -1;
+    if (!_mobName) return -1;
 
     return {
-        account: _account,
-        apiKey: _apiKey,
         mobName: _mobName
     };
 }

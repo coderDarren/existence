@@ -94,6 +94,7 @@ public class NetworkEntityHandler : GameSystem
         network.OnMobAttackRangeStateChange += OnMobAttackRangeStateChange;
         network.OnMobCombatStateChange += OnMobCombatStateChange;
         network.OnMobHealthChange += OnMobHealthChange;
+        network.OnMobDeath += OnMobDeath;
     }
 
     private void OnDisable() {
@@ -109,6 +110,7 @@ public class NetworkEntityHandler : GameSystem
         network.OnMobAttackRangeStateChange -= OnMobAttackRangeStateChange;
         network.OnMobCombatStateChange -= OnMobCombatStateChange;
         network.OnMobHealthChange -= OnMobHealthChange;
+        network.OnMobDeath -= OnMobDeath;
     }
 #endregion
 
@@ -154,6 +156,13 @@ public class NetworkEntityHandler : GameSystem
                 m_Mobs.RemoveAt(i);
             }
         }
+    }
+
+    private void OnMobDeath(NetworkMobDeathData _data) {
+        string _name = _data.id;
+        if (!m_MobsHash.ContainsKey(_name)) return; // could not find mob
+        Mob _mob = (Mob)m_MobsHash[_name];
+        _mob.Die();
     }
 
     private void OnPlayerLeft(NetworkPlayerData _data) {
