@@ -10,13 +10,18 @@ public class Targeting : GameSystem
     public enum SpecialOne{chargeShot, quickSlice};
     public SpecialOne m_Special;
     public float specialOneTimer;
+    public float projectileSpeed;
 
     private Player m_Player;
     private Animator m_Animator;
     private PlayerController m_PlayerController;
+    private ParticleSystem m_Glow;
+    private ParticleSystem m_Projectile;
+    private ParticleSystem.Particle[] projectiles;
     private Mob m_CurrentTarget;
     public Mob m_Target;
     private Mob[] m_Targets;
+    private Material bladeMat;
     private float[] m_Distances;
     private float specialOneRecharge;
     private int m_Amount;
@@ -43,6 +48,10 @@ public class Targeting : GameSystem
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
         m_PlayerController = GetComponent<PlayerController>();
+        m_Glow = GetComponentInChildren<ParticleSystem>();
+        m_Projectile = transform.FindDeepChild("Projectile").GetComponent<ParticleSystem>();
+        bladeMat = transform.FindDeepChild("Effect").GetComponent<Renderer>().material;
+        
     }
 
     private void Update(){   
@@ -121,8 +130,11 @@ public class Targeting : GameSystem
     }    
 
     private void Attack(){
-        specialOneTimer = 5.0f;
         specialOneRecharge += Time.deltaTime;
+        if(specialOneRecharge >= specialOneTimer){
+            //bladeMat.SetFloat("_Opacity", 0.7f);
+            m_Glow.Play();
+        }
         
         if (m_AttackInput) {
             if(!m_Attacking){
@@ -154,21 +166,26 @@ public class Targeting : GameSystem
             }
             if(m_Target == null)m_Target = m_CurrentTarget;
             
-            if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){
+            if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
                 Debug.Log("Too far away" + Vector3.Distance(transform.position, m_Target.transform.position));
                 return;
             }
-            if(specialOneRecharge >= specialOneTimer){          
+            if(specialOneRecharge >= specialOneTimer){     // All the events that happen when you use your special successfully     
                 specialOneRecharge = 0;
                 if(!attacking){ 
                     m_Attacking = true;
                 }                    
                 m_Animator.SetTrigger(m_Special.ToString());
+                m_Projectile.Play();
+               
                 m_PlayerController.GetComponent<Targeting>().m_Target.Hit(25);
+                m_Glow.Stop();
+                //bladeMat.SetFloat("_Opacity", 1.0f);
+                
             }
-            else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialOneTimer - specialOneRecharge) +" seconds");
-
+            else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialOneTimer - specialOneRecharge) +" seconds");            
         }
+        
     } 
 
 
