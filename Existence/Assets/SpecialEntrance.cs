@@ -5,11 +5,14 @@ using UnityEngine;
 public class SpecialEntrance : StateMachineBehaviour
 {
     private Player m_Player;
+    private Targeting m_Targeting;
     
    
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        m_Player = animator.gameObject.GetComponent<Player>();
+        m_Targeting = animator.gameObject.GetComponent<Targeting>();
+        
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -21,10 +24,11 @@ public class SpecialEntrance : StateMachineBehaviour
    
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+       animator.SetBool(m_Targeting.m_Special.ToString(), false);
        
        if(animator.GetBool(m_Player.weapon.ToString()) == false){
             animator.SetBool(m_Player.weapon.ToString(), true);
-            animator.ResetTrigger("cycle"); 
+            animator.SetBool("cycle", false); 
         }
     }
 

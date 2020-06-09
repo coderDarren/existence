@@ -27,6 +27,7 @@ public class NetworkPlayer : Selectable
     private NetworkPlayerData m_ClientData;
     private NetworkPlayerData m_LastFrameData;
     private PlayerController m_PlayerController;
+    private Targeting m_Targeting;
     private Player m_Player;
     private Animator m_Animator;
     private float m_InitialRunning;
@@ -38,6 +39,7 @@ public class NetworkPlayer : Selectable
     private bool m_Grounded;
     private bool m_Attacking;
     private bool m_AttackCycle;
+    private bool m_SpecialInput;
     private float m_UpdateTimer;
     private float m_IdleTimer;
     private long m_LastUpdateMillis;
@@ -90,6 +92,7 @@ public class NetworkPlayer : Selectable
         m_Animator = GetComponent<Animator>();
         if (isClient) {
             m_PlayerController = GetComponent<PlayerController>();
+            m_Targeting = GetComponent<Targeting>();
             m_Player = GetComponent<Player>();
             m_Nameplate = new NameplateData();
             m_Nameplate.name = m_Player.data.player.name;
@@ -154,7 +157,9 @@ public class NetworkPlayer : Selectable
         m_Attacking = _data.input.attacking;
         m_AttackCycle = _data.input.cycle;
         m_AttackSpeed = _data.input.attackSpeed;
+        m_SpecialInput = _data.input.special;
         m_Weapon = _data.weaponName;
+        
         m_UpdateTimer = 0;
 
         UpdateNameplate(_data.name, _data.health, _data.maxHealth);
@@ -167,7 +172,7 @@ public class NetworkPlayer : Selectable
 #region Private Functions
     // Player controlled by this client
     private void UpdateClient() {
-        if (!network) return;
+        if (!network) return;        
 
         if (ClientHasNotChanged()) {
             m_IdleTimer += Time.deltaTime;
@@ -185,9 +190,10 @@ public class NetworkPlayer : Selectable
         m_ClientData.input.running = m_PlayerController.runAnimation;
         m_ClientData.input.strafing = m_PlayerController.strafeAnimation;
         m_ClientData.input.grounded = m_PlayerController.grounded;
-        m_ClientData.input.attacking = m_PlayerController.GetComponent<Targeting>().attacking;
+        m_ClientData.input.attacking = m_Targeting.attacking;
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
-        m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed"); 
+        m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");
+        m_ClientData.input.special = m_Animator.GetBool(m_Targeting.m_Special.ToString()); 
         m_ClientData.weaponName = m_Player.weapon.ToString();
         m_ClientData.maxHealth = m_Player.MaxHealth();
 
@@ -224,6 +230,7 @@ public class NetworkPlayer : Selectable
         m_Animator.SetBool("grounded", m_Grounded);
         m_Animator.SetBool(m_Weapon, m_Attacking);
         m_Animator.SetBool("cycle", m_AttackCycle);
+        m_Animator.SetBool(m_Targeting.m_Special.ToString(), m_SpecialInput);
        
     }
     
@@ -244,17 +251,13 @@ public class NetworkPlayer : Selectable
         if(!isClient) return;
         if(!m_PlayerController.GetComponent<Targeting>().m_Target) return;
         m_PlayerController.GetComponent<Targeting>().m_Target.Hit(50);
-        m_Animator.SetTrigger("cycle");
+        m_Animator.SetBool("cycle", true);
         /*foreach(ParticleSystem particle in m_Particles){
                 particle.Play();                    
             }*/
     }
 
-    public void SetCycle(){
-        if(!isClient) return;
-        m_Animator.SetTrigger("cycle");
-
-    }
+    
 #endregion
 
 }

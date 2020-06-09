@@ -7,9 +7,9 @@ public class Targeting : GameSystem
 {
     public float radius;
     public KeyCode attack;
-    public enum SpecialOne{chargeShot, quickSlice};
-    public SpecialOne m_Special;
-    public float specialOneTimer;
+    public enum Special{chargeShot, quickSlice};
+    public Special m_Special;
+    public float specialTimer;
     public float projectileSpeed;
 
     private Player m_Player;
@@ -23,7 +23,7 @@ public class Targeting : GameSystem
     private Mob[] m_Targets;
     private Material bladeMat;
     private float[] m_Distances;
-    private float specialOneRecharge;
+    private float specialRecharge;
     private int m_Amount;
     private Vector3 m_Position; 
     private bool m_AttackInput;
@@ -31,7 +31,7 @@ public class Targeting : GameSystem
     private bool m_CancelTarget;
     private bool m_Attacking;
     private bool m_Targeting;
-    private bool m_SpecialOne;
+    private bool m_SpecialInput;
     private int m_TargetNum;
     
 
@@ -43,7 +43,7 @@ public class Targeting : GameSystem
 
     private void Start()
     {
-        specialOneRecharge = specialOneTimer;
+        
         m_Amount = 0;
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
@@ -51,7 +51,7 @@ public class Targeting : GameSystem
         m_Glow = transform.FindDeepChild("Glow").GetComponent<ParticleSystem>();
         m_Projectile = transform.FindDeepChild("Projectile").GetComponent<ParticleSystem>();
         bladeMat = transform.FindDeepChild("Effect").GetComponent<Renderer>().material;
-        
+        RechargeTimer(specialTimer);
     }
 
     private void Update(){   
@@ -61,10 +61,16 @@ public class Targeting : GameSystem
         }
         if(m_Target != null || m_CurrentTarget != null) m_Targeting = true;
         else m_Targeting = false;
-        
-        
+
+        specialRecharge += Time.deltaTime;
+        if(specialRecharge >= specialTimer){
+            bladeMat.SetFloat("_Opacity", 0.7f);
+            m_Glow.Play();
+        }
         Select();
         Attack();
+
+        if(m_SpecialInput) SpecialAttack(m_Special);
     }
 
 #region Private Functions 
@@ -72,7 +78,7 @@ public class Targeting : GameSystem
         m_AttackInput = Input.GetKeyDown(attack);
         m_CycleTarget = Input.GetKeyDown(KeyCode.Tab);
         m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
-        m_SpecialOne = Input.GetKeyDown(KeyCode.Alpha1);
+        m_SpecialInput = Input.GetKeyDown(KeyCode.Alpha1);
     }
 
     private void Search(){
@@ -130,11 +136,7 @@ public class Targeting : GameSystem
     }    
 
     private void Attack(){
-        specialOneRecharge += Time.deltaTime;
-        if(specialOneRecharge >= specialOneTimer){
-            //bladeMat.SetFloat("_Opacity", 0.7f);
-            //m_Glow.Play();
-        }
+        
         
         if (m_AttackInput) {
             if(!m_Attacking){
@@ -144,7 +146,7 @@ public class Targeting : GameSystem
                 }
                 m_Target = m_CurrentTarget;
                 m_Animator.SetBool(m_Player.weapon.ToString(), true);
-                m_Animator.ResetTrigger("cycle");
+                m_Animator.SetBool("cycle", false);
                 m_Animator.SetBool("attacking", true);
             }
             else {
@@ -157,38 +159,41 @@ public class Targeting : GameSystem
         if(m_CancelTarget || !m_CurrentTarget){
             Cancel();
         }
-        
-        if (m_SpecialOne){
-            Debug.Log("Attempting to use special");
-            if(!m_Targeting){
-                Debug.Log("You have no target");
-                return;
-            }
-            if(m_Target == null)m_Target = m_CurrentTarget;
-            
-            if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
-                Debug.Log("Too far away" + Vector3.Distance(transform.position, m_Target.transform.position));
-                return;
-            }
-            if(specialOneRecharge >= specialOneTimer){     // All the events that happen when you use your special successfully     
-                specialOneRecharge = 0;
-                if(!attacking){ 
-                    m_Attacking = true;
-                }                    
-                m_Animator.SetTrigger(m_Special.ToString());
-                //m_Projectile.Play();
-               
-                m_PlayerController.GetComponent<Targeting>().m_Target.Hit(25);
-                //m_Glow.Stop();
-                //bladeMat.SetFloat("_Opacity", 1.0f);
-                
-            }
-            else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialOneTimer - specialOneRecharge) +" seconds");            
-        }
-        
     } 
 
+    public void SpecialAttack(Special _special){
+           
+        Debug.Log("Attempting to use special");
+        if(!m_Targeting){
+            Debug.Log("You have no target");
+            return;
+        }
+        if(m_Target == null)m_Target = m_CurrentTarget;
+        
+        if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
+            Debug.Log("Too far away" + Vector3.Distance(transform.position, m_Target.transform.position));
+            return;
+        }
+        if(specialRecharge >= specialTimer){     // All the events that happen when you use your special successfully     
+            specialRecharge = 0;
+            if(!attacking){ 
+                m_Attacking = true;
+            }                    
+            m_Animator.SetBool(m_Special.ToString(), true);
+            m_Projectile.Play();
+            
+            m_PlayerController.GetComponent<Targeting>().m_Target.Hit(25);
+            m_Glow.Stop();
+            bladeMat.SetFloat("_Opacity", 1.0f);
+            
+        }
+        else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialTimer - specialRecharge) +" seconds");
+    }
 
+    public void RechargeTimer(float _specialTimer){
+        specialTimer = _specialTimer;
+        specialRecharge = _specialTimer;
+    }
 
     private void Cancel() {
         CancelTarget(ref m_Target);

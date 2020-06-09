@@ -30,7 +30,7 @@ public class Attack : StateMachineBehaviour
     
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex    ){
         
-        animator.ResetTrigger("cycle");
+        animator.SetBool("cycle", false);
         pauseSpeed = animator.GetFloat("totalSpeed");
         i=0;
         tickBool =  false;
@@ -78,7 +78,7 @@ public class Attack : StateMachineBehaviour
         #region Cancel/Pause Animaton
         if(!attacking){//Cancel animation
             animator.SetFloat("totalSpeed", pauseSpeed);
-            animator.SetTrigger("cycle");            
+            animator.SetBool("cycle", true);            
         }
         if(m_PlayerController.m_Target){            
             if (!target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
