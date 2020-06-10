@@ -4096,7 +4096,7 @@ ParticleSystem:
     collidesWithDynamic: 1
     interiorCollisions: 0
   TriggerModule:
-    enabled: 1
+    enabled: 0
     collisionShape0: {fileID: 0}
     collisionShape1: {fileID: 0}
     collisionShape2: {fileID: 0}
@@ -5200,7 +5200,7 @@ PrefabInstance:
     - target: {fileID: 9201544657902839293, guid: 5afc7caea40989b449e146b1fbd106c8,
         type: 3}
       propertyPath: testing
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5afc7caea40989b449e146b1fbd106c8, type: 3}
@@ -9741,7 +9741,7 @@ ParticleSystem:
     collidesWithDynamic: 1
     interiorCollisions: 0
   TriggerModule:
-    enabled: 1
+    enabled: 0
     collisionShape0: {fileID: 0}
     collisionShape1: {fileID: 0}
     collisionShape2: {fileID: 0}
@@ -14949,7 +14949,7 @@ ParticleSystem:
     collidesWithDynamic: 1
     interiorCollisions: 0
   TriggerModule:
-    enabled: 1
+    enabled: 0
     collisionShape0: {fileID: 0}
     collisionShape1: {fileID: 0}
     collisionShape2: {fileID: 0}
@@ -16805,6 +16805,7 @@ GameObject:
   - component: {fileID: 1296137405}
   - component: {fileID: 1296137404}
   - component: {fileID: 1296137403}
+  - component: {fileID: 1296137406}
   m_Layer: 0
   m_Name: VFX_Spawner (2)
   m_TagString: Untagged
@@ -20642,7 +20643,7 @@ ParticleSystem:
     collidesWithDynamic: 1
     interiorCollisions: 0
   TriggerModule:
-    enabled: 1
+    enabled: 0
     collisionShape0: {fileID: 0}
     collisionShape1: {fileID: 0}
     collisionShape2: {fileID: 0}
@@ -21607,6 +21608,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 34.075, z: 0}
+--- !u!114 &1296137406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1296137402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c8149f1140931442a170431def47601, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1332314382
 GameObject:
   m_ObjectHideFlags: 0
@@ -22036,6 +22049,7 @@ GameObject:
   - component: {fileID: 1383740179}
   - component: {fileID: 1383740178}
   - component: {fileID: 1383740177}
+  - component: {fileID: 1383740180}
   m_Layer: 0
   m_Name: VFX_Spawner
   m_TagString: Untagged
@@ -25873,7 +25887,7 @@ ParticleSystem:
     collidesWithDynamic: 1
     interiorCollisions: 0
   TriggerModule:
-    enabled: 1
+    enabled: 0
     collisionShape0: {fileID: 0}
     collisionShape1: {fileID: 0}
     collisionShape2: {fileID: 0}
@@ -26838,6 +26852,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 34.075, z: 0}
+--- !u!114 &1383740180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1383740176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c8149f1140931442a170431def47601, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &1426258712
 Mesh:
   m_ObjectHideFlags: 0
@@ -27622,7 +27648,7 @@ PrefabInstance:
     - target: {fileID: 620196540096714654, guid: 88492c86bdbd98c4aad481f444011171,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 5.699951
+      value: 0.000015258789
       objectReference: {fileID: 0}
     - target: {fileID: 620196541006390745, guid: 88492c86bdbd98c4aad481f444011171,
         type: 3}
@@ -56791,7 +56817,7 @@ ParticleSystem:
     collidesWithDynamic: 1
     interiorCollisions: 0
   TriggerModule:
-    enabled: 1
+    enabled: 0
     collisionShape0: {fileID: 0}
     collisionShape1: {fileID: 0}
     collisionShape2: {fileID: 0}
