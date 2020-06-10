@@ -7,7 +7,7 @@ public class Targeting : GameSystem
 {
     public float radius;
     public KeyCode attack;
-    public enum Special{chargeShot, quickSlice};
+    public enum Special {chargeShot, quickSlice};
     public Special m_Special;
     public float specialTimer;
     public float projectileSpeed;
@@ -15,10 +15,11 @@ public class Targeting : GameSystem
     private Player m_Player;
     private Animator m_Animator;
     private PlayerController m_PlayerController;
-    private ParticleSystem m_Glow;
-    private ParticleSystem m_Effect;
-    private ParticleSystem m_Charge;
-    private ParticleSystem.Particle[] m_Projectile;
+    private ParticleSystem[] m_Glow;
+    private ParticleSystem[] m_Effect;
+    private ParticleSystem[] m_Charge;
+    private ParticleSystem[] m_Projectile;
+    private ParticleSystem.Particle[] m_CurrentParticle;
     private Mob m_CurrentTarget;
     public Mob m_Target;
     private Mob[] m_Targets;
@@ -26,7 +27,8 @@ public class Targeting : GameSystem
     private float[] m_Distances;
     private float specialRecharge;
     private int m_Amount;
-    private Vector3 m_Position; 
+    private Vector3 m_Position;
+    private Vector3 m_ParticlePos; 
     private bool m_AttackInput;
     private bool m_CycleTarget;
     private bool m_CancelTarget;
@@ -34,7 +36,7 @@ public class Targeting : GameSystem
     private bool m_Targeting;
     private bool m_SpecialInput;
     private int m_TargetNum;
-    private int m_particleNum;
+    private int m_ParticleNum;
     
 
     public bool attacking {
@@ -54,14 +56,27 @@ public class Targeting : GameSystem
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
         m_PlayerController = GetComponent<PlayerController>();
-        m_Charge = transform.FindDeepChild("Charge").GetComponent<ParticleSystem>();
-        m_Effect = transform.FindDeepChild("Effect").GetComponent<ParticleSystem>();
         try{
-            m_Glow = transform.FindDeepChild("Glow").GetComponent<ParticleSystem>();
+            m_Charge = transform.FindDeepChild("Charge").GetComponentsInChildren<ParticleSystem>();
         } catch (System.Exception _e) {
             
         }
-        m_Projectile = new ParticleSystem.Particle[1000];
+        try{
+            m_Glow = transform.FindDeepChild("Glow").GetComponentsInChildren<ParticleSystem>();
+        } catch (System.Exception _e) {
+            
+        }
+        try{
+            m_Effect = transform.FindDeepChild("Effect").GetComponentsInChildren<ParticleSystem>();
+        } catch (System.Exception _e) {
+            
+        }
+        try{
+            m_Projectile = transform.FindDeepChild("Projectile").GetComponentsInChildren<ParticleSystem>();
+        } catch (System.Exception _e) {
+            
+        }
+        m_CurrentParticle = new ParticleSystem.Particle[1000];
         RechargeTimer(specialTimer);
         
     }
@@ -80,13 +95,11 @@ public class Targeting : GameSystem
         }
         Select();
         Attack();
+        ProjectileMove();
         
         if(m_SpecialInput) SpecialAttack(m_Special);
         
-        m_particleNum = m_Effect.GetParticles(m_Projectile);
-        if(m_particleNum <= 1){
-            m_Projectile[0].velocity += Vector3.forward * Time.deltaTime * projectileSpeed;
-        }
+        
     }
 
 #region Private Functions 
@@ -194,7 +207,20 @@ public class Targeting : GameSystem
             specialRecharge = 0;            
             m_Attacking = true;
             m_Animator.SetBool(m_Special.ToString(), true);
-            m_Effect.Play();
+            try{
+                for(int i = 0; i < m_Effect.Length; i++){
+                    ParticleSystem m_currentSystem = m_Effect[i];
+                    m_currentSystem.Play();
+                }
+            } catch (System.Exception _e){
+            }
+            try{
+                for(int i = 0; i < m_Projectile.Length; i++){
+                    ParticleSystem m_currentSystem = m_Projectile[i];
+                    m_currentSystem.Play();
+                }
+            } catch (System.Exception _e){
+            }
             m_PlayerController.GetComponent<Targeting>().m_Target.Hit(25);
             ChargeEffects(); 
             
@@ -209,20 +235,48 @@ public class Targeting : GameSystem
     }
 
     private void ChargeEffects(){
-        var chargeMain = m_Charge.main;
-
-        m_Charge.Stop();
-        chargeMain.duration = specialTimer;
-        m_Charge.startDelay = specialTimer - m_Charge.startLifetime;
-        m_Charge.Play();
-        if(m_Glow.gameObject != null){
-            var glowMain = m_Glow.main;
-            m_Glow.Stop();            
-            glowMain.duration = specialTimer;
-            m_Glow.startDelay = specialTimer;
-            m_Glow.Play();
-        }
         
+        if(m_Glow[0].gameObject != null){
+            for(int i = 0; i < m_Glow.Length; i++){                
+                ParticleSystem m_currentSystem = m_Glow[i];
+                var glowMain = m_currentSystem.main;
+                m_currentSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                glowMain.duration = specialTimer;
+                m_currentSystem.startDelay = specialTimer;
+                m_currentSystem.Play();
+            }
+        }
+       
+        if(m_Charge[0].gameObject != null){
+            for(int i = 0; i < m_Charge.Length; i++){
+                ParticleSystem m_currentSystem = m_Charge[i];
+                var chargeMain = m_currentSystem.main;
+                m_currentSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                chargeMain.duration = specialTimer;
+                m_currentSystem.startDelay = specialTimer - m_currentSystem.startLifetime;
+                m_currentSystem.Play();
+            }
+        }
+    }
+
+    private void ProjectileMove(){
+        
+        try{
+            if(m_Projectile[0].isPlaying){
+                Debug.Log("Translating effects");
+                for(int i = 0; i < m_Projectile.Length; i++){
+                    ParticleSystem m_currentSystem = m_Projectile[i];
+                    m_ParticleNum = m_currentSystem.GetParticles(m_CurrentParticle);
+                    for(int j = 0; j < m_ParticleNum; j++){                    
+                        
+                        m_CurrentParticle[j].position = Vector3.MoveTowards(m_CurrentParticle[j].position, m_Target.transform.position, projectileSpeed * Time.deltaTime);
+                        Debug.Log(m_CurrentParticle[j].position);                 
+                    }
+                    m_currentSystem.SetParticles(m_CurrentParticle, m_ParticleNum);
+                }
+            }
+        }   catch(System.Exception _e){
+            }
     }
     private void Cancel() {
         CancelTarget(ref m_Target);
