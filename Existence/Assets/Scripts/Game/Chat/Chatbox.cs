@@ -53,6 +53,7 @@ public class Chatbox : GameSystem
 
     private void Start() {
         m_CommandParser = new ChatCommandParser();
+        Mob.OnMobInit += OnMobInit;
 
         if (network) {
             network.OnConnect += OnServerConnect;
@@ -66,6 +67,7 @@ public class Chatbox : GameSystem
             network.OnPlayerHit += OnPlayerHit;
             network.OnMobAttackStart += OnMobAttackStart;
             network.OnMobHit += OnMobHit;
+            network.OnMobDeath += OnMobDeath;
         }
     }
 
@@ -82,6 +84,8 @@ public class Chatbox : GameSystem
     }
 
     private void OnDisable() {
+        Mob.OnMobInit -= OnMobInit;
+
         if (network) {
             network.OnConnect -= OnServerConnect;
             network.OnDisconnect -= OnServerDisconnect;
@@ -94,6 +98,7 @@ public class Chatbox : GameSystem
             network.OnPlayerHit -= OnPlayerHit;
             network.OnMobAttackStart -= OnMobAttackStart;
             network.OnMobHit -= OnMobHit;
+            network.OnMobDeath -= OnMobDeath;
         }
 
         if (session) {
@@ -266,6 +271,18 @@ public class Chatbox : GameSystem
         if (session.player.data.player.name != _data.playerName) return;
 
         chatBox.text += "\n<color=#fff>You hit "+_data.mobName+" for "+_data.dmg+" points of damage.</color>";
+    }
+
+    private void OnMobDeath(NetworkMobDeathData _data) {        
+        foreach (NetworkLootPreviewData _preview in _data.lootPreview) {
+            chatBox.text += "\n"+_data.name+" dropped a LV. "+_preview.level+" "+_preview.name+".";
+        }
+    }
+
+    private void OnMobInit(Mob _mob) {
+        foreach (NetworkLootPreviewData _preview in _mob.data.lootPreview) {
+            chatBox.text += "\nYou are near a "+_mob.data.name+", which dropped a LV. "+_preview.level+" "+_preview.name+".";
+        }
     }
 
     private void TryRunAction(BasicAction _action) {

@@ -4,6 +4,9 @@ using UnityEngine;
 [RequireComponent(typeof(CapsuleCollider))]
 public class Mob : Selectable
 {
+    public delegate void MobDelegate(Mob _mob);
+    public static event MobDelegate OnMobInit;
+
     public float smooth;
     public LayerMask ground;
 
@@ -34,6 +37,12 @@ public class Mob : Selectable
     public string id {
         get {
             return m_Data.id;
+        }
+    }
+
+    public NetworkMobData data {
+        get {
+            return m_Data;
         }
     }
 
@@ -70,12 +79,14 @@ public class Mob : Selectable
         m_TargetPos = m_InitialPos;
         m_UpdateTimer = smooth + 1;
 
+        UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth);
         UpdateCombatState(_data);
         UpdateAttackRangeState(_data);
         if (_data.dead) {
             m_Animator.Play("Death", 1, 1);
         }
-        UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth);
+
+        TryAction(OnMobInit);
     }
 
     public void UpdateTransform(NetworkMobData _data) {
@@ -113,9 +124,10 @@ public class Mob : Selectable
         m_Animator.SetTrigger("Cycle");
     }
 
-    public void Die() {
+    public void Die(NetworkMobDeathData _data) {
         m_Animator.SetBool("Death", true);
         m_Data.dead = true;
+        m_Data.lootPreview = _data.lootPreview;
     }
 
     public void Hit(int _dmg) {
@@ -161,6 +173,14 @@ public class Mob : Selectable
         if(Input.GetKeyDown(KeyCode.C)){
             m_Animator.SetFloat("Speed", 0);
         }*/
+    }
+
+    private void TryAction(MobDelegate _action) {
+        try {
+            _action(this);
+        } catch (System.Exception _e) {
+            LogWarning(_e.Message);
+        }
     }
 #endregion
 

@@ -18,6 +18,7 @@ class SQLController {
         this.getPlayer = this.getPlayer.bind(this);
         this.__define_models__ = this.__define_models__.bind(this);
         this.__validate_account__ = this.__validate_account__.bind(this);
+        this.getItem = this.getItem.bind(this);
 
         this.__define_models__();
     }
@@ -542,7 +543,15 @@ class SQLController {
                 var _item = _potential[i].dataValues;
                 
                 if (Math.random() < _item.dropRate) {
-                    _loot.push(_item.itemID);
+                    // get the item 
+                    const _lvl = _params.lvl - Math.round(_item.lvlRange / 2) + Math.round(Math.random()*_item.lvlRange);
+                    const _itemData = await this.getItem({id: _item.itemID, ql: _lvl});
+                    if (_itemData.error) {
+                        return _itemData;
+                    }
+                    console.log(_itemData.data);
+                    _loot.push(_itemData.data);
+                    console.log(_loot);
                 }
 
                 i++;
@@ -571,6 +580,7 @@ class SQLController {
 
             var _requirements = await this._stat.findByPk(_item.dataValues.requirementsID);
             var _effects = await this._stat.findByPk(_item.dataValues.effectsID);
+            
             Object.keys(_requirements.dataValues).forEach((_key, _index) => {
                 if (_key.toLowerCase() != 'id') {
                     _requirements.dataValues[_key] *= _params.ql;
@@ -587,7 +597,7 @@ class SQLController {
             delete _item.dataValues.effectsID;
 
             return {
-                data: _item
+                data: {..._item.dataValues, level: _params.ql}
             }
         } catch (_err) {
             console.log(_err);
@@ -600,7 +610,7 @@ class SQLController {
     async updateStats(_stats) {
         try {
             const _resp = await this._stat.update(_stats, {where: {id: _stats.ID}})
-            console.log(JSON.stringify(_resp));
+            //console.log(JSON.stringify(_resp));
             return {
                 data: _resp
             }
@@ -694,7 +704,8 @@ class SQLController {
         this._inventorySlot = this._sql.define('inventorySlot', {
             playerID: DataTypes.INTEGER,
             itemID: DataTypes.INTEGER,
-            loc: DataTypes.INTEGER
+            loc: DataTypes.INTEGER,
+            lvl: DataTypes.INTEGER
         }, {
             timestamps: false
         });
@@ -705,7 +716,6 @@ class SQLController {
             description: DataTypes.CHAR(255),
             requirementsID: DataTypes.INTEGER,
             effectsID: DataTypes.INTEGER,
-            level: DataTypes.INTEGER,
             rarity: DataTypes.INTEGER,
             shopBuyable: DataTypes.TINYINT,
             stackable: DataTypes.TINYINT,
@@ -825,7 +835,8 @@ class SQLController {
         this._mobLootItem = this._sql.define('mobLootItem', {
             mobID: DataTypes.INTEGER,
             itemID: DataTypes.INTEGER,
-            dropRate: DataTypes.FLOAT
+            dropRate: DataTypes.FLOAT,
+            lvlRange: DataTypes.INTEGER
         }, {
             timestamps: false
         });

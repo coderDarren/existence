@@ -4,11 +4,13 @@ const SQL = require('../services/sql.js');
 const validateParams = function(_query)
 {
     const _mobName = _query.mobName;
+    const _lvl = _query.lvl;
 
-    if (!_mobName) return -1;
+    if (!_mobName || !_lvl) return -1;
 
     return {
-        mobName: _mobName
+        mobName: _mobName,
+        lvl: _lvl
     };
 }
 
