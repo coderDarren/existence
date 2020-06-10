@@ -16,8 +16,7 @@ public class Targeting : GameSystem
     private Animator m_Animator;
     private PlayerController m_PlayerController;
     private ParticleSystem m_Glow;
-    private ParticleSystem m_Projectile;
-    private ParticleSystem.Particle[] projectiles;
+    private ParticleSystem m_Effect;
     private Mob m_CurrentTarget;
     public Mob m_Target;
     private Mob[] m_Targets;
@@ -35,22 +34,20 @@ public class Targeting : GameSystem
     private int m_TargetNum;
     
 
-    public bool attacking {
+    public bool attacking;/* {
         get {
             return m_Attacking;
         }
-    }
+    }*/
 
     private void Start()
     {
-        
         m_Amount = 0;
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
         m_PlayerController = GetComponent<PlayerController>();
         m_Glow = transform.FindDeepChild("Glow").GetComponent<ParticleSystem>();
-        m_Projectile = transform.FindDeepChild("Projectile").GetComponent<ParticleSystem>();
-        bladeMat = transform.FindDeepChild("Effect").GetComponent<Renderer>().material;
+        m_Effect = transform.FindDeepChild("Effect").GetComponent<ParticleSystem>();
         RechargeTimer(specialTimer);
     }
 
@@ -64,12 +61,10 @@ public class Targeting : GameSystem
 
         specialRecharge += Time.deltaTime;
         if(specialRecharge >= specialTimer){
-            bladeMat.SetFloat("_Opacity", 0.7f);
             m_Glow.Play();
         }
         Select();
         Attack();
-
         if(m_SpecialInput) SpecialAttack(m_Special);
     }
 
@@ -146,18 +141,18 @@ public class Targeting : GameSystem
                 }
                 m_Target = m_CurrentTarget;
                 m_Animator.SetBool(m_Player.weapon.ToString(), true);
-                m_Animator.SetBool("cycle", false);
-                m_Animator.SetBool("attacking", true);
+                
             }
             else {
                 m_Attacking = false;
                 CancelTarget(ref m_Target);
-                m_Animator.SetBool(m_Player.weapon.ToString(), false);    
-                m_Animator.SetBool("attacking", false);
+                m_Animator.SetBool(m_Player.weapon.ToString(), false);  
             }
         }
-        if(m_CancelTarget || !m_CurrentTarget){
+        if(m_CancelTarget || !m_Target){
             Cancel();
+            m_Attacking = false;
+            m_Animator.SetBool(m_Player.weapon.ToString(), false);
         }
     } 
 
@@ -176,15 +171,13 @@ public class Targeting : GameSystem
         }
         if(specialRecharge >= specialTimer){     // All the events that happen when you use your special successfully     
             specialRecharge = 0;
-            if(!attacking){ 
-                m_Attacking = true;
-            }                    
+            
+            m_Attacking = true;
             m_Animator.SetBool(m_Special.ToString(), true);
-            m_Projectile.Play();
+            //m_Effect.Play();
             
             m_PlayerController.GetComponent<Targeting>().m_Target.Hit(25);
-            m_Glow.Stop();
-            bladeMat.SetFloat("_Opacity", 1.0f);
+            //m_Glow.Stop();
             
         }
         else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialTimer - specialRecharge) +" seconds");
@@ -197,9 +190,8 @@ public class Targeting : GameSystem
 
     private void Cancel() {
         CancelTarget(ref m_Target);
-        CancelTarget(ref m_CurrentTarget);
+        //CancelTarget(ref m_CurrentTarget);
         SelectionController.instance.selection = null;
-        m_Attacking = false;
         m_Animator.SetBool(m_Player.weapon.ToString(), false); 
     }
 
@@ -207,7 +199,7 @@ public class Targeting : GameSystem
         if (_target) {
             _target.nameplate.isVisible = false;
         }
-        _target = null;
+        _target = null;  
     }
 #endregion
 }

@@ -172,7 +172,8 @@ public class NetworkPlayer : Selectable
 #region Private Functions
     // Player controlled by this client
     private void UpdateClient() {
-        if (!network) return;        
+        if (!network) return;
+                
 
         if (ClientHasNotChanged()) {
             m_IdleTimer += Time.deltaTime;
@@ -250,12 +251,13 @@ public class NetworkPlayer : Selectable
     public void AttackEnd(){
         if(!isClient) return;
         if(!m_PlayerController.GetComponent<Targeting>().m_Target) return;
-        m_PlayerController.GetComponent<Targeting>().m_Target.Hit(50);
-        m_Animator.SetBool("cycle", true);
+        m_PlayerController.GetComponent<Targeting>().m_Target.Hit(50);        
         /*foreach(ParticleSystem particle in m_Particles){
                 particle.Play();                    
             }*/
     }
+
+    
 
     
 #endregion
