@@ -11112,6 +11112,7 @@ GameObject:
   - component: {fileID: 958666759}
   - component: {fileID: 958666758}
   - component: {fileID: 958666757}
+  - component: {fileID: 958666760}
   m_Layer: 0
   m_Name: VFX_Spawner (1)
   m_TagString: Untagged
@@ -15914,6 +15915,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 34.075, z: 0}
+--- !u!114 &958666760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 958666756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c8149f1140931442a170431def47601, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &961067602
 GameObject:
   m_ObjectHideFlags: 0
@@ -27648,7 +27661,7 @@ PrefabInstance:
     - target: {fileID: 620196540096714654, guid: 88492c86bdbd98c4aad481f444011171,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000015258789
+      value: 5.7000113
       objectReference: {fileID: 0}
     - target: {fileID: 620196541006390745, guid: 88492c86bdbd98c4aad481f444011171,
         type: 3}
