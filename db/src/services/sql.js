@@ -144,13 +144,23 @@ class SQLController {
                 const _player = _players[i];
                 const _stats = await this._stat.findByPk(_player.dataValues.statsID);
                 const _sessionData = await this._sessionData.findByPk(_player.dataValues.sessionDataID);
-                const _inventory = (await this._sql.query(`select items.*, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
+                const _inventory = (await this._sql.query(`select items.*, inventorySlots.lvl as lvl, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
                     inner join inventorySlots on inventorySlots.playerID = ${_player.dataValues.id} and inventorySlots.itemID = items.ID`))[0];
                 for (var i = 0; i < _inventory.length; i++) {
                     var _item = _inventory[i];
                     _item.requirements = await this._stat.findByPk(_item.requirementsID);
                     _item.effects = await this._stat.findByPk(_item.effectsID);
-                    _item.slotID = _item.slotID;
+                    Object.keys(_item.requirements.dataValues).forEach((_key, _index) => {
+                        if (_key.toLowerCase() != 'id') {
+                            _item.requirements.dataValues[_key] *= _item.lvl;
+                        }
+                    });
+                    Object.keys(_item.effects.dataValues).forEach((_key, _index) => {
+                        if (_key.toLowerCase() != 'id') {
+                            _item.effects.dataValues[_key] *= _item.lvl;
+                        }
+                    });
+                    _item.level = _item.lvl;
                     delete _item["requirementsID"];
                     delete _item["effectsID"];
                 }
@@ -185,17 +195,28 @@ class SQLController {
             const _playerId = _player.dataValues.id;
             const _stats = await this._stat.findByPk(_player.dataValues.statsID);
             const _sessionData = await this._sessionData.findByPk(_player.dataValues.sessionDataID);
-            const _inventory = (await this._sql.query(`select items.*, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
+            const _inventory = (await this._sql.query(`select items.*, inventorySlots.lvl as lvl, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
                 inner join inventorySlots on inventorySlots.playerID = ${_playerId} and inventorySlots.itemID = items.ID`))[0];
             for (var i = 0; i < _inventory.length; i++) {
                 var _item = _inventory[i];
                 _item.requirements = await this._stat.findByPk(_item.requirementsID);
                 _item.effects = await this._stat.findByPk(_item.effectsID);
                 _item.slotID = _item.slotID;
+                Object.keys(_item.requirements.dataValues).forEach((_key, _index) => {
+                    if (_key.toLowerCase() != 'id') {
+                        _item.requirements.dataValues[_key] *= _item.lvl;
+                    }
+                });
+                Object.keys(_item.effects.dataValues).forEach((_key, _index) => {
+                    if (_key.toLowerCase() != 'id') {
+                        _item.effects.dataValues[_key] *= _item.lvl;
+                    }
+                });
+                _item.level = _item.lvl;
                 delete _item["requirementsID"];
                 delete _item["effectsID"];
             }
-            console.log(JSON.stringify(_inventory));
+            //console.log(JSON.stringify(_inventory));
             
             return {
                 data: {
@@ -206,6 +227,7 @@ class SQLController {
                 }
             }
         } catch (_err) {
+            console.log(_err);
             return {
                 error: _err
             }
@@ -336,16 +358,30 @@ class SQLController {
 
             _item.dataValues.requirements = (await this._stat.findByPk(_item.dataValues.requirementsID)).dataValues;
             _item.dataValues.effects = (await this._stat.findByPk(_item.dataValues.effectsID)).dataValues;
-            delete _item.dataValues["requirementsID"];
-            delete _item.dataValues["effectsID"];
+            Object.keys(_item.dataValues.requirements).forEach((_key, _index) => {
+                if (_key.toLowerCase() != 'id') {
+                    _item.dataValues.requirements[_key] *= _params.lvl;
+                }
+            });
+            Object.keys(_item.dataValues.effects).forEach((_key, _index) => {
+                if (_key.toLowerCase() != 'id') {
+                    _item.dataValues.effects[_key] *= _params.lvl;
+                }
+            });
+            _item.dataValues.requirements = _item.dataValues.requirements;
+            _item.dataValues.effects = _item.dataValues.effects;
+            delete _item.dataValues.requirementsID;
+            delete _item.dataValues.effectsID;
 
-            const _slot = await this._inventorySlot.create({playerID: _params.playerID, itemID: _params.itemID});
+            const _slot = await this._inventorySlot.create({playerID: _params.playerID, itemID: _params.itemID, lvl: _params.lvl});
             _item.dataValues.slotID = _slot.id;
+            _item.dataValues.level = _params.lvl;
 
             return {
                 data: _item.dataValues
             }
         } catch (_err) {
+            console.log(_err);
             return {
                 error: _err
             }

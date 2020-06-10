@@ -32,11 +32,26 @@ namespace Tween {
 
 #region Public Functions
         public void StartTween() {
-            Init();
+            if (m_Tween == null) {
+                Init();
+            }
+
+            StopTween();
+            if (m_Tween.Loop != null) {
+                m_Tween.OnSetValue += OnSetValue;
+                m_Tween.OnMoveValue += OnMoveValue;
+                StartCoroutine(m_Tween.Loop);
+            }
         }
 
         public void StopTween() {
-            Dispose();
+            if (m_Tween == null) return;
+
+            if (m_Tween.Loop != null) {
+                m_Tween.OnSetValue -= OnSetValue;
+                m_Tween.OnMoveValue -= OnMoveValue;
+                StopCoroutine(m_Tween.Loop);
+            }
         }
 #endregion
 
@@ -48,19 +63,11 @@ namespace Tween {
             }
 
             m_Tween = new Tweener<Color>(_keys, duration, delay, wrap);
-            if (m_Tween.Loop != null) {
-                m_Tween.OnSetValue += OnSetValue;
-                m_Tween.OnMoveValue += OnMoveValue;
-                StartCoroutine(m_Tween.Loop);
-            }
+            StartTween();
         }
 
         protected virtual void Dispose() {
-            if (m_Tween.Loop != null) {
-                m_Tween.OnSetValue -= OnSetValue;
-                m_Tween.OnMoveValue -= OnMoveValue;
-                StopCoroutine(m_Tween.Loop);
-            }
+            StopTween();
         }
 
         protected abstract void OnSetValue(Color _val);

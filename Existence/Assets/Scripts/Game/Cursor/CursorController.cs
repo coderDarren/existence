@@ -9,6 +9,7 @@ public class CursorController : GameSystem
     public Image cursor;
     public Image pickup;
     public InspectableItemView inspectableItemView;
+    public InspectablePreviewItemView inspectablePreviewItemView;
     public Sprite main;
     public Sprite scaleHorizontal;
     public Sprite scaleVertical;
@@ -111,6 +112,14 @@ public class CursorController : GameSystem
 
     public void CloseHoverItem() {
         inspectableItemView.Close();
+    }
+
+    public void OpenPreviewHoverItem(PreviewItemData _previewItem) {
+        inspectablePreviewItemView.Open(_previewItem);
+    }
+
+    public void ClosePreviewHoverItem() {
+        inspectablePreviewItemView.Close();
     }
 #endregion
 }

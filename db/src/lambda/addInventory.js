@@ -8,12 +8,14 @@ const validateParams = function(_body)
     const _playerID = _body.playerID;
     const _account = _body.id;
     const _apiKey = _body.apiKey;
-    if (!_account || !_apiKey || _itemID == undefined || !_playerID) return -1;
+    const _lvl = _body.lvl;
+    if (!_account || !_apiKey || _itemID == undefined || !_playerID || !_lvl) return -1;
     return {
         itemID: _itemID,
         playerID: _playerID,
         account: _account,
         apiKey: _apiKey,
+        lvl: _lvl
     };
 }
 

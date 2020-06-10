@@ -1,4 +1,10 @@
-﻿
+﻿public class PreviewItemData : NetworkModel {
+    public int id;
+    public int level;
+    public string name;
+    public string icon;
+}
+
 public class ItemData : NetworkModel
 {
     public int id;
