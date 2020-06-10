@@ -46,6 +46,7 @@ public class NetworkPlayer : Selectable
     private float m_Smooth;
     private float m_AttackSpeed;
     private string m_Weapon;
+    private string m_Special;
 
     // get Session with integrity
     private Session session {
@@ -159,6 +160,7 @@ public class NetworkPlayer : Selectable
         m_AttackSpeed = _data.input.attackSpeed;
         m_SpecialInput = _data.input.special;
         m_Weapon = _data.weaponName;
+        m_Special = _data.specialName;
         
         m_UpdateTimer = 0;
 
@@ -194,7 +196,8 @@ public class NetworkPlayer : Selectable
         m_ClientData.input.attacking = m_Targeting.attacking;
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
         m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");
-        m_ClientData.input.special = m_Animator.GetBool(m_Targeting.m_Special.ToString()); 
+        m_ClientData.input.special = m_Animator.GetBool(m_Targeting.m_Special.ToString());
+        m_ClientData.specialName = m_Targeting.m_Special.ToString(); 
         m_ClientData.weaponName = m_Player.weapon.ToString();
         m_ClientData.maxHealth = m_Player.MaxHealth();
 
@@ -231,7 +234,7 @@ public class NetworkPlayer : Selectable
         m_Animator.SetBool("grounded", m_Grounded);
         m_Animator.SetBool(m_Weapon, m_Attacking);
         m_Animator.SetBool("cycle", m_AttackCycle);
-        m_Animator.SetBool(m_Targeting.m_Special.ToString(), m_SpecialInput);
+        m_Animator.SetBool(m_Special, m_SpecialInput);
        
     }
     

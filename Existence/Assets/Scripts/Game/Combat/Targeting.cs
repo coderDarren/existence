@@ -34,11 +34,16 @@ public class Targeting : GameSystem
     private int m_TargetNum;
     
 
-    public bool attacking;/* {
+    public bool attacking {
         get {
             return m_Attacking;
         }
-    }*/
+    }
+    public bool specialInput {
+        get {
+            return m_SpecialInput;
+        }
+    }
 
     private void Start()
     {
@@ -61,7 +66,7 @@ public class Targeting : GameSystem
 
         specialRecharge += Time.deltaTime;
         if(specialRecharge >= specialTimer){
-            m_Glow.Play();
+            //m_Glow.Play();
         }
         Select();
         Attack();
@@ -166,12 +171,11 @@ public class Targeting : GameSystem
         if(m_Target == null)m_Target = m_CurrentTarget;
         
         if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
-            Debug.Log("Too far away" + Vector3.Distance(transform.position, m_Target.transform.position));
+            Debug.Log("Too far away");
             return;
         }
         if(specialRecharge >= specialTimer){     // All the events that happen when you use your special successfully     
-            specialRecharge = 0;
-            
+            specialRecharge = 0;            
             m_Attacking = true;
             m_Animator.SetBool(m_Special.ToString(), true);
             //m_Effect.Play();

@@ -18,8 +18,8 @@ public class Attack : StateMachineBehaviour
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex    ){
         pauseSpeed = animator.GetFloat("totalSpeed");
 
-        m_Player = animator.gameObject.GetComponent<Player>();
-        m_Targeting = animator.gameObject.GetComponent<Targeting>();
+        m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        m_Targeting = GameObject.FindGameObjectWithTag("Player").GetComponent<Targeting>();
         range = m_Player.range;
         safetySpeed = 0;
     }

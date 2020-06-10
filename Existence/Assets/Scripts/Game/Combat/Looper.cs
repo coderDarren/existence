@@ -16,13 +16,13 @@ public class Looper : StateMachineBehaviour
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
         //animator.SetBool("cycle", false);
-        m_Player = animator.gameObject.GetComponent<Player>();
+        m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        attacking = animator.GetBool(m_Player.weapon.ToString());
+        attacking = animator.GetBool(m_Player.weapon.ToString());        
         if(attacking){
             totalSpeed = buffSpeed * atkSpeed;
             animator.SetFloat("totalSpeed", totalSpeed);
