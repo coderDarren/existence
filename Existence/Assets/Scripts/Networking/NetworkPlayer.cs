@@ -251,14 +251,7 @@ public class NetworkPlayer : Selectable
         m_Smooth = _diff / 1000.0f;
     }
 
-    public void AttackEnd(){
-        if(!isClient) return;
-        if(!m_PlayerController.GetComponent<Targeting>().m_Target) return;
-        m_PlayerController.GetComponent<Targeting>().m_Target.Hit(50);        
-        /*foreach(ParticleSystem particle in m_Particles){
-                particle.Play();                    
-            }*/
-    }
+    
 
     
 

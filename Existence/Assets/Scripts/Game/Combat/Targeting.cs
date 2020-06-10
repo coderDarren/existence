@@ -17,6 +17,8 @@ public class Targeting : GameSystem
     private PlayerController m_PlayerController;
     private ParticleSystem m_Glow;
     private ParticleSystem m_Effect;
+    private ParticleSystem m_Charge;
+    private ParticleSystem.Particle[] m_Projectile;
     private Mob m_CurrentTarget;
     public Mob m_Target;
     private Mob[] m_Targets;
@@ -32,6 +34,7 @@ public class Targeting : GameSystem
     private bool m_Targeting;
     private bool m_SpecialInput;
     private int m_TargetNum;
+    private int m_particleNum;
     
 
     public bool attacking {
@@ -51,9 +54,16 @@ public class Targeting : GameSystem
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
         m_PlayerController = GetComponent<PlayerController>();
-        m_Glow = transform.FindDeepChild("Glow").GetComponent<ParticleSystem>();
+        m_Charge = transform.FindDeepChild("Charge").GetComponent<ParticleSystem>();
         m_Effect = transform.FindDeepChild("Effect").GetComponent<ParticleSystem>();
+        try{
+            m_Glow = transform.FindDeepChild("Glow").GetComponent<ParticleSystem>();
+        } catch (System.Exception _e) {
+            
+        }
+        m_Projectile = new ParticleSystem.Particle[1000];
         RechargeTimer(specialTimer);
+        
     }
 
     private void Update(){   
@@ -66,11 +76,17 @@ public class Targeting : GameSystem
 
         specialRecharge += Time.deltaTime;
         if(specialRecharge >= specialTimer){
-            //m_Glow.Play();
+            
         }
         Select();
         Attack();
+        
         if(m_SpecialInput) SpecialAttack(m_Special);
+        
+        m_particleNum = m_Effect.GetParticles(m_Projectile);
+        if(m_particleNum <= 1){
+            m_Projectile[0].velocity += Vector3.forward * Time.deltaTime * projectileSpeed;
+        }
     }
 
 #region Private Functions 
@@ -162,7 +178,7 @@ public class Targeting : GameSystem
     } 
 
     public void SpecialAttack(Special _special){
-           
+
         Debug.Log("Attempting to use special");
         if(!m_Targeting){
             Debug.Log("You have no target");
@@ -178,10 +194,9 @@ public class Targeting : GameSystem
             specialRecharge = 0;            
             m_Attacking = true;
             m_Animator.SetBool(m_Special.ToString(), true);
-            //m_Effect.Play();
-            
+            m_Effect.Play();
             m_PlayerController.GetComponent<Targeting>().m_Target.Hit(25);
-            //m_Glow.Stop();
+            ChargeEffects(); 
             
         }
         else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialTimer - specialRecharge) +" seconds");
@@ -190,8 +205,25 @@ public class Targeting : GameSystem
     public void RechargeTimer(float _specialTimer){
         specialTimer = _specialTimer;
         specialRecharge = _specialTimer;
+        ChargeEffects();
     }
 
+    private void ChargeEffects(){
+        var chargeMain = m_Charge.main;
+
+        m_Charge.Stop();
+        chargeMain.duration = specialTimer;
+        m_Charge.startDelay = specialTimer - m_Charge.startLifetime;
+        m_Charge.Play();
+        if(m_Glow.gameObject != null){
+            var glowMain = m_Glow.main;
+            m_Glow.Stop();            
+            glowMain.duration = specialTimer;
+            m_Glow.startDelay = specialTimer;
+            m_Glow.Play();
+        }
+        
+    }
     private void Cancel() {
         CancelTarget(ref m_Target);
         //CancelTarget(ref m_CurrentTarget);
@@ -204,6 +236,11 @@ public class Targeting : GameSystem
             _target.nameplate.isVisible = false;
         }
         _target = null;  
+    }
+
+    public void AttackEnd(){        
+        if(!m_Target) return;
+        m_PlayerController.GetComponent<Targeting>().m_Target.Hit(50);         
     }
 #endregion
 }
