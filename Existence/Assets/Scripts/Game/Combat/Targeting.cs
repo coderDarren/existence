@@ -262,18 +262,18 @@ public class Targeting : GameSystem
     private void ProjectileMove(){
         
         try{
-            if(m_Projectile[0].isPlaying){
-                Debug.Log("Translating effects");
-                for(int i = 0; i < m_Projectile.Length; i++){
-                    ParticleSystem m_currentSystem = m_Projectile[i];
-                    m_ParticleNum = m_currentSystem.GetParticles(m_CurrentParticle);
-                    for(int j = 0; j < m_ParticleNum; j++){                    
-                        
-                        m_CurrentParticle[j].position = Vector3.MoveTowards(m_CurrentParticle[j].position, m_Target.transform.position, projectileSpeed * Time.deltaTime);
-                        Debug.Log(m_CurrentParticle[j].position);                 
+            for(int i = 0; i < m_Projectile.Length; i++){
+                ParticleSystem m_currentSystem = m_Projectile[i];
+                m_ParticleNum = m_currentSystem.GetParticles(m_CurrentParticle);
+                for(int j = 0; j < m_ParticleNum; j++){                    
+                    if(!m_Target){
+                        m_currentSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                     }
-                    m_currentSystem.SetParticles(m_CurrentParticle, m_ParticleNum);
+                    m_CurrentParticle[j].position = Vector3.MoveTowards(m_CurrentParticle[j].position, m_Target.transform.position, projectileSpeed * Time.deltaTime);
+                    Debug.Log(m_CurrentParticle[j].position);                 
                 }
+                m_currentSystem.SetParticles(m_CurrentParticle, m_ParticleNum);
+               
             }
         }   catch(System.Exception _e){
             }
