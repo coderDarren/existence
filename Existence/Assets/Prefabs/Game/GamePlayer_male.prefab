@@ -941,7 +941,6 @@ Transform:
   - {fileID: 3230948866002660858}
   - {fileID: 6113889622814138002}
   - {fileID: 7225208964359119344}
-  - {fileID: 4925828700769220783}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4390,50 +4389,6 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.3781832, y: 0.089731455, z: 0.0087276995}
     m_Extent: {x: 0.11016907, y: 0.099063605, z: 0.08249008}
   m_DirtyAABB: 0
---- !u!1 &7262481571773561829
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4925828700769220783}
-  - component: {fileID: 5008174316795017799}
-  m_Layer: 0
-  m_Name: VFX_Checker
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4925828700769220783
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7262481571773561829}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1786793057335150400}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &5008174316795017799
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7262481571773561829}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 50
-  m_Center: {x: 0, y: 0, z: 46.01}
 --- !u!1 &7304088972332360479
 GameObject:
   m_ObjectHideFlags: 0
