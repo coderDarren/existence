@@ -16782,7 +16782,7 @@ ParticleSystem:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    inWorldSpace: 0
+    inWorldSpace: 1
     randomizePerFrame: 0
   ExternalForcesModule:
     serializedVersion: 2
@@ -18622,7 +18622,7 @@ ParticleSystem:
         m_NumAlphaKeys: 2
   CustomDataModule:
     enabled: 0
-    mode0: 0
+    mode0: 1
     vectorComponentCount0: 4
     color0:
       serializedVersion: 2
@@ -38598,7 +38598,12 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5d372b7d10647b24aa7da3f854be6a9a, type: 2}
+  - {fileID: 2100000, guid: ef5b71a841346c04db49ffefa11bd553, type: 2}
+  - {fileID: 2100000, guid: 89977ed4a7262a5429b11713f94d8370, type: 2}
+  - {fileID: 2100000, guid: a32c052506a83e44b9b06a9e865bbb7a, type: 2}
+  - {fileID: 2100000, guid: ef5b71a841346c04db49ffefa11bd553, type: 2}
+  - {fileID: 2100000, guid: 89977ed4a7262a5429b11713f94d8370, type: 2}
+  - {fileID: 2100000, guid: 150283e47ca93f2409dfac23af71bcf6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
