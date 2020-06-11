@@ -28,6 +28,21 @@ public class InspectablePreviewItem : GameSystem, IPointerEnterHandler, IPointer
         }
     }
 
+#region Unity Functions
+    private void OnDisable() {
+        Dispose();
+    }
+#endregion
+
+#region Overrideable Functions
+    protected virtual void Dispose() {
+        if (!cursor) return;
+        if (cursor.hoverPreviewItem == m_PreviewItem) {
+            cursor.ClosePreviewHoverItem();
+        }
+    }
+#endregion
+
 #region Interface Functions
     public void OnPointerEnter(PointerEventData _ped) {
         if (!displayOnHover) return;

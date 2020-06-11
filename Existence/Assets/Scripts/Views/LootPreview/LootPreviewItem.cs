@@ -29,12 +29,6 @@ public class LootPreviewItem : InspectablePreviewItem, IPointerClickHandler
         if (!session.network) return;
         session.network.OnMobLooted += OnMobLooted;
     }
-
-    private void OnDisable() {
-        if (!session) return;
-        if (!session.network) return;
-        session.network.OnMobLooted -= OnMobLooted;
-    }
 #endregion
 
 #region Public Functions
@@ -70,6 +64,15 @@ public class LootPreviewItem : InspectablePreviewItem, IPointerClickHandler
         if (!session.network) return;
         NetworkPlayerLootData _lootData = new NetworkPlayerLootData(m_Mob.data.id, m_PreviewItem.id);
         session.network.LootMob(_lootData);
+    }
+#endregion
+
+#region Override Functions
+    protected override void Dispose() {
+        base.Dispose();
+        if (!session) return;
+        if (!session.network) return;
+        session.network.OnMobLooted -= OnMobLooted;
     }
 #endregion
 }
