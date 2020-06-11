@@ -19,6 +19,7 @@ public class NetworkPlayerData : NetworkModel
     public int id;
     public string name;
     public string weaponName;
+    public string specialName;
     public NetworkPlayerInput input;
     public NetworkVector3 pos;
     public NetworkVector3 rot;

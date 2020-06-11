@@ -14,6 +14,7 @@ public class Player : GameSystem
 
     public enum Weapon {oneHandRanged, oneHandMelee, twoHandRanged, twoHandMelee, fist};
     public Weapon weapon;
+    public float range;
     
     private PlayerData m_Data;
     private StatData m_GearStats;

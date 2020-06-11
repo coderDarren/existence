@@ -11,6 +11,7 @@ public class LoginPage : Page
     public InputField password;
 
     private LoginController m_Controller;
+    private bool m_ActiveField = true;
 
     private LoginController controller {
         get {
@@ -29,6 +30,13 @@ public class LoginPage : Page
         if (Input.GetKeyDown(KeyCode.Return) && username.interactable) {
             Login();
         }
+        if (Input.GetKeyDown(KeyCode.Tab)){
+            if(m_ActiveField) m_ActiveField = false;
+            else m_ActiveField = true;            
+        }
+
+        if(m_ActiveField) username.ActivateInputField();
+        else password.ActivateInputField();
     }
 #endregion
 
