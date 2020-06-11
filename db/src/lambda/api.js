@@ -1,8 +1,6 @@
 'use strict'
 const {
     response,
-    requestSuccess,
-    badRequest
 } = require('../util/response.js');
 const getPlayer = require('./getPlayer.js');
 const createPlayer = require('./createPlayer.js');
@@ -17,6 +15,8 @@ const getAccountPlayers = require('./getAccountPlayers.js');
 const modifyMob = require('./modifyMob.js');
 const modifyMobLoot = require('./modifyMobLoot.js');
 const modifyItem = require('./modifyItem.js');
+const getMobLoot = require('./getMobLoot.js');
+const getItem = require('./getItem.js');
 
 const versionCode = '0.1';
 const api = async function(_event, _context) {
@@ -82,6 +82,12 @@ const handleRoute = async function(_req) {
             break;
         case "/api/modifyItem": // POST
             _resp = await modifyItem(_req.body);
+            break;
+        case "/api/getMobLoot": // GET
+            _resp = await getMobLoot(_req.query);
+            break;
+        case "/api/getItem": // GET
+            _resp = await getItem(_req.query);
             break;
     }
 

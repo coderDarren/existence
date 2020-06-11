@@ -13,6 +13,10 @@ using UnityEngine;
 /// </summary>
 public class NetworkEntityHandler : GameSystem
 {
+    public delegate void MobAction(Mob _mob);
+    public event MobAction OnMobDidExit;
+    public event MobAction OnMobDidDie;
+
     public static NetworkEntityHandler instance;
 
     public GameObject networkDummyObject;
@@ -94,6 +98,7 @@ public class NetworkEntityHandler : GameSystem
         network.OnMobAttackRangeStateChange += OnMobAttackRangeStateChange;
         network.OnMobCombatStateChange += OnMobCombatStateChange;
         network.OnMobHealthChange += OnMobHealthChange;
+        network.OnMobDeath += OnMobDeath;
     }
 
     private void OnDisable() {
@@ -109,6 +114,7 @@ public class NetworkEntityHandler : GameSystem
         network.OnMobAttackRangeStateChange -= OnMobAttackRangeStateChange;
         network.OnMobCombatStateChange -= OnMobCombatStateChange;
         network.OnMobHealthChange -= OnMobHealthChange;
+        network.OnMobDeath -= OnMobDeath;
     }
 #endregion
 
@@ -154,6 +160,14 @@ public class NetworkEntityHandler : GameSystem
                 m_Mobs.RemoveAt(i);
             }
         }
+    }
+
+    private void OnMobDeath(NetworkMobDeathData _data) {
+        string _name = _data.id;
+        if (!m_MobsHash.ContainsKey(_name)) return; // could not find mob
+        Mob _mob = (Mob)m_MobsHash[_name];
+        _mob.Die(_data);
+        TryAction(OnMobDidDie, _mob);
     }
 
     private void OnPlayerLeft(NetworkPlayerData _data) {
@@ -271,7 +285,16 @@ public class NetworkEntityHandler : GameSystem
         NameplateController.instance.ForgetSelectable((Selectable)_mob);
         m_MobsHash.Remove(_id);
         m_MobUpdateState.Remove(_id);
+        TryAction(OnMobDidExit, _mob);
         Destroy(_mob.gameObject);
+    }
+
+    private void TryAction(MobAction _action, Mob _mob) {
+        try {
+            _action(_mob);
+        } catch (System.Exception _e) {
+            LogWarning(_e.Message);
+        }
     }
 #endregion
 }

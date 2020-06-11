@@ -9,6 +9,7 @@ public class CursorController : GameSystem
     public Image cursor;
     public Image pickup;
     public InspectableItemView inspectableItemView;
+    public InspectablePreviewItemView inspectablePreviewItemView;
     public Sprite main;
     public Sprite scaleHorizontal;
     public Sprite scaleVertical;
@@ -18,10 +19,24 @@ public class CursorController : GameSystem
 
     private RectTransform m_Rect;
     private ItemData m_SelectedItem;
+    private ItemData m_HoverItem;
+    private PreviewItemData m_HoverPreviewItem;
 
     public ItemData selectedItem {
         get {
             return m_SelectedItem;
+        }
+    }
+
+    public ItemData hoverItem {
+        get {
+            return m_HoverItem;
+        }
+    }
+
+    public PreviewItemData hoverPreviewItem {
+        get {
+            return m_HoverPreviewItem;
         }
     }
 
@@ -106,11 +121,23 @@ public class CursorController : GameSystem
     }
 
     public void OpenHoverItem(ItemData _item) {
+        m_HoverItem = _item;
         inspectableItemView.Open(_item);
     }
 
     public void CloseHoverItem() {
+        m_HoverItem = null;
         inspectableItemView.Close();
+    }
+
+    public void OpenPreviewHoverItem(PreviewItemData _previewItem) {
+        m_HoverPreviewItem = _previewItem;
+        inspectablePreviewItemView.Open(_previewItem);
+    }
+
+    public void ClosePreviewHoverItem() {
+        m_HoverPreviewItem = null;
+        inspectablePreviewItemView.Close();
     }
 #endregion
 }

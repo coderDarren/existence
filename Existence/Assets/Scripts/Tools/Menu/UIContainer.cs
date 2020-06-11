@@ -12,6 +12,9 @@ using UnityCore.Menu;
 [RequireComponent(typeof(RectTransform))]
 public class UIContainer : GameSystem
 {
+    public delegate void SizeDelegate(Vector2 _size);
+    public event SizeDelegate OnResize;
+
     [System.Serializable]
     public struct FloatThreshold {
         public float min;
@@ -216,6 +219,7 @@ public class UIContainer : GameSystem
         if (_y >= 0)
             _size.y = _y;
         rect.sizeDelta = _size;
+        TryAction(OnResize);
     }
 
     private void SetPos(float _x, float _y) {
@@ -233,6 +237,12 @@ public class UIContainer : GameSystem
         if (_handle) {
             _handle.Configure(this, _loc, _uniqueId);
         }
+    }
+
+    private void TryAction(SizeDelegate _action) {
+        try {
+            _action(m_Rect.sizeDelta);
+        } catch (System.Exception) {}
     }
 #endregion
 }

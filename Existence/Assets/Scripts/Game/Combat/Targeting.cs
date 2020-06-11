@@ -169,6 +169,7 @@ public class Targeting : GameSystem
         
         if (m_AttackInput) {
             if(!m_Attacking){
+                Log("attacking");
                 m_Attacking = true;
                 if (m_Target) {
                     m_Target.nameplate.isVisible = false;

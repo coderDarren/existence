@@ -14,7 +14,8 @@
             LoginLoad,
             AccountCreation,
             CharacterCreation,
-            Inventory
+            Inventory,
+            LootPreview
         }
     }
 }

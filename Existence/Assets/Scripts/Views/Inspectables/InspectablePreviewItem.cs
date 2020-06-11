@@ -2,13 +2,12 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHandler
+public class InspectablePreviewItem : GameSystem, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Inspectable Events")]
-    public bool displayOnHover;
-    public bool displayDetail;
+    public bool displayOnHover=true;
 
-    protected ItemData m_Item;
+    protected PreviewItemData m_PreviewItem;
     protected CursorController m_Cursor;
 
     protected CursorController cursor {
@@ -23,9 +22,9 @@ public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHan
         }
     }
 
-    public ItemData item {
+    public PreviewItemData previewItem {
         get {
-            return m_Item;
+            return m_PreviewItem;
         }
     }
 
@@ -38,8 +37,8 @@ public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHan
 #region Overrideable Functions
     protected virtual void Dispose() {
         if (!cursor) return;
-        if (cursor.hoverItem == m_Item) {
-            cursor.CloseHoverItem();
+        if (cursor.hoverPreviewItem == m_PreviewItem) {
+            cursor.ClosePreviewHoverItem();
         }
     }
 #endregion
@@ -47,15 +46,14 @@ public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHan
 #region Interface Functions
     public void OnPointerEnter(PointerEventData _ped) {
         if (!displayOnHover) return;
-        if (m_Item == null) return;
+        if (m_PreviewItem == null) return;
         if (!cursor) return;
-        cursor.OpenHoverItem(m_Item);
+        cursor.OpenPreviewHoverItem(m_PreviewItem);
     }
 
     public void OnPointerExit(PointerEventData _ped) {
         if (!displayOnHover) return;
-        if (m_Item == null) return;
-        cursor.CloseHoverItem();
+        cursor.ClosePreviewHoverItem();
     }
 #endregion
 }
