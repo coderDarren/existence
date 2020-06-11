@@ -34,13 +34,6 @@ public class InventorySlot : InspectableItem
         }
     }
 
-#region Unity Functions
-    private void OnDisable() {
-        InventorySlot.OnGrab -= OnSomeSlotGrab;
-        InventorySlot.OnDrop -= OnSomeSlotDrop;
-    }
-#endregion
-
 #region Public Functions
     public void Init(int _id) {
         m_Id = _id;
@@ -130,6 +123,14 @@ public class InventorySlot : InspectableItem
         } catch (System.Exception _e) {
             Debug.LogWarning(_e);
         }
+    }
+#endregion
+
+#region Override Functions
+    protected override void Dispose() {
+        base.Dispose();
+        InventorySlot.OnGrab -= OnSomeSlotGrab;
+        InventorySlot.OnDrop -= OnSomeSlotDrop;
     }
 #endregion
 

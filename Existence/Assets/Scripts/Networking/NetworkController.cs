@@ -59,6 +59,11 @@ public class NetworkController : GameSystem
     public event MobDeathAction OnMobDeath;
 #endregion
 
+#region LOOT NETWORK EVENTS
+    public delegate void MobLootedAction(NetworkMobLootData _data);
+    public event MobLootedAction OnMobLooted;
+#endregion
+
     public bool usePredictiveSmoothing=true;
 
     private SocketIOComponent m_Network;
@@ -88,6 +93,9 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_MOB_HEALTH_CHANGE = "MOB_HEALTH_CHANGE";
     private static readonly string NETMSG_PLAYER_HIT_MOB_CONFIRMATION = "PLAYER_HIT_MOB_CONFIRMATION";
     private static readonly string NETMSG_MOB_DEATH = "MOB_DEATH";
+    private static readonly string NETMSG_PLAYER_LOOT_MOB = "PLAYER_LOOT_MOB";
+    private static readonly string NETMSG_MOB_LOOTED = "MOB_LOOTED";
+    private static readonly string NETMSG_MOB_LOOT_LOCKED = "PLAYER_MOB_LOOT_LOCKED";
 
     public bool IsConnected { get { return m_Network.IsConnected; } }
 
@@ -121,6 +129,7 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_MOB_ATTACK_START, OnNetworkMobAttackStart);
         m_Network.On(NETMSG_PLAYER_HIT_MOB_CONFIRMATION, OnNetworkPlayerHitMobConfirmation);
         m_Network.On(NETMSG_MOB_DEATH, OnNetworkMobDeath);
+        m_Network.On(NETMSG_MOB_LOOTED, OnNetworkMobLooted);
     }
 
     private void OnDisable() {
@@ -268,6 +277,13 @@ public class NetworkController : GameSystem
         TryRunAction(OnMobDeath, _data);
     }
 
+    private void OnNetworkMobLooted(SocketIOEvent _evt) {
+        Log("Mob died");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkMobLootData _data = NetworkMobLootData.FromJsonStr<NetworkMobLootData>(_msg);
+        TryRunAction(OnMobLooted, _data);
+    }
+
     private void TryRunAction(BasicAction _action) {
         try {
             _action();
@@ -328,6 +344,12 @@ public class NetworkController : GameSystem
         } catch (System.Exception) {}
     }
 
+    private void TryRunAction(MobLootedAction _action, NetworkMobLootData _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception) {}
+    }
+
     private void SendString(string _id, string _data) {
         //Log("Sending {\"message\":\""+_data+"\"} to "+_id);
         m_Network.Emit(_id, new JSONObject("{\"message\":\""+_data+"\"}"));
@@ -371,6 +393,10 @@ public class NetworkController : GameSystem
 
     public void AddInventory(ItemData _data) {
         SendNetworkData<ItemData>(NETMSG_ADD_INVENTORY, _data);
+    }
+
+    public void LootMob(NetworkPlayerLootData _data) {
+        SendNetworkData<NetworkPlayerLootData>(NETMSG_PLAYER_LOOT_MOB, _data);
     }
 #endregion
 }

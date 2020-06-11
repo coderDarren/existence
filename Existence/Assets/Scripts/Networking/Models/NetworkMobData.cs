@@ -19,9 +19,10 @@ public class NetworkMobAttackData : NetworkModel {
 
 public class NetworkMobDeathData : NetworkModel {
     public string id;
+    public string name;
     public string[] lootRights; // array of player names who can loot
     public NetworkMobXpAllottment[] xpAllottment;
-    public int[] loot; // array of item ids
+    public NetworkLootPreviewData[] lootPreview; // array of item previews
 }
 
 public class NetworkMobXpAllottment : NetworkModel {
@@ -41,6 +42,8 @@ public class NetworkMobData : NetworkModel {
     public float aggroRange;
     public bool inAttackRange;
     public bool inCombat;
+    public bool dead;
+    public NetworkLootPreviewData[] lootPreview;
     public NetworkVector3 pos;
     public NetworkVector3 rot;
 
