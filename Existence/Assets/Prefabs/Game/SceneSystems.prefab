@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 4165373000529096115}
   - component: {fileID: 4165373000529096117}
   - component: {fileID: 4165373000529096118}
+  - component: {fileID: 258803863}
+  - component: {fileID: 8316695769862257116}
   m_Layer: 0
   m_Name: SceneSystems
   m_TagString: Untagged
@@ -45,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7069da2ee86b244469438264c695d8c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debug: 1
+  debug: 0
   networkDummyObject: {fileID: 7807772897173288439, guid: 01e8db82f1370054b83706631d0514a8,
     type: 3}
   networkPlayerObject: {fileID: 5853695264267390177, guid: c68758ad7f811a640869cf44f16e989f,
@@ -84,3 +86,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 1
+--- !u!114 &258803863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4165373000529096114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23bf3fd0bab1e8a4f8510ca30e9fb711, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+  entityHandler: {fileID: 4165373000529096115}
+  pageManager: {fileID: 0}
+  previewPage: {fileID: 0}
+--- !u!114 &8316695769862257116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4165373000529096114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23bf3fd0bab1e8a4f8510ca30e9fb711, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+  entityHandler: {fileID: 4165373000529096115}
+  pageManager: {fileID: 0}
+  previewPage: {fileID: 0}
