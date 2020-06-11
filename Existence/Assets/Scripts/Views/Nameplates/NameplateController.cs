@@ -8,6 +8,7 @@ using UnityEngine;
 public class NameplateController : GameSystem
 {
     public static NameplateController instance;
+    public Camera uiCam;
 
     public RectTransform container;
     public GameObject nameplate;
@@ -34,16 +35,21 @@ public class NameplateController : GameSystem
             Selectable _s = (Selectable)_entry.Value;
             Nameplate _n = (Nameplate)m_Nameplates[_entry.Key];
 
-            _n.SetPos(Camera.main.WorldToScreenPoint(_s.transform.position + _s.nameplateOffset));
+            Vector3 _screen = Camera.main.WorldToScreenPoint(_s.transform.position + _s.nameplateOffset);
+            _screen.z = (container.transform.position - uiCam.transform.position).magnitude;
+            _n.SetPos(uiCam.ScreenToWorldPoint(_screen));
             float _dist = Vector3.Distance(Camera.main.transform.position, _s.transform.position);
             _n.SetAlpha(1 - (_dist - maxViewableDistance) / fadeDistance);
             _n.SetScale(minScale + (1 - _dist / scaleDistance) * (maxScale - minScale));
             _n.SetName(_s.nameplate.name);
             _n.SetHealthBar(_s.nameplate.maxHealth, _s.nameplate.health);
+            
             SkinnedMeshRenderer _renderer = _s.GetComponentInChildren<SkinnedMeshRenderer>();
             if ((_renderer && !_renderer.isVisible) || !_s.nameplate.isVisible) {
                 _n.SetAlpha(0);
             }
+
+            _n.SetHealthbarVisibility(_s.nameplate.displayHealth);
         }
     }
 #endregion

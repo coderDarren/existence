@@ -19,7 +19,7 @@ public class Selectable : GameSystem
     }
 
 #region Protected Functions
-    protected void UpdateNameplate(string _name, int _health, int _maxHealth, bool _displayHealth=true) {
+    protected void UpdateNameplate(string _name, int _health, int _maxHealth, bool _displayHealth=false) {
         nameplate.name = _name;
         nameplate.health = _health;
         nameplate.maxHealth = _maxHealth;
