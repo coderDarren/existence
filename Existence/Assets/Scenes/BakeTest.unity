@@ -210,7 +210,6 @@ GameObject:
   - component: {fileID: 262240428}
   - component: {fileID: 262240432}
   - component: {fileID: 262240431}
-  - component: {fileID: 262240430}
   - component: {fileID: 262240429}
   m_Layer: 0
   m_Name: OverlayUICam
@@ -264,36 +263,6 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
---- !u!114 &262240430
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 262240427}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7226465a8c661b242bc0287d82e41c98, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  debug: 1
-  target: {fileID: 0}
-  positionOffset: {x: 0, y: 2.25, z: -3}
-  rotationOffset: {x: 15, y: 0, z: 0}
-  movementSmoothing: 20
-  rotationSmoothing: 20
-  usePositionSmoothing: 0
-  useRotationSmoothing: 0
-  zoomSmoothing: 100
-  collisionLayer:
-    serializedVersion: 2
-    m_Bits: 4097
-  collisionPadding: 0.8
-  leftClickTurnSpeed: 10
-  minimumInspectAngle: -50
-  maximumInspectAngle: 40
-  minZoom: -1
-  maxZoom: -8
 --- !u!81 &262240431
 AudioListener:
   m_ObjectHideFlags: 0
@@ -9004,6 +8973,7 @@ GameObject:
   - component: {fileID: 4165373001393732116}
   - component: {fileID: 4165373001393732119}
   - component: {fileID: 8316695769519976061}
+  - component: {fileID: 4165373001393732118}
   m_Layer: 0
   m_Name: SceneSystems
   m_TagString: Untagged
@@ -9043,6 +9013,20 @@ Transform:
   m_Father: {fileID: 2484249371432895749}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4165373001393732118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4165373001393732115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92a27419853914a44b1eb11868486157, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 1
+  maxTargetCycleSize: 2
 --- !u!114 &4165373001393732119
 MonoBehaviour:
   m_ObjectHideFlags: 0

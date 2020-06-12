@@ -15,7 +15,21 @@ public class NameplateController : GameSystem
     public float minScale=0.5f;
     public float maxScale=1;
 
+    private TargetController m_TargetController;
     private Hashtable m_Selectables;
+    private Selectable m_MainTarget;
+
+    private TargetController targetController {
+        get {
+            if (!m_TargetController) {
+                m_TargetController = TargetController.instance;
+            }
+            if (!m_TargetController) {
+                LogWarning("Trying to access targets, but no instance of TargetController was found.");
+            }
+            return m_TargetController;
+        }
+    }
 
 #region Unity Functions
     private void Awake() {
@@ -25,17 +39,38 @@ public class NameplateController : GameSystem
         }
     }
 
+    private void Start() {
+        if (targetController) {
+            targetController.OnTargetSelected += OnTargetSelected;
+            targetController.OnTargetDeselected += OnTargetDeselected;
+        }
+    }
+
+    private void OnDisable() {
+        if (targetController) {
+            targetController.OnTargetSelected -= OnTargetSelected;
+            targetController.OnTargetDeselected -= OnTargetDeselected;
+        }
+    }
+
     private void Update() {
+        if (instance != this) {
+            LogError("Too many NameplateControllers are in your scene. Remove from "+gameObject.name+" or "+instance.gameObject.name);
+            return;
+        }
+
         foreach(DictionaryEntry _entry in m_Selectables) {
             Selectable _s = (Selectable)_entry.Value;
             Nameplate _n = _s.nameplate;
 
             float _dist = Vector3.Distance(Camera.main.transform.position, _s.transform.position);
-            _n.SetAlpha(1 - (_dist - maxViewableDistance) / fadeDistance);
+            if (!m_MainTarget || m_MainTarget != _s) {
+                _n.SetAlpha(0.15f - (_dist - maxViewableDistance) / fadeDistance);
+                _n.SetHealthbarVisibility(_s.nameplateData.displayHealth);
+            }
             _n.SetScale(minScale + (_dist / scaleDistance) * (maxScale - minScale));
             _n.SetName(_s.nameplateData.name);
             _n.SetHealthBar(_s.nameplateData.maxHealth, _s.nameplateData.health);
-            _n.SetHealthbarVisibility(_s.nameplateData.displayHealth || true);
         }
     }
 #endregion
@@ -53,6 +88,22 @@ public class NameplateController : GameSystem
 
         if (!m_Selectables.ContainsKey(_id)) return; // not tracking
         m_Selectables.Remove(_id);
+    }
+#endregion
+
+#region Private Functions
+    private void OnTargetSelected(Selectable _s) {
+        Log("nameplate selected");
+        Nameplate _n = _s.nameplate;
+        _n.SetAlpha(1);
+        _n.SetHealthbarVisibility(true);
+        m_MainTarget = _s;
+    }
+    
+    private void OnTargetDeselected(Selectable _s) {
+        Log("nameplate deselected");
+        Nameplate _n = _s.nameplate;
+        m_MainTarget = null;
     }
 #endregion
 }

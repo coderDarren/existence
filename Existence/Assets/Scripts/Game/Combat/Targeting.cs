@@ -12,6 +12,7 @@ public class Targeting : GameSystem
     public float specialTimer;
     public float projectileSpeed;
 
+    private TargetController m_TargetController;
     private Player m_Player;
     private Animator m_Animator;
     private PlayerController m_PlayerController;
@@ -22,22 +23,16 @@ public class Targeting : GameSystem
     private ParticleSystem.Particle[] m_CurrentParticle;
     private Mob m_CurrentTarget;
     public Mob m_Target;
-    private Mob[] m_Targets;
     private Material bladeMat;
-    private float[] m_Distances;
     private float specialRecharge;
     private int m_Amount;
     private Vector3 m_Position;
     private Vector3 m_ParticlePos; 
     private bool m_AttackInput;
-    private bool m_CycleTarget;
     private bool m_CancelTarget;
     private bool m_Attacking;
-    private bool m_Targeting;
     private bool m_SpecialInput;
-    private int m_TargetNum;
     private int m_ParticleNum;
-    
 
     public bool attacking {
         get {
@@ -47,6 +42,18 @@ public class Targeting : GameSystem
     public bool specialInput {
         get {
             return m_SpecialInput;
+        }
+    }
+
+    private TargetController targetController {
+        get {
+            if (!m_TargetController) {
+                m_TargetController = TargetController.instance;
+            }
+            if (!m_TargetController) {
+                LogWarning("Trying to access targets, but no instance of TargetController was found.");
+            }
+            return m_TargetController;
         }
     }
 
@@ -79,126 +86,66 @@ public class Targeting : GameSystem
         m_CurrentParticle = new ParticleSystem.Particle[1000];
         RechargeTimer(specialTimer);
         
+        if (targetController) {
+            targetController.OnTargetSelected += OnTargetSelected;
+            targetController.OnTargetDeselected += OnTargetDeselected;
+        }
+    }
+
+    private void OnDisable() {
+        if (targetController) {
+            targetController.OnTargetSelected -= OnTargetSelected;
+            targetController.OnTargetDeselected -= OnTargetDeselected;
+        }
     }
 
     private void Update(){   
-        /*GetInput();     
-        if(m_CycleTarget){
-            Search();
-        }
-        if(m_Target != null || m_CurrentTarget != null) m_Targeting = true;
-        else m_Targeting = false;
-
+        GetInput();     
         specialRecharge += Time.deltaTime;
         if(specialRecharge >= specialTimer){
             
         }
-        Select();
         Attack();
         ProjectileMove();
         
         if(m_SpecialInput) SpecialAttack(m_Special);
-        */
-        
     }
 
 #region Private Functions 
     private void GetInput() {
         m_AttackInput = Input.GetKeyDown(attack);
-        m_CycleTarget = Input.GetKeyDown(KeyCode.Tab);
         m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
         m_SpecialInput = Input.GetKeyDown(KeyCode.Alpha1);
     }
 
-    private void Search(){
-        m_Position = transform.position;
-        m_Targets = NetworkEntityHandler.instance.mobs.ToArray();
-        m_Distances = new float[m_Targets.Length];
-
-        for(int i=0; i < m_Targets.Length; i++){
-            m_Distances[i] = Vector3.Distance(m_Targets[i].transform.position, m_Position);
-        }
-
-        Array.Sort(m_Distances, m_Targets);
-        
-        if(m_Targets.Length != m_Amount){
-            FindTarget(m_Targets);
-            m_Amount = m_Targets.Length;           
-        }
-        else{
-            CycleTarget();    
-        }
-    }
-
-    private void Select() {
-        Selectable _s = SelectionController.instance.selection;
-        if (_s && _s.GetType().IsAssignableFrom(typeof(Mob))) {
-            if (m_CurrentTarget) {
-                m_CurrentTarget.nameplateData.isVisible = false;
-            }
-            m_CurrentTarget = (Mob)_s;
-        }
-
-        if (m_Target) {
-            m_Target.nameplateData.isVisible = true;
-        }
-        
-        if (m_CurrentTarget) {
-            m_CurrentTarget.nameplateData.isVisible = true;
-        }
-    }
-
-    private void FindTarget(Mob[] _targets){
-        m_CurrentTarget = _targets[0];
-        m_Targets = new Mob[_targets.Length];
-        m_Targets = _targets;
-    }
-    
-    private void CycleTarget(){
-        if (m_CurrentTarget) {
-            m_CurrentTarget.nameplateData.isVisible = false;
-        }
-        m_CurrentTarget = m_Targets[m_TargetNum];
-        m_TargetNum++;
-        if(m_TargetNum >= m_Targets.Length)
-            m_TargetNum = 0;
-    }    
-
     private void Attack(){
-        
-        
         if (m_AttackInput) {
             if(!m_Attacking){
-                Log("attacking");
                 m_Attacking = true;
-                if (m_Target) {
-                    m_Target.nameplateData.isVisible = false;
-                }
-                m_Target = m_CurrentTarget;
                 m_Animator.SetBool(m_Player.weapon.ToString(), true);
-                
             }
             else {
                 m_Attacking = false;
-                CancelTarget(ref m_Target);
                 m_Animator.SetBool(m_Player.weapon.ToString(), false);  
             }
         }
         if(m_CancelTarget || !m_Target){
-            Cancel();
             m_Attacking = false;
             m_Animator.SetBool(m_Player.weapon.ToString(), false);
         }
     } 
 
+    private void OnTargetSelected(Selectable _s) {
+        m_Target = (Mob)_s;
+    }
+    
+    private void OnTargetDeselected(Selectable _s) {
+        m_Target = null;
+    }
+
     public void SpecialAttack(Special _special){
 
         Debug.Log("Attempting to use special");
-        if(!m_Targeting){
-            Debug.Log("You have no target");
-            return;
-        }
-        if(m_Target == null)m_Target = m_CurrentTarget;
         
         if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
             Debug.Log("Too far away");
