@@ -133,6 +133,7 @@ public class NetworkController : GameSystem
     }
 
     private void OnDisable() {
+        if (!m_Network) return;
         m_Network.Close();
     }
 #endregion
