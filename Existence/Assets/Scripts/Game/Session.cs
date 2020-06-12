@@ -195,7 +195,7 @@ public class Session : GameSystem
         _playerData.player = new PlayerInfo();
         _playerData.player.name = "Tester";
         _playerData.sessionData.posX = -21;
-        _playerData.sessionData.posY = 33;
+        _playerData.sessionData.posY = 35;
         _playerData.sessionData.posZ = 275;
         InitGame(_playerData);
     }

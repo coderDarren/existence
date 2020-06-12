@@ -5,13 +5,13 @@ using UnityEngine;
 public class SpecialEntrance : StateMachineBehaviour
 {
     private Player m_Player;
-    private Targeting m_Targeting;
+    private PlayerCombatController m_PlayerCombat;
     
    
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        m_Targeting = GameObject.FindGameObjectWithTag("Player").GetComponent<Targeting>();
+        m_PlayerCombat = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCombatController>();
         
     }
 
@@ -24,7 +24,7 @@ public class SpecialEntrance : StateMachineBehaviour
    
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-       animator.SetBool(m_Targeting.m_Special.ToString(), false);
+       animator.SetBool(m_PlayerCombat.m_Special.ToString(), false);
        
        if(animator.GetBool(m_Player.weapon.ToString()) == false){
             animator.SetBool(m_Player.weapon.ToString(), true);

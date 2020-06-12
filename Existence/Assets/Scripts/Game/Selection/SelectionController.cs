@@ -34,13 +34,13 @@ public class SelectionController : GameSystem
 #region Private Functions
     private void HitCheck() {
         if (m_Selection) {
-            m_Selection.nameplate.isVisible = false;
+            m_Selection.nameplateData.isVisible = false;
         }
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out m_HitInfo)) {
             Selectable _s = m_HitInfo.collider.gameObject.GetComponent<Selectable>();
             if (!_s) return;
             
-            _s.nameplate.isVisible = true;
+            _s.nameplateData.isVisible = true;
             m_Selection = _s;
         }
     }

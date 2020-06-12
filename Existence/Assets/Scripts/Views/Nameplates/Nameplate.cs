@@ -9,14 +9,20 @@ public class Nameplate : GameSystem
     public static event UpdateDelegate OnNameplateUpdated;
 
     public Text nameLabel;
+    public Text nameLabelShadow;
     public Image healthBar;
+    public CanvasGroup healthBarCanvas;
+    public LayerMask foregroundLayer;
+    public LayerMask backgroundLayer;
 
+    private Canvas m_ParentCanvas;
     private CanvasGroup m_Canvas;
     public Vector3 target;
     public Vector3 offset;
 
 #region Unity Functions
     private void Awake() {
+        m_ParentCanvas = transform.parent.GetComponent<Canvas>();
         m_Canvas = GetComponent<CanvasGroup>();
     }
 
@@ -35,14 +41,25 @@ public class Nameplate : GameSystem
 
     public void SetName(string _name) {
         nameLabel.text = _name;
-    }
-
-    public void SetPos(Vector3 _pos) {
-        transform.position = _pos;
+        nameLabelShadow.text = _name;
     }
 
     public void SetHealthBar(int _max, int _curr) {
         healthBar.fillAmount = _curr / (float)_max;
+    }
+
+    public void SetHealthbarVisibility(bool _visible) {
+        healthBarCanvas.alpha = _visible ? 1 : 0;
+    }
+
+    public void BringToForeground() {
+        //m_ParentCanvas.sortingOrder = 1000;
+        transform.parent.gameObject.layer = LayerMask.NameToLayer("UI_Secondary");
+    }
+
+    public void PushToBackground() {
+        //m_ParentCanvas.sortingOrder = 0;
+        transform.parent.gameObject.layer = LayerMask.NameToLayer("Default");
     }
 #endregion
 
