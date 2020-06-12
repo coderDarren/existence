@@ -10,5 +10,6 @@
         health = _health;
         maxHealth = _maxHealth;
         displayHealth = _displayHealth;
+        isVisible = true;
     }
 }

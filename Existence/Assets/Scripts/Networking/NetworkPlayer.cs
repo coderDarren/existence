@@ -95,8 +95,8 @@ public class NetworkPlayer : Selectable
             m_PlayerController = GetComponent<PlayerController>();
             m_Targeting = GetComponent<Targeting>();
             m_Player = GetComponent<Player>();
-            m_Nameplate = new NameplateData();
-            m_Nameplate.name = m_Player.data.player.name;
+            m_NameplateData = new NameplateData();
+            m_NameplateData.name = m_Player.data.player.name;
             NameplateController.instance.TrackSelectable(this);
         }
     }
@@ -113,8 +113,8 @@ public class NetworkPlayer : Selectable
 #region Public Functions
     public void Init(NetworkPlayerData _data) {
         if (isClient) return;
-        m_Nameplate = new NameplateData();
-        m_Nameplate.name = _data.name;
+        m_NameplateData = new NameplateData();
+        m_NameplateData.name = _data.name;
         m_TargetPos = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
         m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
         transform.position = m_TargetPos;

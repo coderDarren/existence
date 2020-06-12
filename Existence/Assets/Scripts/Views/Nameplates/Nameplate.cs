@@ -40,11 +40,6 @@ public class Nameplate : GameSystem
         nameLabelShadow.text = _name;
     }
 
-    public void SetPos(Vector3 _pos) {
-        transform.position = _pos;
-        transform.localRotation = Quaternion.identity;
-    }
-
     public void SetHealthBar(int _max, int _curr) {
         healthBar.fillAmount = _curr / (float)_max;
     }

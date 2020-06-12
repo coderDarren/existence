@@ -82,7 +82,7 @@ public class Targeting : GameSystem
     }
 
     private void Update(){   
-        GetInput();     
+        /*GetInput();     
         if(m_CycleTarget){
             Search();
         }
@@ -98,7 +98,7 @@ public class Targeting : GameSystem
         ProjectileMove();
         
         if(m_SpecialInput) SpecialAttack(m_Special);
-        
+        */
         
     }
 
@@ -134,17 +134,17 @@ public class Targeting : GameSystem
         Selectable _s = SelectionController.instance.selection;
         if (_s && _s.GetType().IsAssignableFrom(typeof(Mob))) {
             if (m_CurrentTarget) {
-                m_CurrentTarget.nameplate.isVisible = false;
+                m_CurrentTarget.nameplateData.isVisible = false;
             }
             m_CurrentTarget = (Mob)_s;
         }
 
         if (m_Target) {
-            m_Target.nameplate.isVisible = true;
+            m_Target.nameplateData.isVisible = true;
         }
         
         if (m_CurrentTarget) {
-            m_CurrentTarget.nameplate.isVisible = true;
+            m_CurrentTarget.nameplateData.isVisible = true;
         }
     }
 
@@ -156,7 +156,7 @@ public class Targeting : GameSystem
     
     private void CycleTarget(){
         if (m_CurrentTarget) {
-            m_CurrentTarget.nameplate.isVisible = false;
+            m_CurrentTarget.nameplateData.isVisible = false;
         }
         m_CurrentTarget = m_Targets[m_TargetNum];
         m_TargetNum++;
@@ -172,7 +172,7 @@ public class Targeting : GameSystem
                 Log("attacking");
                 m_Attacking = true;
                 if (m_Target) {
-                    m_Target.nameplate.isVisible = false;
+                    m_Target.nameplateData.isVisible = false;
                 }
                 m_Target = m_CurrentTarget;
                 m_Animator.SetBool(m_Player.weapon.ToString(), true);
@@ -288,7 +288,7 @@ public class Targeting : GameSystem
 
     private void CancelTarget(ref Mob _target) {
         if (_target) {
-            _target.nameplate.isVisible = false;
+            _target.nameplateData.isVisible = false;
         }
         _target = null;  
     }

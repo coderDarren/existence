@@ -6,24 +6,26 @@ using UnityEngine;
 /// </summary>
 public class Selectable : GameSystem
 {
-    public Vector3 nameplateOffset;
-    protected NameplateData m_Nameplate;
+    public Nameplate nameplate;
 
-    public NameplateData nameplate {
+    protected NameplateData m_NameplateData;
+
+    public NameplateData nameplateData {
         get {
-            if (m_Nameplate == null) {
+            if (m_NameplateData == null) {
                 LogWarning("Trying to return nameplate, but it has not been initialized yet.");
             }
-            return m_Nameplate;
+            return m_NameplateData;
         }
     }
 
 #region Protected Functions
     protected void UpdateNameplate(string _name, int _health, int _maxHealth, bool _displayHealth=false) {
-        nameplate.name = _name;
-        nameplate.health = _health;
-        nameplate.maxHealth = _maxHealth;
-        nameplate.displayHealth = _displayHealth;
+        nameplateData.name = _name;
+        nameplateData.health = _health;
+        nameplateData.maxHealth = _maxHealth;
+        nameplateData.displayHealth = _displayHealth;
+        nameplateData.isVisible = true;
     }
 #endregion
 }
