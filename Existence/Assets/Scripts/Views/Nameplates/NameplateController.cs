@@ -17,7 +17,6 @@ public class NameplateController : GameSystem
 
     private TargetController m_TargetController;
     private Hashtable m_Selectables;
-    private Selectable m_MainTarget;
 
     private TargetController targetController {
         get {
@@ -64,9 +63,10 @@ public class NameplateController : GameSystem
             Nameplate _n = _s.nameplate;
 
             float _dist = Vector3.Distance(Camera.main.transform.position, _s.transform.position);
-            if (!m_MainTarget || m_MainTarget != _s) {
+            if (!_s.selected) {
                 _n.SetAlpha(0.15f - (_dist - maxViewableDistance) / fadeDistance);
                 _n.SetHealthbarVisibility(_s.nameplateData.displayHealth);
+                _n.PushToBackground();
             }
             _n.SetScale(minScale + (_dist / scaleDistance) * (maxScale - minScale));
             _n.SetName(_s.nameplateData.name);
@@ -92,18 +92,18 @@ public class NameplateController : GameSystem
 #endregion
 
 #region Private Functions
-    private void OnTargetSelected(Selectable _s) {
-        Log("nameplate selected");
+    private void OnTargetSelected(Selectable _s, bool _primary) {
         Nameplate _n = _s.nameplate;
-        _n.SetAlpha(1);
+        _n.SetAlpha(_primary ? 1 : 0.5f);
         _n.SetHealthbarVisibility(true);
-        m_MainTarget = _s;
+        _n.BringToForeground();
+        _s.selected = true;
     }
     
-    private void OnTargetDeselected(Selectable _s) {
-        Log("nameplate deselected");
+    private void OnTargetDeselected(Selectable _s, bool _primary) {
         Nameplate _n = _s.nameplate;
-        m_MainTarget = null;
+        _n.PushToBackground();
+        _s.selected = false;
     }
 #endregion
 }

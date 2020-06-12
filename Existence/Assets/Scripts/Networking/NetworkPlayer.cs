@@ -27,7 +27,7 @@ public class NetworkPlayer : Selectable
     private NetworkPlayerData m_ClientData;
     private NetworkPlayerData m_LastFrameData;
     private PlayerController m_PlayerController;
-    private Targeting m_Targeting;
+    private PlayerCombatController m_PlayerCombat;
     private Player m_Player;
     private Animator m_Animator;
     private float m_InitialRunning;
@@ -93,7 +93,7 @@ public class NetworkPlayer : Selectable
         m_Animator = GetComponent<Animator>();
         if (isClient) {
             m_PlayerController = GetComponent<PlayerController>();
-            m_Targeting = GetComponent<Targeting>();
+            m_PlayerCombat = GetComponent<PlayerCombatController>();
             m_Player = GetComponent<Player>();
             m_NameplateData = new NameplateData();
             m_NameplateData.name = m_Player.data.player.name;
@@ -193,11 +193,11 @@ public class NetworkPlayer : Selectable
         m_ClientData.input.running = m_PlayerController.runAnimation;
         m_ClientData.input.strafing = m_PlayerController.strafeAnimation;
         m_ClientData.input.grounded = m_PlayerController.grounded;
-        m_ClientData.input.attacking = m_Targeting.attacking;
+        m_ClientData.input.attacking = m_PlayerCombat.attacking;
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
         m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");
-        m_ClientData.input.special = m_Animator.GetBool(m_Targeting.m_Special.ToString());
-        m_ClientData.specialName = m_Targeting.m_Special.ToString(); 
+        m_ClientData.input.special = m_Animator.GetBool(m_PlayerCombat.m_Special.ToString());
+        m_ClientData.specialName = m_PlayerCombat.m_Special.ToString(); 
         m_ClientData.weaponName = m_Player.weapon.ToString();
         m_ClientData.maxHealth = m_Player.MaxHealth();
 

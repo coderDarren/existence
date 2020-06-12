@@ -5,11 +5,12 @@ public class TargetController : GameSystem
 {
     public static TargetController instance;
 
-    public delegate void TargetDelegate(Selectable _s);
+    public delegate void TargetDelegate(Selectable _s, bool _primary);
     public event TargetDelegate OnTargetSelected;
     public event TargetDelegate OnTargetDeselected;
 
 #region external systems
+    private PlayerCombatController m_PlayerCombat;
     private NetworkEntityHandler m_EntityHandler;
 
     // with integrity!
@@ -22,6 +23,19 @@ public class TargetController : GameSystem
                 LogWarning("Trying to access entities, but no instance of NetworkEntityHandler was found.");
             }
             return m_EntityHandler;
+        }
+    }
+
+    // with integrity!
+    private PlayerCombatController playerCombat {
+        get {
+            if (!m_PlayerCombat) {
+                m_PlayerCombat = PlayerCombatController.instance;
+            }
+            if (!m_PlayerCombat) {
+                LogWarning("Trying to access player combat, but no instance of PlayerCombatController was found.");
+            }
+            return m_PlayerCombat;
         }
     }
 #endregion
@@ -55,9 +69,20 @@ public class TargetController : GameSystem
         }
     }
 
+    private void Start() {
+        if (instance != this) return;
+
+        if (entityHandler) {
+            entityHandler.OnMobDidDie += OnMobDidDie;
+        }
+    }
+
     private void OnDisable() {
         if (instance == this) {
             instance = null;
+            if (entityHandler) {
+                entityHandler.OnMobDidDie -= OnMobDidDie;
+            }
         }
     }
 
@@ -69,6 +94,7 @@ public class TargetController : GameSystem
 
         GetInput();
         ProcessInput();
+        UpdateTargetState();
     }
 #endregion
 
@@ -98,6 +124,11 @@ public class TargetController : GameSystem
 
         Transform _player = GameObject.FindGameObjectWithTag("Player").transform;
         foreach(Mob _m in entityHandler.mobs) {
+            // ignore dead mobs
+            if (_m.data.dead) {
+                continue;
+            }
+
             // get the distance from the player to the mob
             float _dist = Vector3.Distance(_player.position, _m.transform.position);
 
@@ -138,24 +169,75 @@ public class TargetController : GameSystem
         m_CycleIndex++;
         if (m_CycleIndex >= m_ClosestMobs.Count) {
             m_CycleIndex = 0;
-        }
+        }  
 
-        if (m_PrimaryTarget != null) {
-            TryAction(OnTargetDeselected, m_PrimaryTarget);
-        }
+        // update the primary target if the player is not attacking
+        if (!playerCombat.attacking) {
+            // deselect the last primary target if needed
+            if (m_PrimaryTarget != null) {
+                TryAction(OnTargetDeselected, m_PrimaryTarget, true);
+            }
+            m_PrimaryTarget = (Selectable)m_ClosestMobs[m_CycleIndex];
+            TryAction(OnTargetSelected, m_PrimaryTarget, true);
+        } 
+        // otherwise, update the secondary target as long as this cycle is not on the primary target
+        else {
+            // cycle one more time if we are targeting the primary target
+            if ((Selectable)m_ClosestMobs[m_CycleIndex] == m_PrimaryTarget) {
+                m_CycleIndex++;
+                if (m_CycleIndex >= m_ClosestMobs.Count) {
+                    m_CycleIndex = 0;
+                }  
+            }
 
-        m_PrimaryTarget = (Selectable)m_ClosestMobs[m_CycleIndex];
-        TryAction(OnTargetSelected, m_PrimaryTarget);
+            // if we are still on primary target, exit
+            if ((Selectable)m_ClosestMobs[m_CycleIndex] == m_PrimaryTarget) {
+                return;
+            }
+
+            // deselect the last secondary target if needed
+            if (m_SecondaryTarget != null) {
+                TryAction(OnTargetDeselected, m_SecondaryTarget, false);
+            }
+            m_SecondaryTarget = (Selectable)m_ClosestMobs[m_CycleIndex];
+            TryAction(OnTargetSelected, m_SecondaryTarget, false);
+        }
     }
 
     private void Cancel() {
-        TryAction(OnTargetDeselected, m_PrimaryTarget);
+        TryAction(OnTargetDeselected, m_PrimaryTarget, true);
+        TryAction(OnTargetDeselected, m_SecondaryTarget, false);
     }
 
-    private void TryAction(TargetDelegate _action, Selectable _s) {
+    private void UpdateTargetState() {
+        if (m_PrimaryTarget != null) {
+            if (((Mob)m_PrimaryTarget).data.dead) {
+                if (m_SecondaryTarget != null) {
+                    m_PrimaryTarget = m_SecondaryTarget;
+                    m_SecondaryTarget = null;
+                    TryAction(OnTargetSelected, m_PrimaryTarget, true);
+                    TryAction(OnTargetDeselected, m_SecondaryTarget, true);
+                } else {
+                    m_PrimaryTarget = null;
+                    TryAction(OnTargetDeselected, m_PrimaryTarget, true);
+                }
+            }
+        } else if (m_SecondaryTarget != null) {
+            m_PrimaryTarget = m_SecondaryTarget;
+            m_SecondaryTarget = null;
+            TryAction(OnTargetSelected, m_PrimaryTarget, true);
+            TryAction(OnTargetDeselected, m_SecondaryTarget, true);
+        }
+    }
+
+    private void OnMobDidDie(Mob _m) {
+        TryAction(OnTargetDeselected, (Selectable)_m, false);
+    }
+
+    private void TryAction(TargetDelegate _action, Selectable _s, bool _primary) {
         if (_s == null) return;
         try {
-            _action(_s);
+            _action(_s, _primary);
         } catch (System.Exception) {}
     }
 #endregion

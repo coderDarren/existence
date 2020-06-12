@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class Targeting : GameSystem
+public class PlayerCombatController : GameSystem
 {
+    public static PlayerCombatController instance;
+
     public float radius;
     public KeyCode attack;
     public enum Special {chargeShot, quickSlice};
@@ -15,14 +17,13 @@ public class Targeting : GameSystem
     private TargetController m_TargetController;
     private Player m_Player;
     private Animator m_Animator;
-    private PlayerController m_PlayerController;
     private ParticleSystem[] m_Glow;
     private ParticleSystem[] m_Effect;
     private ParticleSystem[] m_Charge;
     private ParticleSystem[] m_Projectile;
     private ParticleSystem.Particle[] m_CurrentParticle;
     private Mob m_CurrentTarget;
-    public Mob m_Target;
+    private Mob m_Target;
     private Material bladeMat;
     private float specialRecharge;
     private int m_Amount;
@@ -45,6 +46,12 @@ public class Targeting : GameSystem
         }
     }
 
+    public Mob target {
+        get {
+            return m_Target;
+        }
+    }
+
     private TargetController targetController {
         get {
             if (!m_TargetController) {
@@ -57,12 +64,20 @@ public class Targeting : GameSystem
         }
     }
 
+    private void Awake() {
+        if (!instance) {
+            instance = this;
+        }
+    }
+
     private void Start()
     {
+        if (instance != this) return;
+
         m_Amount = 0;
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
-        m_PlayerController = GetComponent<PlayerController>();
+
         try{
             m_Charge = transform.FindDeepChild("Charge").GetComponentsInChildren<ParticleSystem>();
         } catch (System.Exception _e) {
@@ -97,9 +112,15 @@ public class Targeting : GameSystem
             targetController.OnTargetSelected -= OnTargetSelected;
             targetController.OnTargetDeselected -= OnTargetDeselected;
         }
+        if (instance == this) {
+            instance = null;
+        }
     }
 
     private void Update(){   
+        if (instance != this) return;
+
+        //m_Target = (Mob)targetController.primaryTarget;
         GetInput();     
         specialRecharge += Time.deltaTime;
         if(specialRecharge >= specialTimer){
@@ -135,12 +156,16 @@ public class Targeting : GameSystem
         }
     } 
 
-    private void OnTargetSelected(Selectable _s) {
-        m_Target = (Mob)_s;
+    private void OnTargetSelected(Selectable _s, bool _primary) {
+        if (_primary) {
+            m_Target = (Mob)_s;
+        }
     }
     
-    private void OnTargetDeselected(Selectable _s) {
-        m_Target = null;
+    private void OnTargetDeselected(Selectable _s, bool _primary) {
+        if (_primary) {
+            m_Target = null;
+        }
     }
 
     public void SpecialAttack(Special _special){
@@ -169,7 +194,7 @@ public class Targeting : GameSystem
                 }
             } catch (System.Exception _e){
             }
-            m_PlayerController.GetComponent<Targeting>().m_Target.Hit(25);
+            m_Target.Hit(25);
             ChargeEffects(); 
             
         }
@@ -242,7 +267,7 @@ public class Targeting : GameSystem
 
     public void AttackEnd(){        
         if(!m_Target) return;
-        m_PlayerController.GetComponent<Targeting>().m_Target.Hit(50);         
+        m_Target.Hit(50);         
     }
 #endregion
 }

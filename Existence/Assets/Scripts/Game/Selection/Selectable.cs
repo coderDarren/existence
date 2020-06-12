@@ -7,6 +7,7 @@ using UnityEngine;
 public class Selectable : GameSystem
 {
     public Nameplate nameplate;
+    public bool selected;
 
     protected NameplateData m_NameplateData;
 
