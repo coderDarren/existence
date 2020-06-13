@@ -68,8 +68,8 @@ public class Mob : Selectable
         m_Animator = GetComponent<Animator>();
         m_Collider = GetComponent<CapsuleCollider>();
         m_Data = _data;
-        m_Nameplate = new NameplateData();
-        m_Nameplate.name = m_Data.name;
+        m_NameplateData = new NameplateData();
+        m_NameplateData.name = m_Data.name;
         m_Controller = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
 
         transform.rotation = Quaternion.Euler(_data.rot.x, _data.rot.y, _data.rot.z);

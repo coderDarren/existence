@@ -27,7 +27,7 @@ public class NetworkPlayer : Selectable
     private NetworkPlayerData m_ClientData;
     private NetworkPlayerData m_LastFrameData;
     private PlayerController m_PlayerController;
-    private Targeting m_Targeting;
+    private PlayerCombatController m_PlayerCombat;
     private Player m_Player;
     private Animator m_Animator;
     private float m_InitialRunning;
@@ -93,10 +93,10 @@ public class NetworkPlayer : Selectable
         m_Animator = GetComponent<Animator>();
         if (isClient) {
             m_PlayerController = GetComponent<PlayerController>();
-            m_Targeting = GetComponent<Targeting>();
+            m_PlayerCombat = GetComponent<PlayerCombatController>();
             m_Player = GetComponent<Player>();
-            m_Nameplate = new NameplateData();
-            m_Nameplate.name = m_Player.data.player.name;
+            m_NameplateData = new NameplateData();
+            m_NameplateData.name = m_Player.data.player.name;
             NameplateController.instance.TrackSelectable(this);
         }
     }
@@ -113,8 +113,8 @@ public class NetworkPlayer : Selectable
 #region Public Functions
     public void Init(NetworkPlayerData _data) {
         if (isClient) return;
-        m_Nameplate = new NameplateData();
-        m_Nameplate.name = _data.name;
+        m_NameplateData = new NameplateData();
+        m_NameplateData.name = _data.name;
         m_TargetPos = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
         m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
         transform.position = m_TargetPos;
@@ -193,11 +193,11 @@ public class NetworkPlayer : Selectable
         m_ClientData.input.running = m_PlayerController.runAnimation;
         m_ClientData.input.strafing = m_PlayerController.strafeAnimation;
         m_ClientData.input.grounded = m_PlayerController.grounded;
-        m_ClientData.input.attacking = m_Targeting.attacking;
+        m_ClientData.input.attacking = m_PlayerCombat.attacking;
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
         m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");
-        m_ClientData.input.special = m_Animator.GetBool(m_Targeting.m_Special.ToString());
-        m_ClientData.specialName = m_Targeting.m_Special.ToString(); 
+        m_ClientData.input.special = m_Animator.GetBool(m_PlayerCombat.m_Special.ToString());
+        m_ClientData.specialName = m_PlayerCombat.m_Special.ToString(); 
         m_ClientData.weaponName = m_Player.weapon.ToString();
         m_ClientData.maxHealth = m_Player.MaxHealth();
 
