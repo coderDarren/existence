@@ -9,6 +9,7 @@ public class Mob : Selectable
 
     public float smooth;
     public LayerMask ground;
+    public float y_offset;
 
     private NetworkController m_Network;
     private NetworkMobData m_Data;
@@ -19,6 +20,7 @@ public class Mob : Selectable
     private Vector3 m_TargetPos;
     private Vector3 m_InitialRot;
     private Vector3 m_TargetRot;
+    private Vector3 m_RotOffset;
     private Vector3 m_LastFramePos;
     private float m_UpdateTimer;
 
@@ -55,7 +57,7 @@ public class Mob : Selectable
         m_UpdateTimer += Time.deltaTime;
         
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / smooth);
-        transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialRot), Quaternion.Euler(m_TargetRot), m_UpdateTimer / smooth);
+        transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialRot), Quaternion.Euler(m_TargetRot - m_RotOffset), m_UpdateTimer / smooth);
         FindGroundPos();
         DetectMoveAnimation();
     }
@@ -75,6 +77,7 @@ public class Mob : Selectable
         FindGroundPos();
         m_InitialRot = transform.eulerAngles;
         m_InitialPos = transform.position;
+        m_RotOffset = new Vector3(0,y_offset, 0);
         m_TargetRot = m_InitialPos;
         m_TargetPos = m_InitialPos;
         m_UpdateTimer = smooth + 1;
