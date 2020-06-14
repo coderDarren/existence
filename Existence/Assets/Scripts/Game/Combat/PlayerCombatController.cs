@@ -172,7 +172,7 @@ public class PlayerCombatController : GameSystem
                 StopAutoAttack(); 
             }
         }
-        if(m_CancelTarget || !m_Target) {
+        if ((m_CancelTarget || !m_Target) && m_Attacking) {
             StopAutoAttack(); 
         }
     } 
@@ -200,6 +200,7 @@ public class PlayerCombatController : GameSystem
         if(specialRecharge >= specialTimer){     // All the events that happen when you use your special successfully     
             specialRecharge = 0;            
             StartAutoAttack();
+            m_Animator.SetBool(m_Special.ToString(), true);
             try{
                 for(int i = 0; i < m_Effect.Length; i++){
                     ParticleSystem m_currentSystem = m_Effect[i];

@@ -66,7 +66,7 @@ public class LootPreviewPage : Page
 #endregion
 
 #region Public Functions
-    public void OnLootAdd(Mob _mob) {
+    public void AddLoot(Mob _mob) {
         if (m_Previews.ContainsKey(_mob)) return;
         GameObject _obj = Instantiate(LootPreview);
         RectTransform _rect = _obj.GetComponent<RectTransform>();
@@ -79,7 +79,7 @@ public class LootPreviewPage : Page
         RestartFlashNotification();
     }
 
-    public void OnLootRemove(Mob _mob) {
+    public void RemoveLoot(Mob _mob) {
         if (!m_Previews.ContainsKey(_mob)) return;
         GameObject _obj = (GameObject)m_Previews[_mob];
         m_Previews.Remove(_mob);
