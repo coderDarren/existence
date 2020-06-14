@@ -6,6 +6,8 @@ public class PlayerInfo : NetworkModel {
     public int level;
     public int xp;
     public int statPoints;
+    public int health;
+    public int maxHealth;
 }
 
 public class PlayerSessionData : NetworkModel {

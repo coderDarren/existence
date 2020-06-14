@@ -235,7 +235,7 @@ public class Chatbox : GameSystem
     }
 
     private void OnChat(string _msg) {
-        chatBox.text += "\n"+_msg;
+        chatBox.text += "\n<color=#0f0>"+_msg+"</color>";
     }
 
     private void OnPlayerXpAdded(int _xp) {
