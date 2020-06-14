@@ -30,7 +30,8 @@ public class LootPreviewMobSection : MonoBehaviour
         int _dist = (int)Vector3.Distance(m_Player.position, m_Mob.transform.position);
         float _progress = _dist / 25.0f;
         distance.text = _dist+"m";
-        distance.color = Color.Lerp(Color.green, Color.red, _progress);
+        //distance.color = Color.Lerp(Color.green, Color.red, _progress);
+        distance.color = _dist > 10 ? Color.red : Color.green;
     }
 #endregion
 

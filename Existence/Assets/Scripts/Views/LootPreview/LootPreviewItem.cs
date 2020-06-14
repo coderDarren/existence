@@ -53,7 +53,12 @@ public class LootPreviewItem : InspectablePreviewItem, IPointerClickHandler
         if (!m_Mob) return;
         if (m_PreviewItem == null) return;
         if (m_Mob.data.id == _data.mobID && m_PreviewItem.id == _data.itemID) {
-            Destroy(gameObject);
+            int _lootCount = transform.parent.childCount;
+            if (_lootCount == 2) {
+                Destroy(transform.parent.parent.gameObject);
+            } else {
+                Destroy(gameObject);
+            }
         }
     }
 #endregion

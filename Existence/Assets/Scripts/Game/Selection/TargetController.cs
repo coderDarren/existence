@@ -67,7 +67,7 @@ public class TargetController : GameSystem
 #endregion
 
 #region state
-    private int m_CycleIndex;
+    private int m_CycleIndex=-1;
 #endregion
 
     private RaycastHit m_MouseHitInfo;
