@@ -1327,6 +1327,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   nameplate: {fileID: 3466836608369318363}
+  selected: 0
   isClient: 1
   sendRate: 0.2
   idleDetectionSeconds: 2
@@ -1377,7 +1378,6 @@ MonoBehaviour:
   m_Special: 1
   specialTimer: 10
   projectileSpeed: 1
-  m_Target: {fileID: 0}
 --- !u!136 &690467565503056997
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4982,6 +4982,12 @@ MonoBehaviour:
   nameLabelShadow: {fileID: 8097252625031837443}
   healthBar: {fileID: 7125331489036608136}
   healthBarCanvas: {fileID: 716509020088104817}
+  foregroundLayer:
+    serializedVersion: 2
+    m_Bits: 16384
+  backgroundLayer:
+    serializedVersion: 2
+    m_Bits: 1
   target: {x: 0, y: 0, z: 0}
   offset: {x: 0, y: 0, z: 0}
 --- !u!1 &7551570804144133079
