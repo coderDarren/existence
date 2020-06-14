@@ -167,7 +167,12 @@ public class NetworkPlayer : Selectable
         UpdateNameplate(_data.name, _data.health, _data.maxHealth);
         
         m_LastFrameData = _data;
-        
+    }
+
+    public void UpdatePlayerHealth(NetworkPlayerHitInfo _data) {
+        if (!isClient) return;
+        m_Player.data.player.health = _data.health;
+        Log("updating player health: "+_data.health);
     }
 #endregion
 
@@ -175,7 +180,6 @@ public class NetworkPlayer : Selectable
     // Player controlled by this client
     private void UpdateClient() {
         if (!network) return;
-                
 
         if (ClientHasNotChanged()) {
             m_IdleTimer += Time.deltaTime;
@@ -200,6 +204,7 @@ public class NetworkPlayer : Selectable
         m_ClientData.specialName = m_PlayerCombat.m_Special.ToString(); 
         m_ClientData.weaponName = m_Player.weapon.ToString();
         m_ClientData.maxHealth = m_Player.MaxHealth();
+        m_ClientData.health = m_Player.data.player.health;
 
         UpdateNameplate(m_ClientData.name, m_ClientData.health, m_ClientData.maxHealth);
       
@@ -250,11 +255,6 @@ public class NetworkPlayer : Selectable
         Log("Network Delta: "+_diff);
         m_Smooth = _diff / 1000.0f;
     }
-
-    
-
-    
-
     
 #endregion
 

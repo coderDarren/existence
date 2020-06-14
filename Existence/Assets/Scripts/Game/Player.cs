@@ -22,6 +22,9 @@ public class Player : GameSystem
     private StatData m_TrickleStats;
     private Session m_Session;
     private InventoryPage m_InventoryWindow;
+    private int healDelta = 5;
+    private float healDeltaTimer = 0;
+    private float healDeltaSeconds = 1;
 
     public PlayerData data {
         get {
@@ -66,6 +69,12 @@ public class Player : GameSystem
         }
     }
 
+#region Unity Functions
+    private void Update() {
+        HandleHealDelta();
+    }
+#endregion
+
 #region Public Functions
     /// <summary>
     /// Call from session when network connects
@@ -73,6 +82,7 @@ public class Player : GameSystem
     public void ConnectWithData(PlayerData _data) {
         Dispose();
         m_Data = _data;
+        m_Data.player.health = MaxHealth();
         m_GearStats = new StatData();
         m_BuffStats = new StatData();
         m_TrickleStats = new StatData();
@@ -126,7 +136,7 @@ public class Player : GameSystem
     }
 
     public int MaxHealth() {
-        return m_Data.player.level * 100;
+        return m_Data.player.level * 25;
     }
 
     public void AddInventory(ItemData _item) {
@@ -155,6 +165,15 @@ public class Player : GameSystem
     private int StatPointReward() {
         int _factor = (m_Data.player.level / 10) + 1;
         return _factor * 30;
+    }
+
+    private void HandleHealDelta() {
+        healDeltaTimer += Time.deltaTime;
+        if (healDeltaTimer >= healDeltaSeconds) {
+            m_Data.player.health += healDelta;
+            m_Data.player.health = Mathf.Clamp(m_Data.player.health, 0, MaxHealth());
+            healDeltaTimer = 0;
+        }
     }
 
     private void OnMobDeath(NetworkMobDeathData _data) {

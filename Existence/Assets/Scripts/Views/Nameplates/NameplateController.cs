@@ -94,7 +94,11 @@ public class NameplateController : GameSystem
 #region Private Functions
     private void OnTargetSelected(Selectable _s, bool _primary) {
         Nameplate _n = _s.nameplate;
-        _n.SetAlpha(_primary ? 1 : 0.5f);
+        if (_s.GetType().IsAssignableFrom(typeof(Mob))) {
+            _n.SetAlpha(_primary ? 1 : 0.5f);
+        } else {
+            _n.SetAlpha(1);
+        }
         _n.SetHealthbarVisibility(true);
         _n.BringToForeground();
         _s.selected = true;

@@ -93,6 +93,7 @@ public class NetworkEntityHandler : GameSystem
         network.OnMobAttack += OnMobAttack;
         network.OnPlayerSpawn += OnPlayerSpawn;
         network.OnPlayerExit += OnPlayerExit;
+        network.OnPlayerHit += OnPlayerHit;
         network.OnMobSpawn += OnMobSpawn;
         network.OnMobExit += OnMobExit;
         network.OnMobAttackRangeStateChange += OnMobAttackRangeStateChange;
@@ -109,6 +110,7 @@ public class NetworkEntityHandler : GameSystem
         network.OnMobAttack -= OnMobAttack;
         network.OnPlayerSpawn -= OnPlayerSpawn;
         network.OnPlayerExit -= OnPlayerExit;
+        network.OnPlayerHit -= OnPlayerHit;
         network.OnMobSpawn -= OnMobSpawn;
         network.OnMobExit -= OnMobExit;
         network.OnMobAttackRangeStateChange -= OnMobAttackRangeStateChange;
@@ -149,6 +151,18 @@ public class NetworkEntityHandler : GameSystem
         RemovePlayer(_player);
     }
 
+    private void OnPlayerLeft(NetworkPlayerData _data) {
+        NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_data.name];
+        if (_player == null) return;
+        RemovePlayer(_player);
+    }
+
+    private void OnPlayerHit(NetworkPlayerHitInfo _data) {
+        if (session.player.data.player.name == _data.playerName) {
+            session.player.data.player.health = _data.health;
+        }
+    }
+
     private void OnMobSpawn(NetworkMobData _mob) {
         SpawnMob(_mob);
     }
@@ -168,12 +182,6 @@ public class NetworkEntityHandler : GameSystem
         Mob _mob = (Mob)m_MobsHash[_name];
         _mob.Die(_data);
         TryAction(OnMobDidDie, _mob);
-    }
-
-    private void OnPlayerLeft(NetworkPlayerData _data) {
-        NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_data.name];
-        if (_player == null) return;
-        RemovePlayer(_player);
     }
 
     private void OnInstanceUpdated(NetworkInstanceData _instance) {
