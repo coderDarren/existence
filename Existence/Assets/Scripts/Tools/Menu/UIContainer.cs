@@ -58,7 +58,7 @@ public class UIContainer : GameSystem
     private Canvas canvas {
         get {
             if (!m_Canvas) {
-                m_Canvas = GameObject.FindObjectOfType<Canvas>();
+                m_Canvas = GameObject.FindGameObjectWithTag("GameUI").GetComponent<Canvas>();
             }
             return m_Canvas;
         }

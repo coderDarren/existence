@@ -37,21 +37,21 @@ public class LootManager : GameSystem
         if (!_mob.data.dead) return;
         if (!MobHasLoot(_mob)) return;
         CheckLootPreviewIntegrity();
-        previewPage.OnLootAdd(_mob);
+        previewPage.AddLoot(_mob);
     }
 
     // track freshly dead mobs
     private void OnMobDidDie(Mob _mob) {
         if (!MobHasLoot(_mob)) return;
         CheckLootPreviewIntegrity();
-        previewPage.OnLootAdd(_mob);
+        previewPage.AddLoot(_mob);
     }
 
     // track out of range loot
     private void OnMobDidExit(Mob _mob) {
         if (!MobHasLoot(_mob)) return;
         CheckLootPreviewIntegrity();
-        previewPage.OnLootRemove(_mob);
+        previewPage.RemoveLoot(_mob);
     }
 
     // call to ensure page is on

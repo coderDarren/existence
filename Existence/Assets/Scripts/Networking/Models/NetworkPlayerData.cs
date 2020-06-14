@@ -4,6 +4,7 @@ public class NetworkPlayerHitInfo : NetworkModel {
     public string mobName; 
     public string playerName;
     public int dmg;
+    public int health;
 }
 
 /// <summary>

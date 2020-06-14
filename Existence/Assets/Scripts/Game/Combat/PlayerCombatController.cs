@@ -64,6 +64,7 @@ public class PlayerCombatController : GameSystem
         }
     }
 
+#region Unity Functions
     private void Awake() {
         if (!instance) {
             instance = this;
@@ -120,42 +121,22 @@ public class PlayerCombatController : GameSystem
     private void Update(){   
         if (instance != this) return;
 
-        //m_Target = (Mob)targetController.primaryTarget;
         GetInput();     
-        specialRecharge += Time.deltaTime;
-        if(specialRecharge >= specialTimer){
-            
-        }
         Attack();
         ProjectileMove();
-        
-        if(m_SpecialInput) SpecialAttack(m_Special);
+        SpecialAttack(m_Special);
+        CheckCombatIntegrity();
     }
+#endregion
+
+#region Public Functions
+    public void AttackEnd(){        
+        if(!m_Target) return;
+        m_Target.Hit(50);         
+    }
+#endregion
 
 #region Private Functions 
-    private void GetInput() {
-        m_AttackInput = Input.GetKeyDown(attack);
-        m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
-        m_SpecialInput = Input.GetKeyDown(KeyCode.Alpha1);
-    }
-
-    private void Attack(){
-        if (m_AttackInput) {
-            if(!m_Attacking){
-                m_Attacking = true;
-                m_Animator.SetBool(m_Player.weapon.ToString(), true);
-            }
-            else {
-                m_Attacking = false;
-                m_Animator.SetBool(m_Player.weapon.ToString(), false);  
-            }
-        }
-        if(m_CancelTarget || !m_Target){
-            m_Attacking = false;
-            m_Animator.SetBool(m_Player.weapon.ToString(), false);
-        }
-    } 
-
     private void OnTargetSelected(Selectable _s, bool _primary) {
         if (_primary) {
             m_Target = (Mob)_s;
@@ -168,17 +149,57 @@ public class PlayerCombatController : GameSystem
         }
     }
 
-    public void SpecialAttack(Special _special){
+    private void CheckCombatIntegrity() {
+        // if mob dies stop attacking
+        Mob _m = (Mob)m_Target;
+        if ((!_m || _m.data.dead) && m_Attacking) {
+            StopAutoAttack(); 
+        }
+    }
 
+    private void GetInput() {
+        m_AttackInput = Input.GetKeyDown(attack);
+        m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
+        m_SpecialInput = Input.GetKeyDown(KeyCode.Alpha1);
+    }
+
+    private void Attack(){
+        if (m_AttackInput) {
+            if(!m_Attacking){
+                StartAutoAttack();
+            }
+            else {
+                StopAutoAttack(); 
+            }
+        }
+        if ((m_CancelTarget || !m_Target) && m_Attacking) {
+            StopAutoAttack(); 
+        }
+    } 
+
+    private void StartAutoAttack() {
+        m_Attacking = true;
+        m_Animator.SetBool(m_Player.weapon.ToString(), true);
+    }
+
+    private void StopAutoAttack() {
+        m_Attacking = false;
+        m_Animator.SetBool(m_Player.weapon.ToString(), false); 
+    }
+
+    private void SpecialAttack(Special _special) {
+        specialRecharge += Time.deltaTime;
+        if (!m_SpecialInput) return;
         Debug.Log("Attempting to use special");
         
         if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
             Debug.Log("Too far away");
             return;
         }
+        
         if(specialRecharge >= specialTimer){     // All the events that happen when you use your special successfully     
             specialRecharge = 0;            
-            m_Attacking = true;
+            StartAutoAttack();
             m_Animator.SetBool(m_Special.ToString(), true);
             try{
                 for(int i = 0; i < m_Effect.Length; i++){
@@ -201,7 +222,7 @@ public class PlayerCombatController : GameSystem
         else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialTimer - specialRecharge) +" seconds");
     }
 
-    public void RechargeTimer(float _specialTimer){
+    private void RechargeTimer(float _specialTimer){
         specialTimer = _specialTimer;
         specialRecharge = _specialTimer;
         ChargeEffects();
@@ -250,24 +271,6 @@ public class PlayerCombatController : GameSystem
             }
         }   catch(System.Exception _e){
             }
-    }
-    private void Cancel() {
-        CancelTarget(ref m_Target);
-        //CancelTarget(ref m_CurrentTarget);
-        SelectionController.instance.selection = null;
-        m_Animator.SetBool(m_Player.weapon.ToString(), false); 
-    }
-
-    private void CancelTarget(ref Mob _target) {
-        if (_target) {
-            _target.nameplateData.isVisible = false;
-        }
-        _target = null;  
-    }
-
-    public void AttackEnd(){        
-        if(!m_Target) return;
-        m_Target.Hit(50);         
     }
 #endregion
 }
