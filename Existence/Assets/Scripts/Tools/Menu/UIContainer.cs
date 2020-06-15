@@ -76,6 +76,7 @@ public class UIContainer : GameSystem
         ConfigureHandle(leftResizer, UIHandle.HandleLoc.LEFT, uniqueId);
         ConfigureHandle(bottomResizer, UIHandle.HandleLoc.BOTTOM, uniqueId);
         ConfigureHandle(rightResizer, UIHandle.HandleLoc.RIGHT, uniqueId);
+        FitToScreen();
     }
 #endregion
 
@@ -112,6 +113,20 @@ public class UIContainer : GameSystem
 #endregion
 
 #region Private Functions
+    private void FitToScreen() {
+        float _width = rect.sizeDelta.x;
+        float _height = rect.sizeDelta.y;
+        Vector2 _bottomLeft = rect.transform.position;
+        Vector2 _topRight = new Vector2(_bottomLeft.x + _width, _bottomLeft.y + _height);
+        float _scaledRightRef = (_bottomLeft.x/canvas.scaleFactor+_width);
+        // !! TODO
+        /*if (_scaledRightRef > Screen.width/canvas.scaleFactor) {
+            Vector3 _pos = rect.transform.position;
+            _pos.x = (Screen.width/canvas.scaleFactor) - _width;
+            rect.transform.position = _pos;
+        }*/
+    }
+
     private void ResizeTopLeft(Vector2 _pos) {
         ResizeTop(_pos);
         ResizeLeft(_pos);
