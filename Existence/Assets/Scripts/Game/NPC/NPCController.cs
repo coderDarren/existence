@@ -12,9 +12,8 @@ public class NPCController : MonoBehaviour
     public float jumpSpeed = 8.0f;
     public float gravity = 20.0f;
     public Vector3[] rallyPoint;
-    public int rallyDelay;
+    public int rallyDelay;    
     public GameObject target;
-  
 
     private CharacterController m_Controller;
     private Animator m_Animator;
@@ -129,7 +128,7 @@ public class NPCController : MonoBehaviour
         }        
     }
 
-    public async void Clicked() {        
+    public async void OnTriggerEnter() {        
         player = GameObject.FindWithTag("Player");
         playerPos = player.transform.position;
         playerDir = currentPos - playerPos;
@@ -140,7 +139,8 @@ public class NPCController : MonoBehaviour
         gotClicked = false;
         lookRotation = Quaternion.LookRotation(direction);
         m_ForwardInput = 0.2f;
-        turnSpeed = 1.0f;          
+        turnSpeed = 1.0f;
+        m_Animator.SetTrigger("Approached");          
         
 
     }

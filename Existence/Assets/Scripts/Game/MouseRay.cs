@@ -28,7 +28,7 @@ public class MouseRay : MonoBehaviour
         if(Input.GetMouseButtonDown(1)){
             if(Physics.Raycast(mouseRay, out hit, 5.0f)){                
                 if(hit.collider.tag == ("NPC")){
-                    hit.collider.gameObject.GetComponent<NPCController>().Clicked();
+                    //hit.collider.gameObject.GetComponent<NPCController>().Clicked();
                     
                     rightHit = true;                    
                 }
