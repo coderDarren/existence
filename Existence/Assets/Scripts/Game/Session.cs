@@ -100,7 +100,7 @@ public class Session : GameSystem
         }
 
         // params (audioType, fadeIn(optional, default=false), maxVolume(optional, default=1), delay(optional, default=0))
-        AudioController.instance.PlayAudio(UnityCore.Audio.AudioType.ST_01, true, 0.15f, 0.0f);
+        //AudioController.instance.PlayAudio(UnityCore.Audio.AudioType.ST_01, true, 0.15f, 0.0f);
 
         if (!network) return;
         network.OnConnect += OnServerConnect;

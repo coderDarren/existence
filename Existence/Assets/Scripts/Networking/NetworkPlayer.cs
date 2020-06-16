@@ -172,7 +172,6 @@ public class NetworkPlayer : Selectable
     public void UpdatePlayerHealth(NetworkPlayerHitInfo _data) {
         if (!isClient) return;
         m_Player.data.player.health = _data.health;
-        Log("updating player health: "+_data.health);
     }
 #endregion
 

@@ -6,6 +6,10 @@ using UnityCore.Menu;
 public class HUDPage : Page
 {
     public Image xpProgress;
+    public Image hpProgress;
+    public Text hpLabel;
+    public Text nameLabel;
+    public Text infoLabel;
 
     private Session m_Session;
 
@@ -22,6 +26,14 @@ public class HUDPage : Page
         }
     }
 
+#region Unity Functions
+    private void Update() {
+        if (!session || session.player == null) return;
+        hpProgress.fillAmount = session.player.HpProgress();
+        hpLabel.text = session.player.data.player.health + "/" +session.player.MaxHealth();
+    }
+#endregion
+
 #region Private Functions
     private void Configure() {
         xpProgress.fillAmount = session.player.XpProgress();
@@ -30,6 +42,8 @@ public class HUDPage : Page
     private void OnPlayerConnected() {
         session.player.OnXpAdded += OnPlayerXpAdded;
         xpProgress.fillAmount = session.player.XpProgress();
+        UpdateShadowedText(nameLabel, session.player.data.player.name);
+        UpdateShadowedText(infoLabel, "LV. " + session.player.data.player.level + " Soldier");
     }
 
     private void OnPlayerDisconnected() {
@@ -38,6 +52,13 @@ public class HUDPage : Page
 
     private void OnPlayerXpAdded(int _xp) {
         xpProgress.fillAmount = session.player.XpProgress();
+    }
+
+    private void UpdateShadowedText(Text _t, string _content) {
+        Text[] _texts = _t.GetComponentsInChildren<Text>();
+        foreach (Text _text in _texts) {
+            _text.text = _content;
+        }
     }
 #endregion
     
