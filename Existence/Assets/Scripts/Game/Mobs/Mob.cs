@@ -7,6 +7,7 @@ public class Mob : Selectable
     public delegate void MobDelegate(Mob _mob);
     public static event MobDelegate OnMobInit;
 
+    public bool nonetwork;
     public float smooth;
     public LayerMask ground;
     public float y_offset;
@@ -52,7 +53,7 @@ public class Mob : Selectable
 
     private void Update() {
         //Test();
-        
+        if (nonetwork) return;
         if (m_UpdateTimer > smooth) return;
         m_UpdateTimer += Time.deltaTime;
         
@@ -82,7 +83,7 @@ public class Mob : Selectable
         m_TargetPos = m_InitialPos;
         m_UpdateTimer = smooth + 1;
 
-        UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth);
+        UpdateNameplate(m_Data.name, m_Data.health, m_Data.maxHealth, m_Data.level);
         UpdateCombatState(_data);
         UpdateAttackRangeState(_data);
         if (_data.dead) {
@@ -120,7 +121,7 @@ public class Mob : Selectable
     }
 
     public void UpdateHealth(NetworkMobData _data) {
-        UpdateNameplate(m_Data.name, _data.health, m_Data.maxHealth);
+        UpdateNameplate(m_Data.name, _data.health, m_Data.maxHealth, m_Data.level);
     }
 
     public void Attack() {

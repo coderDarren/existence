@@ -101,7 +101,9 @@ public class PlayerCombatController : GameSystem
         }
         m_CurrentParticle = new ParticleSystem.Particle[1000];
         RechargeTimer(specialTimer);
-        
+    }
+
+    private void OnEnable() {
         if (targetController) {
             targetController.OnTargetSelected += OnTargetSelected;
             targetController.OnTargetDeselected += OnTargetDeselected;
@@ -138,12 +140,14 @@ public class PlayerCombatController : GameSystem
 
 #region Private Functions 
     private void OnTargetSelected(Selectable _s, bool _primary) {
+        Log("SELECTED");
         if (_primary) {
             m_Target = (Mob)_s;
         }
     }
     
     private void OnTargetDeselected(Selectable _s, bool _primary) {
+        Log("DESELECTED");
         if (_primary) {
             m_Target = null;
         }

@@ -9,7 +9,7 @@ public class Selectable : GameSystem
     public Nameplate nameplate;
     public bool selected;
 
-    protected NameplateData m_NameplateData;
+    public NameplateData m_NameplateData;
 
     public NameplateData nameplateData {
         get {
@@ -21,12 +21,13 @@ public class Selectable : GameSystem
     }
 
 #region Protected Functions
-    protected void UpdateNameplate(string _name, int _health, int _maxHealth, bool _displayHealth=false) {
+    protected void UpdateNameplate(string _name, int _lvl, int _health, int _maxHealth, bool _displayHealth=false) {
         nameplateData.name = _name;
         nameplateData.health = _health;
         nameplateData.maxHealth = _maxHealth;
         nameplateData.displayHealth = _displayHealth;
         nameplateData.isVisible = true;
+        nameplateData.lvl = _lvl;
     }
 #endregion
 }

@@ -284,7 +284,9 @@ public class TargetController : GameSystem
         if (_s == null) return;
         try {
             _action(_s, _primary);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            LogWarning(_e.Message);
+        }
     }
 #endregion
 }

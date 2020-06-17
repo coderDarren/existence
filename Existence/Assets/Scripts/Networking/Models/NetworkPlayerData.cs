@@ -28,6 +28,7 @@ public class NetworkPlayerData : NetworkModel
     public int maxHealth;
     public int energy;
     public int maxEnergy;
+    public int lvl;
 
     public NetworkPlayerData() {
         input = new NetworkPlayerInput();
