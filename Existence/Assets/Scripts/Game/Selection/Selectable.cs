@@ -21,12 +21,13 @@ public class Selectable : GameSystem
     }
 
 #region Protected Functions
-    protected void UpdateNameplate(string _name, int _health, int _maxHealth, bool _displayHealth=false) {
-        nameplateData.name = _name;
-        nameplateData.health = _health;
-        nameplateData.maxHealth = _maxHealth;
-        nameplateData.displayHealth = _displayHealth;
-        nameplateData.isVisible = true;
+    protected void UpdateNameplate(string _name, int _health, int _maxHealth, int _lvl, bool _displayHealth=false) {
+        m_NameplateData.name = _name;
+        m_NameplateData.health = _health;
+        m_NameplateData.maxHealth = _maxHealth;
+        m_NameplateData.displayHealth = _displayHealth;
+        m_NameplateData.isVisible = true;
+        m_NameplateData.lvl = _lvl;
     }
 #endregion
 }

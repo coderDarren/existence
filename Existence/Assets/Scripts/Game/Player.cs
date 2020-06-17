@@ -135,6 +135,10 @@ public class Player : GameSystem
         return m_Data.player.xp / MaxXp();
     }
 
+    public float HpProgress() {
+        return m_Data.player.health / (float)MaxHealth();
+    }
+
     public int MaxHealth() {
         return m_Data.player.level * 25;
     }

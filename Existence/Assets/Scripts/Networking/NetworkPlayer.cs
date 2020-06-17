@@ -164,7 +164,7 @@ public class NetworkPlayer : Selectable
         
         m_UpdateTimer = 0;
 
-        UpdateNameplate(_data.name, _data.health, _data.maxHealth);
+        UpdateNameplate(_data.name, _data.health, _data.maxHealth, _data.lvl);
         
         m_LastFrameData = _data;
     }
@@ -172,7 +172,6 @@ public class NetworkPlayer : Selectable
     public void UpdatePlayerHealth(NetworkPlayerHitInfo _data) {
         if (!isClient) return;
         m_Player.data.player.health = _data.health;
-        Log("updating player health: "+_data.health);
     }
 #endregion
 
@@ -205,8 +204,9 @@ public class NetworkPlayer : Selectable
         m_ClientData.weaponName = m_Player.weapon.ToString();
         m_ClientData.maxHealth = m_Player.MaxHealth();
         m_ClientData.health = m_Player.data.player.health;
+        m_ClientData.lvl = m_Player.data.player.level;
 
-        UpdateNameplate(m_ClientData.name, m_ClientData.health, m_ClientData.maxHealth);
+        UpdateNameplate(m_ClientData.name, m_ClientData.health, m_ClientData.maxHealth, m_ClientData.lvl);
       
         m_UpdateTimer += Time.deltaTime;
         if (m_UpdateTimer >= sendRate && m_IdleTimer < idleDetectionSeconds) {
