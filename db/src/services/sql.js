@@ -411,7 +411,22 @@ class SQLController {
                         ..._params.item,
                         requirementsID: _reqStat.id,
                         effectsID: _effStat.id,
+                        itemType: _params.item.type == "weapon" ? 0 : _params.item.type == "armor" ? 1 : 2
                     });
+
+                    // create the sub props type if applicable
+                    if (_params.item.type) {
+                        const _subProps = {
+                            itemID: _newItem.dataValues.id,
+                            ..._params.item.subProps
+                        };
+
+                        switch (_params.item.type) {
+                            case "weapon": const _wep = await this._weaponItem.create(_subProps); break; 
+                            case "armor": const _armor = await this._armorItem.create(_subProps); break; 
+                            default: /* no-op */ break;
+                        }
+                    }
 
                     return {
                         data: _newItem
@@ -434,6 +449,14 @@ class SQLController {
                     }
                     if (_params.effects) {
                         await this._stat.update(_params.effects, {where: {id: _check.dataValues.effectsID}});
+                    }
+
+                    switch (_check.dataValues.itemType) {
+                        // weapons
+                        case 0: await this._weaponItem.update(_params.item.subProps, {where: {itemID: _check.dataValues.id}}); break;
+                        // armor
+                        case 1: await this._armorItem.update(_params.item.subProps, {where: {itemID: _check.dataValues.id}}); break;
+                        default: break;
                     }
 
                     return {
@@ -632,8 +655,24 @@ class SQLController {
             delete _item.dataValues.requirementsID;
             delete _item.dataValues.effectsID;
 
+            var _subItem = null;
+            switch (_item.dataValues.itemType) {
+                //weapons
+                case 0: _subItem = await this._weaponItem.findOne({where: {itemID: _item.dataValues.id}}); break;
+                //armor
+                case 1: _subItem = await this._armorItem.findOne({where: {itemID: _item.dataValues.id}}); break;
+                default: break;
+            }
+            
+            if (_subItem != null) {
+                delete _subItem.dataValues.itemID;
+                delete _subItem.dataValues.id;
+            }
+
+            const _ret = _subItem == null ? {..._item.dataValues, level: _params.ql} : {..._item.dataValues, ..._subItem.dataValues, level: _params.ql};
+
             return {
-                data: {..._item.dataValues, level: _params.ql}
+                data: _ret
             }
         } catch (_err) {
             console.log(_err);
@@ -701,6 +740,7 @@ class SQLController {
 
         // ARMOR ITEMS
         this._armorItem = this._sql.define('armorItem', {
+            itemID: DataTypes.INTEGER,
             armorType: DataTypes.INTEGER
         }, {
             timestamps: false
@@ -756,7 +796,8 @@ class SQLController {
             shopBuyable: DataTypes.TINYINT,
             stackable: DataTypes.TINYINT,
             tradeskillable: DataTypes.TINYINT,
-            icon: DataTypes.CHAR(255)
+            icon: DataTypes.CHAR(255),
+            itemType: DataTypes.INTEGER
         }, {
             timestamps: false
         });
@@ -855,7 +896,8 @@ class SQLController {
             itemID: DataTypes.INTEGER,
             weaponType: DataTypes.INTEGER,
             damageMin: DataTypes.INTEGER,
-            damageMax: DataTypes.INTEGER
+            damageMax: DataTypes.INTEGER,
+            speed: DataTypes.INTEGER
         }, {
             timestamps: false
         });
