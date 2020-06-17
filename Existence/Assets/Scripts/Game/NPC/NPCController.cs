@@ -52,7 +52,8 @@ public class NPCController : MonoBehaviour
     {    
         currentPos = transform.position;
         currentRotation = transform.rotation;
-        dirVector = new Vector3(rallyPoint[currentRally].x, currentPos.y, rallyPoint[currentRally].z);
+        if(rallyPoint.Length > 0)
+            dirVector = new Vector3(rallyPoint[currentRally].x, currentPos.y, rallyPoint[currentRally].z);
         distance = Vector3.Distance(currentPos, dirVector);      
         
         Pause();
