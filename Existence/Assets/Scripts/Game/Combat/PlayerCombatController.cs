@@ -14,7 +14,6 @@ public class PlayerCombatController : GameSystem
     public float specialTimer;
     public float projectileSpeed;
 
-    private TargetController m_TargetController;
     private Player m_Player;
     private Animator m_Animator;
     private ParticleSystem[] m_Glow;
@@ -52,25 +51,7 @@ public class PlayerCombatController : GameSystem
         }
     }
 
-    private TargetController targetController {
-        get {
-            if (!m_TargetController) {
-                m_TargetController = TargetController.instance;
-            }
-            if (!m_TargetController) {
-                LogWarning("Trying to access targets, but no instance of TargetController was found.");
-            }
-            return m_TargetController;
-        }
-    }
-
 #region Unity Functions
-    private void Awake() {
-        if (!instance) {
-            instance = this;
-        }
-    }
-
     private void Start()
     {
         if (instance != this) return;
@@ -104,17 +85,12 @@ public class PlayerCombatController : GameSystem
     }
 
     private void OnEnable() {
-        if (targetController) {
-            targetController.OnTargetSelected += OnTargetSelected;
-            targetController.OnTargetDeselected += OnTargetDeselected;
-        }
+        if (!instance) {
+            instance = this;
+        } else return;
     }
 
     private void OnDisable() {
-        if (targetController) {
-            targetController.OnTargetSelected -= OnTargetSelected;
-            targetController.OnTargetDeselected -= OnTargetDeselected;
-        }
         if (instance == this) {
             instance = null;
         }
@@ -136,22 +112,21 @@ public class PlayerCombatController : GameSystem
         if(!m_Target) return;
         m_Target.Hit(50);         
     }
-#endregion
 
-#region Private Functions 
-    private void OnTargetSelected(Selectable _s, bool _primary) {
-        Log("SELECTED");
+    public void SelectTarget(Selectable _s, bool _primary) {
         if (_primary) {
             m_Target = (Mob)_s;
         }
     }
     
-    private void OnTargetDeselected(Selectable _s, bool _primary) {
-        Log("DESELECTED");
+    public void DeselectTarget(Selectable _s, bool _primary) {
         if (_primary) {
             m_Target = null;
         }
     }
+#endregion
+
+#region Private Functions 
 
     private void CheckCombatIntegrity() {
         // if mob dies stop attacking

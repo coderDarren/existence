@@ -1,5 +1,4 @@
-﻿[System.Serializable]
-public class NameplateData {
+﻿public class NameplateData {
     public string name;
     public int health;
     public int maxHealth;

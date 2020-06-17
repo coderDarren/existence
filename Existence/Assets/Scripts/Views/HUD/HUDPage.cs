@@ -49,6 +49,18 @@ public class HUDPage : Page
         if (!session || session.player == null) return;
         hpProgress.fillAmount = session.player.HpProgress();
         hpLabel.text = session.player.data.player.health + "/" +session.player.MaxHealth();
+
+        if (mobTarget.gameObject.activeSelf == true && targets.primaryTarget != null) {
+            mobTarget.UpdateData(targets.primaryTarget.nameplateData);
+        } else if (mobTarget.gameObject.activeSelf) {
+            mobTarget.gameObject.SetActive(false);
+        }
+
+        if (otherTarget.gameObject.activeSelf == true && targets.otherTarget != null) {
+            otherTarget.UpdateData(targets.otherTarget.nameplateData);
+        } else if (otherTarget.gameObject.activeSelf) {
+            otherTarget.gameObject.SetActive(false);
+        }
     }
 #endregion
 
@@ -57,6 +69,7 @@ public class HUDPage : Page
         xpProgress.fillAmount = session.player.XpProgress();
         mobTarget.gameObject.SetActive(false);
         otherTarget.gameObject.SetActive(false);
+        OnPlayerConnected();
     }
 
     private void OnPlayerConnected() {
