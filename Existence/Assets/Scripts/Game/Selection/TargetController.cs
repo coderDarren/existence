@@ -74,9 +74,7 @@ public class TargetController : GameSystem
 
 #region Unity Functions
     private void Awake() {
-        if (!instance) {
-            instance = this;
-        }
+        instance = this;
     }
 
     private void Start() {
@@ -179,9 +177,11 @@ public class TargetController : GameSystem
             // deselect the last primary target if needed
             if (m_PrimaryTarget != null) {
                 TryAction(OnTargetDeselected, m_PrimaryTarget, true);
+                playerCombat.DeselectTarget(m_PrimaryTarget, true);
             }
             m_PrimaryTarget = (Selectable)m_ClosestMobs[m_CycleIndex];
             TryAction(OnTargetSelected, m_PrimaryTarget, true);
+            playerCombat.SelectTarget(m_PrimaryTarget, true);
         } 
         // otherwise, update the secondary target as long as this cycle is not on the primary target
         else {
@@ -201,9 +201,11 @@ public class TargetController : GameSystem
             // deselect the last secondary target if needed
             if (m_SecondaryTarget != null) {
                 TryAction(OnTargetDeselected, m_SecondaryTarget, false);
+                playerCombat.DeselectTarget(m_SecondaryTarget, false);
             }
             m_SecondaryTarget = (Selectable)m_ClosestMobs[m_CycleIndex];
             TryAction(OnTargetSelected, m_SecondaryTarget, false);
+            playerCombat.SelectTarget(m_SecondaryTarget, false);
         }
     }
 
@@ -252,6 +254,9 @@ public class TargetController : GameSystem
         TryAction(OnTargetDeselected, m_PrimaryTarget, true);
         TryAction(OnTargetDeselected, m_SecondaryTarget, false); 
         TryAction(OnTargetDeselected, m_OtherTarget, false);
+        playerCombat.DeselectTarget(m_PrimaryTarget, true);
+        playerCombat.DeselectTarget(m_SecondaryTarget, false);
+        playerCombat.DeselectTarget(m_OtherTarget, false);
     }
 
     private void UpdateTargetState() {
@@ -262,6 +267,7 @@ public class TargetController : GameSystem
                 } else {
                     m_PrimaryTarget = null;
                     TryAction(OnTargetDeselected, m_PrimaryTarget, true);
+                    playerCombat.DeselectTarget(m_PrimaryTarget, true);
                 }
             }
         } else if (m_SecondaryTarget != null) {
@@ -274,6 +280,8 @@ public class TargetController : GameSystem
         m_SecondaryTarget = null;
         TryAction(OnTargetSelected, m_PrimaryTarget, true);
         TryAction(OnTargetDeselected, m_SecondaryTarget, false);
+        playerCombat.SelectTarget(m_PrimaryTarget, true);
+        playerCombat.DeselectTarget(m_SecondaryTarget, false);
     }
 
     private void OnMobDidDie(Mob _m) {
@@ -284,7 +292,9 @@ public class TargetController : GameSystem
         if (_s == null) return;
         try {
             _action(_s, _primary);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            LogWarning(_e.Message);
+        }
     }
 #endregion
 }

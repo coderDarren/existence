@@ -853,7 +853,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83101a006a6638347a5bfd3029beac48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debug: 1
+  debug: 0
   nameLabel: {fileID: 7144274755828816315}
   nameLabelShadow: {fileID: 7468218272157382942}
   healthBar: {fileID: 7144274756070577273}
@@ -1248,12 +1248,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa8734c1d8475de4ba0330d4c529e79b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debug: 1
+  debug: 0
   nameplate: {fileID: 4676673057810517318}
+  selected: 0
   smooth: 0.2
   ground:
     serializedVersion: 2
     m_Bits: 4097
+  y_offset: 0
 --- !u!114 &3222340195006606543
 MonoBehaviour:
   m_ObjectHideFlags: 0

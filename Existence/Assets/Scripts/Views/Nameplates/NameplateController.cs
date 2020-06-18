@@ -61,7 +61,7 @@ public class NameplateController : GameSystem
         foreach(DictionaryEntry _entry in m_Selectables) {
             Selectable _s = (Selectable)_entry.Value;
             Nameplate _n = _s.nameplate;
-
+            
             float _dist = Vector3.Distance(Camera.main.transform.position, _s.transform.position);
             if (!_s.selected) {
                 _n.SetAlpha(0.15f - (_dist - maxViewableDistance) / fadeDistance);
