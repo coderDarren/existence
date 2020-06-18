@@ -1,5 +1,5 @@
 ﻿
-public class ArmorItemData
+public class ArmorItemData : ItemData
 {
     public int armorType;
 }

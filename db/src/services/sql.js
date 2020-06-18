@@ -18,6 +18,7 @@ class SQLController {
         this.getPlayer = this.getPlayer.bind(this);
         this.__define_models__ = this.__define_models__.bind(this);
         this.__validate_account__ = this.__validate_account__.bind(this);
+        this.__construct_item__ = this.__construct_item__.bind(this);
         this.getItem = this.getItem.bind(this);
 
         this.__define_models__();
@@ -48,6 +49,46 @@ class SQLController {
         }
 
         return {};
+    }
+
+    async __construct_item__(_item, _ql) {
+        _item.requirements = await this._stat.findByPk(_item.requirementsID);
+        _item.effects = await this._stat.findByPk(_item.effectsID);
+        _item.slotID = _item.slotID;
+        Object.keys(_item.requirements.dataValues).forEach((_key, _index) => {
+            if (_key.toLowerCase() != 'id') {
+                _item.requirements.dataValues[_key] *= _ql;
+            }
+        });
+        Object.keys(_item.effects.dataValues).forEach((_key, _index) => {
+            if (_key.toLowerCase() != 'id') {
+                _item.effects.dataValues[_key] *= _ql;
+            }
+        });
+        _item.level = _ql;
+        _item.requirements = _item.requirements.dataValues;
+        _item.effects = _item.effects.dataValues;
+        delete _item["requirementsID"];
+        delete _item["effectsID"];
+
+        var _subItem = null;
+        switch (_item.itemType) {
+            //weapons
+            case 0: _subItem = await this._weaponItem.findOne({where: {itemID: _item.ID}}); break;
+            //armor
+            case 1: _subItem = await this._armorItem.findOne({where: {itemID: _item.ID}}); break;
+            default: break;
+        }
+        
+        if (_subItem != null) {
+            delete _subItem.dataValues.itemID;
+            delete _subItem.dataValues.id;
+            _subItem = _subItem.dataValues;
+        }
+
+        _item = {..._item, ..._subItem}
+
+        return _item; 
     }
 
     async connect() {
@@ -147,22 +188,7 @@ class SQLController {
                 const _inventory = (await this._sql.query(`select items.*, inventorySlots.lvl as lvl, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
                     inner join inventorySlots on inventorySlots.playerID = ${_player.dataValues.id} and inventorySlots.itemID = items.ID`))[0];
                 for (var i = 0; i < _inventory.length; i++) {
-                    var _item = _inventory[i];
-                    _item.requirements = await this._stat.findByPk(_item.requirementsID);
-                    _item.effects = await this._stat.findByPk(_item.effectsID);
-                    Object.keys(_item.requirements.dataValues).forEach((_key, _index) => {
-                        if (_key.toLowerCase() != 'id') {
-                            _item.requirements.dataValues[_key] *= _item.lvl;
-                        }
-                    });
-                    Object.keys(_item.effects.dataValues).forEach((_key, _index) => {
-                        if (_key.toLowerCase() != 'id') {
-                            _item.effects.dataValues[_key] *= _item.lvl;
-                        }
-                    });
-                    _item.level = _item.lvl;
-                    delete _item["requirementsID"];
-                    delete _item["effectsID"];
+                    _inventory[i] = await this.__construct_item__(_inventory[i], _inventory[i].lvl);
                 }
                 _data.push({
                     player: _player.dataValues,
@@ -198,25 +224,8 @@ class SQLController {
             const _inventory = (await this._sql.query(`select items.*, inventorySlots.lvl as lvl, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
                 inner join inventorySlots on inventorySlots.playerID = ${_playerId} and inventorySlots.itemID = items.ID`))[0];
             for (var i = 0; i < _inventory.length; i++) {
-                var _item = _inventory[i];
-                _item.requirements = await this._stat.findByPk(_item.requirementsID);
-                _item.effects = await this._stat.findByPk(_item.effectsID);
-                _item.slotID = _item.slotID;
-                Object.keys(_item.requirements.dataValues).forEach((_key, _index) => {
-                    if (_key.toLowerCase() != 'id') {
-                        _item.requirements.dataValues[_key] *= _item.lvl;
-                    }
-                });
-                Object.keys(_item.effects.dataValues).forEach((_key, _index) => {
-                    if (_key.toLowerCase() != 'id') {
-                        _item.effects.dataValues[_key] *= _item.lvl;
-                    }
-                });
-                _item.level = _item.lvl;
-                delete _item["requirementsID"];
-                delete _item["effectsID"];
+                _inventory[i] = await this.__construct_item__(_inventory[i], _inventory[i].lvl);
             }
-            //console.log(JSON.stringify(_inventory));
             
             return {
                 data: {
@@ -627,9 +636,63 @@ class SQLController {
         }
     }
 
+    async modifyElement(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            const _check = await this._mobLootItem.findOne({where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
+
+            switch (_params.method) {
+                case "c": 
+                    if (_check) {
+                        return {
+                            error: `Cannot create. Mob loot ${JSON.stringify(_params.mobLoot)} already exists.`,
+                            code: 1401
+                        }
+                    }
+
+                    const _newMobLoot = await this._mobLootItem.create(_params.mobLoot);
+
+                    return {
+                        data: _newMobLoot
+                    }
+                case "d": 
+
+                    break;
+                case "u": 
+                    if (!_check) {
+                        return {
+                            error: `Cannot update. Mob loot ${JSON.stringify(_params.mobLoot)} does not exist.`,
+                            code: 1402
+                        }
+                    }
+
+                    const _mobLoot = await this._mobLootItem.update(_params.mobLoot, {where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
+
+                    return {
+                        data: _mobLoot
+                    }
+                default:
+                    return {
+                        error: 'Unknown method',
+                        code: 1400
+                    }
+            }
+
+        } catch (_err) {
+            return {
+                error: _err
+            }
+        }
+    }
+
     async getItem(_params) {
         try {
-            const _item = await this._item.findByPk(_params.id);
+            var _item = await this._item.findByPk(_params.id);
             if (!_item) {
                 return {
                     error: `Item does not exist with id ${_params.id}`,
@@ -637,42 +700,14 @@ class SQLController {
                 }
             }
 
-            var _requirements = await this._stat.findByPk(_item.dataValues.requirementsID);
-            var _effects = await this._stat.findByPk(_item.dataValues.effectsID);
-            
-            Object.keys(_requirements.dataValues).forEach((_key, _index) => {
-                if (_key.toLowerCase() != 'id') {
-                    _requirements.dataValues[_key] *= _params.ql;
-                }
-            });
-            Object.keys(_effects.dataValues).forEach((_key, _index) => {
-                if (_key.toLowerCase() != 'id') {
-                    _effects.dataValues[_key] *= _params.ql;
-                }
-            });
-            _item.dataValues.requirements = _requirements;
-            _item.dataValues.effects = _effects;
-            delete _item.dataValues.requirementsID;
-            delete _item.dataValues.effectsID;
-
-            var _subItem = null;
-            switch (_item.dataValues.itemType) {
-                //weapons
-                case 0: _subItem = await this._weaponItem.findOne({where: {itemID: _item.dataValues.id}}); break;
-                //armor
-                case 1: _subItem = await this._armorItem.findOne({where: {itemID: _item.dataValues.id}}); break;
-                default: break;
-            }
-            
-            if (_subItem != null) {
-                delete _subItem.dataValues.itemID;
-                delete _subItem.dataValues.id;
-            }
-
-            const _ret = _subItem == null ? {..._item.dataValues, level: _params.ql} : {..._item.dataValues, ..._subItem.dataValues, level: _params.ql};
+            var _copy = JSON.parse(JSON.stringify(_item.dataValues));
+            _copy.ID = _copy.id;
+            console.log(_copy);
+            _copy = await this.__construct_item__(_copy, _params.ql);
+            console.log(_copy);
 
             return {
-                data: _ret
+                data: _copy
             }
         } catch (_err) {
             console.log(_err);

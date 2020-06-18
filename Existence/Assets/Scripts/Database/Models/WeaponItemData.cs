@@ -1,8 +1,8 @@
 ﻿
-public class WeaponItemData
+public class WeaponItemData : ItemData
 {
-    public ItemData item;
     public int weaponType;
     public int damageMin;
     public int damageMax;
+    public int speed;
 }
