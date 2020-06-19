@@ -19,6 +19,8 @@ class SQLController {
         this.__define_models__ = this.__define_models__.bind(this);
         this.__validate_account__ = this.__validate_account__.bind(this);
         this.__construct_item__ = this.__construct_item__.bind(this);
+        this.__get_table__ = this.__get_table__.bind(this);
+        this.__check_crud_integrity__ = this.__check_crud_integrity__.bind(this);
         this.getItem = this.getItem.bind(this);
 
         this.__define_models__();
@@ -485,113 +487,6 @@ class SQLController {
         }
     }
 
-    async modifyMob(_params) {
-        try {
-            // verify account
-            const _authCheck = await this.__validate_account__(_params);
-            if (_authCheck.error) {
-                return _authCheck;
-            }
-
-            switch (_params.method) {
-                case "c": 
-                    if (await this._mob.findOne({where: {name: _params.mob.name}})) {
-                        return {
-                            error: `Cannot create. Mob ${_params.mob.name} already exists.`,
-                            code: 1401
-                        }
-                    }
-
-                    const _newMob = await this._mob.create(_params.mob);
-
-                    return {
-                        data: _newMob
-                    }
-                case "d": 
-
-                    break;
-                case "u": 
-                    const _check = await this._mob.findOne({where: {name: _params.job.mobName}});
-                    if (!_check) {
-                        return {
-                            error: `Cannot update. Mob ${_params.job.mobName} does not exist.`,
-                            code: 1402
-                        }
-                    }
-
-                    const _mob = await this._mob.update(_params.mob, {where: {name: _params.job.mobName}});
-
-                    return {
-                        data: _mob
-                    }
-                default:
-                    return {
-                        error: 'Unknown method',
-                        code: 1400
-                    }
-            }
-
-        } catch (_err) {
-            return {
-                error: _err
-            }
-        }
-    }
-
-    async modifyMobLoot(_params) {
-        try {
-            // verify account
-            const _authCheck = await this.__validate_account__(_params);
-            if (_authCheck.error) {
-                return _authCheck;
-            }
-
-            const _check = await this._mobLootItem.findOne({where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
-
-            switch (_params.method) {
-                case "c": 
-                    if (_check) {
-                        return {
-                            error: `Cannot create. Mob loot ${JSON.stringify(_params.mobLoot)} already exists.`,
-                            code: 1401
-                        }
-                    }
-
-                    const _newMobLoot = await this._mobLootItem.create(_params.mobLoot);
-
-                    return {
-                        data: _newMobLoot
-                    }
-                case "d": 
-
-                    break;
-                case "u": 
-                    if (!_check) {
-                        return {
-                            error: `Cannot update. Mob loot ${JSON.stringify(_params.mobLoot)} does not exist.`,
-                            code: 1402
-                        }
-                    }
-
-                    const _mobLoot = await this._mobLootItem.update(_params.mobLoot, {where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
-
-                    return {
-                        data: _mobLoot
-                    }
-                default:
-                    return {
-                        error: 'Unknown method',
-                        code: 1400
-                    }
-            }
-
-        } catch (_err) {
-            return {
-                error: _err
-            }
-        }
-    }
-
     async getMobLoot(_params) {
         try {
 
@@ -636,6 +531,52 @@ class SQLController {
         }
     }
 
+    /* 
+     * Determine the table to do operations on for generic requests
+     * 1500 error code family
+     */
+    __get_table__(_tableName) {
+        if (_tableName == null) {
+            return {
+                error: `Missing expected parameter`,
+                code: 1500
+            }
+        }
+
+        switch (_tableName) {
+            case 'equipmentSlots': return this._equipmentSlot;
+            case 'mobs': return this._mob;
+            case 'mobLootItems': return this._mobLootItem;
+            default: return {
+                error: `Unsupported table operation`,
+                code: 1501
+            }
+        }
+    }
+
+    /*
+     * For generic requests, this function helps ensure request parameter integrity
+     * 1600 error code family
+     */
+    __check_crud_integrity__(_params) {
+        if (!_params.elementKey) {
+            return {
+                error: `Invalid parameters for operation.`,
+                code: 1600
+            };
+        }
+
+        switch (_params.table) {
+            case 'equipmentSlots': break;
+            case 'mobs': break;
+            case 'mobLootItems': break;
+        }
+
+        return {
+            code: 200
+        };
+    }
+
     async modifyElement(_params) {
         try {
             // verify account
@@ -644,46 +585,65 @@ class SQLController {
                 return _authCheck;
             }
 
-            const _check = await this._mobLootItem.findOne({where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
+            // get the table
+            const _table = this.__get_table__(_params.table);
+            if (_table.error) return _table;
+
+            // enforce 
+            const _integrity = this.__check_crud_integrity__(_params);
+            if (_integrity.error) return _integrity;
+
+            const _check = await _table.findOne({where: _params.elementKey});
 
             switch (_params.method) {
                 case "c": 
                     if (_check) {
                         return {
-                            error: `Cannot create. Mob loot ${JSON.stringify(_params.mobLoot)} already exists.`,
+                            error: `Cannot create. Element already exists.`,
                             code: 1401
                         }
                     }
 
-                    const _newMobLoot = await this._mobLootItem.create(_params.mobLoot);
+                    const _newElement = await _table.create({..._params.element, ..._params.elementKey});
 
                     return {
-                        data: _newMobLoot
+                        data: _newElement
                     }
                 case "d": 
-
-                    break;
-                case "u": 
                     if (!_check) {
                         return {
-                            error: `Cannot update. Mob loot ${JSON.stringify(_params.mobLoot)} does not exist.`,
+                            error: `Cannot update. Element does not exist.`,
                             code: 1402
                         }
                     }
 
-                    const _mobLoot = await this._mobLootItem.update(_params.mobLoot, {where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
+                    const _res = await _table.destroy({where: _params.elementKey});
 
                     return {
-                        data: _mobLoot
+                        data: _res
+                    }
+                case "u": 
+                    if (!_check) {
+                        return {
+                            error: `Cannot update. Element does not exist.`,
+                            code: 1402
+                        }
+                    }
+
+                    const _element = await _table.update(_params.element, {where: _params.elementKey});
+
+                    return {
+                        data: _element
                     }
                 default:
                     return {
-                        error: 'Unknown method',
+                        error: 'Unknown operation',
                         code: 1400
                     }
             }
 
         } catch (_err) {
+            console.log(_err);
             return {
                 error: _err
             }
@@ -797,9 +757,10 @@ class SQLController {
 
         // EQUIPMENT SLOTS
         this._equipmentSlot = this._sql.define('equipmentSlot', {
+            playerID: DataTypes.INTEGER,
             itemID: DataTypes.INTEGER,
             slotType: DataTypes.INTEGER,
-            itemType: DataTypes.INTEGER
+            lvl: DataTypes.INTEGER
         }, {
             timestamps: false
         });

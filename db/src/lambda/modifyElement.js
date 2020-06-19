@@ -6,28 +6,19 @@ const validateParams = function(_body)
     const _account = _body.id;
     const _apiKey = _body.apiKey;
     const _method = _body.method;
-    const _item = _body.item;
-    var _job = {};
+    const _table = _body.table;
+    const _element = _body.element;
+    const _elementKey = _body.elementKey;
 
-    if (_body.method == "c") {
-        if (!_body.requirements || !_body.effects || !_body.item) return -1;
-        _job.requirements = _body.requirements;
-        _job.effects = _body.effects;
-    } else if (_body.method == "u") {
-        if (!_body.itemName) return -1;
-        _job.itemName = _body.itemName;
-    }
-
-    if (!_account || !_apiKey || !_method || !_item) return -1;
+    if (!_account || !_apiKey || !_method || !_element || !_elementKey || !_table) return -1;
 
     return {
         account: _account,
         apiKey: _apiKey,
         method: _method,
-        item: _item,
-        job: _job,
-        requirements: _body.requirements,
-        effects: _body.effects
+        element: _element,
+        elementKey: _elementKey,
+        table: _table
     };
 }
 
