@@ -34,7 +34,7 @@ public class InventoryPage : Page
     }
 
     private void DrawInventory() {
-        if (m_PlayerData.inventory == null || m_PlayerData.inventory.Length == 0) 
+        if (m_PlayerData.inventory == null || m_PlayerData.inventory.Count == 0) 
             return;
 
         // !! TODO 

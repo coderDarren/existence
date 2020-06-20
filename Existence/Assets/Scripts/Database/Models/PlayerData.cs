@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Generic;
+
 [System.Serializable]
 public class PlayerInfo : NetworkModel {
     public int ID;
@@ -20,11 +21,21 @@ public class PlayerSessionData : NetworkModel {
     public float rotZ;
 }
 
+public class PlayerEquipmentData : NetworkModel {
+    public ArmorItemData[] armor;
+    public WeaponItemData[] weapons;
+}
+
 public class PlayerData : NetworkModel {
     public PlayerInfo player;
     public PlayerSessionData sessionData;
     public StatData stats;
-    public ItemData[] inventory;
+    public PlayerEquipmentData equipment;
+    // bring inventory down in string format. client is responsible for manually parsing subtypes into 'inventory'
+    public string[] inventoryData;
+    // this inventory list built manually by the player when connecting
+    // check Player.InitializeInventory
+    public List<ItemData> inventory;
 
     /* Helper property to provide insight into player creation failure
      * 200 - OK

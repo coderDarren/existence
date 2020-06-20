@@ -194,6 +194,7 @@ public class Session : GameSystem
 
     private void InitTestGame() {
         PlayerData _playerData = new PlayerData();
+        _playerData.inventoryData = new string[0];
         _playerData.stats = new StatData();
         _playerData.sessionData = new PlayerSessionData();
         _playerData.player = new PlayerInfo();

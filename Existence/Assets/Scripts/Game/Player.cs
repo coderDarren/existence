@@ -83,9 +83,8 @@ public class Player : GameSystem
         Dispose();
         m_Data = _data;
         m_Data.player.health = MaxHealth();
-        m_GearStats = new StatData();
-        m_BuffStats = new StatData();
-        m_TrickleStats = new StatData();
+        InitializeStats();
+        InitializeInventory();
 
         if (session && session.network) {
             session.network.OnMobDeath += OnMobDeath;
@@ -144,9 +143,7 @@ public class Player : GameSystem
     }
 
     public void AddInventory(ItemData _item) {
-        List<ItemData> _inventory = new List<ItemData>(m_Data.inventory);
-        _inventory.Add(_item);
-        m_Data.inventory = _inventory.ToArray();
+        m_Data.inventory.Add(_item);
 
         // redraw inventory if the window is open
         if (inventoryWindow) {
@@ -156,6 +153,30 @@ public class Player : GameSystem
 #endregion
 
 #region Private Functions
+    /// <summary>
+    /// When player is created (ConnectWithData ^^^) we receive a json string array for each item
+    /// This function builds the ItemData array, parsing ItemData entries into various children..
+    /// ..such as ArmorItem, WeaponItem, etc..
+    /// </summary>
+    private void InitializeInventory() {
+        m_Data.inventory = new List<ItemData>();
+        foreach(string _itemJson in m_Data.inventoryData) {
+            if (_itemJson.Contains("armorType")) {
+                m_Data.inventory.Add(NetworkModel.FromJsonStr<ArmorItemData>(_itemJson));
+            } else if (_itemJson.Contains("weaponType")) {
+                m_Data.inventory.Add(NetworkModel.FromJsonStr<WeaponItemData>(_itemJson));
+            } else {
+                m_Data.inventory.Add(NetworkModel.FromJsonStr<ItemData>(_itemJson));
+            }
+        }
+    }
+
+    private void InitializeStats() {
+        m_GearStats = new StatData();
+        m_BuffStats = new StatData();
+        m_TrickleStats = new StatData();
+    }
+
     /// <summary>
     /// Simple linear calculation using a coefficient of 500
     /// </summary>

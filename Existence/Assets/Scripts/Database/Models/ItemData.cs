@@ -23,6 +23,7 @@ public class ItemData : NetworkModel
     public int slotLoc=-1;
     public int slotID;
 
+    public ItemData() {}
     public ItemData(int _id) {
         id = _id;
     }

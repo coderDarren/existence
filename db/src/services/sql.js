@@ -226,7 +226,7 @@ class SQLController {
             const _inventory = (await this._sql.query(`select items.*, inventorySlots.lvl as lvl, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
                 inner join inventorySlots on inventorySlots.playerID = ${_playerId} and inventorySlots.itemID = items.ID`))[0];
             for (var i = 0; i < _inventory.length; i++) {
-                _inventory[i] = await this.__construct_item__(_inventory[i], _inventory[i].lvl);
+                _inventory[i] = JSON.stringify(await this.__construct_item__(_inventory[i], _inventory[i].lvl));
             }
             
             return {
@@ -234,7 +234,7 @@ class SQLController {
                     player: _player.dataValues,
                     sessionData: _sessionData,
                     stats: _stats,
-                    inventory: _inventory
+                    inventoryData: _inventory
                 }
             }
         } catch (_err) {
