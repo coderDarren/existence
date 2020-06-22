@@ -4020,6 +4020,12 @@ MonoBehaviour:
   animateIn: 0
   animateOut: 0
   xpProgress: {fileID: 721225640356073533}
+  hpProgress: {fileID: 0}
+  hpLabel: {fileID: 0}
+  nameLabel: {fileID: 0}
+  infoLabel: {fileID: 0}
+  otherTarget: {fileID: 0}
+  mobTarget: {fileID: 0}
 --- !u!1 &721225640759355930
 GameObject:
   m_ObjectHideFlags: 0
@@ -7960,8 +7966,8 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 0
-  m_AllowMSAA: 0
+  m_HDR: 1
+  m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
