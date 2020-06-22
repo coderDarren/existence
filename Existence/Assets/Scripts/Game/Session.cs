@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UniRx.Async;
 using UnityEngine;
 using UnityEngine.UI;
@@ -92,6 +93,19 @@ public class Session : GameSystem
         if (!instance) {
             instance = this;
         }
+
+        /*ArmorItemData _armor = new ArmorItemData();
+        WeaponItemData _wep = new WeaponItemData();
+        InventoryData _data = new InventoryData();
+        _data.items = new string[2]{_armor.ToJsonString(), _wep.ToJsonString()};
+        string _json = _data.ToJsonString();
+        Log(_json);
+        _data = NetworkModel.FromJsonStr<InventoryData>(_json);
+        _armor = NetworkModel.FromJsonStr<ArmorItemData>(_data.items[0]);
+        List<IItem> _inventory = new List<IItem>();
+        _inventory.Add(_armor);
+        ArmorItemData _armorCast = (ArmorItemData)_inventory[0];
+        Log(_armorCast.armorType.ToString());*/
     }
 
     private void Start() {

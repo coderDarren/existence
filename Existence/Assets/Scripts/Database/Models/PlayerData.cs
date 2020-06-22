@@ -35,7 +35,7 @@ public class PlayerData : NetworkModel {
     public string[] inventoryData;
     // this inventory list built manually by the player when connecting
     // check Player.InitializeInventory
-    public List<ItemData> inventory;
+    public List<IItem> inventory;
 
     /* Helper property to provide insight into player creation failure
      * 200 - OK

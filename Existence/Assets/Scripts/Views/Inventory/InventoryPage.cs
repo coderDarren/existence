@@ -46,13 +46,13 @@ public class InventoryPage : Page
             _index++;
         }
 
-        foreach (ItemData _item in m_PlayerData.inventory) {
-            if (_item.slotLoc == -1) {
+        foreach (IItem _item in m_PlayerData.inventory) {
+            if (_item.def.slotLoc == -1) {
                 for (int i = 0; i < slotParent.transform.childCount; i++) {
                     InventorySlot _check = slotParent.transform.GetChild(i).GetComponent<InventorySlot>();
                     if (_check.item == null) {
                         // this is an available slot
-                        _item.slotLoc = i;
+                        _item.def.slotLoc = i;
                         SaveInventory(_item);
                         _check.AssignIcon(_item);
                         break;
@@ -60,17 +60,17 @@ public class InventoryPage : Page
                 }
                 continue;
             }
-            InventorySlot _slot = slotParent.transform.GetChild(_item.slotLoc).GetComponent<InventorySlot>();
+            InventorySlot _slot = slotParent.transform.GetChild(_item.def.slotLoc).GetComponent<InventorySlot>();
             _slot.AssignIcon(_item);
         }
     }
 #endregion
 
 #region Public Functions
-    public void SaveInventory(ItemData _item) {
+    public void SaveInventory(IItem _item) {
         if (!session) return;
         if (!session.network) return;
-        NetworkInventoryUpdate _data = new NetworkInventoryUpdate(_item.slotID, _item.slotLoc);
+        NetworkInventoryUpdate _data = new NetworkInventoryUpdate(_item.def.slotID, _item.def.slotLoc);
         session.network.SaveInventory(_data);
     }
 

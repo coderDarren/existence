@@ -2,6 +2,12 @@
 const {Sequelize, DataTypes} = require('sequelize');
 const {decrypt} = require('../util/crypto.js');
 
+const ItemType = {
+    BASIC: 0,
+    WEAPON: 1,
+    ARMOR: 2
+}
+
 class SQLController {
     constructor() {
         this._sql = new Sequelize(
@@ -75,10 +81,8 @@ class SQLController {
 
         var _subItem = null;
         switch (_item.itemType) {
-            //weapons
-            case 0: _subItem = await this._weaponItem.findOne({where: {itemID: _item.ID}}); break;
-            //armor
-            case 1: _subItem = await this._armorItem.findOne({where: {itemID: _item.ID}}); break;
+            case ItemType.WEAPON: _subItem = await this._weaponItem.findOne({where: {itemID: _item.ID}}); break;
+            case ItemType.ARMOR: _subItem = await this._armorItem.findOne({where: {itemID: _item.ID}}); break;
             default: break;
         }
         
@@ -88,7 +92,7 @@ class SQLController {
             _subItem = _subItem.dataValues;
         }
 
-        _item = {..._item, ..._subItem}
+        _item = {def: _item, ..._subItem}
 
         return _item; 
     }
@@ -190,13 +194,13 @@ class SQLController {
                 const _inventory = (await this._sql.query(`select items.*, inventorySlots.lvl as lvl, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
                     inner join inventorySlots on inventorySlots.playerID = ${_player.dataValues.id} and inventorySlots.itemID = items.ID`))[0];
                 for (var i = 0; i < _inventory.length; i++) {
-                    _inventory[i] = await this.__construct_item__(_inventory[i], _inventory[i].lvl);
+                    _inventory[i] = JSON.stringify(await this.__construct_item__(_inventory[i], _inventory[i].lvl));
                 }
                 _data.push({
                     player: _player.dataValues,
                     sessionData: _sessionData,
                     stats: _stats,
-                    inventory: _inventory
+                    inventoryData: _inventory
                 });
             }
 
@@ -367,29 +371,12 @@ class SQLController {
                 }
             }
 
-            _item.dataValues.requirements = (await this._stat.findByPk(_item.dataValues.requirementsID)).dataValues;
-            _item.dataValues.effects = (await this._stat.findByPk(_item.dataValues.effectsID)).dataValues;
-            Object.keys(_item.dataValues.requirements).forEach((_key, _index) => {
-                if (_key.toLowerCase() != 'id') {
-                    _item.dataValues.requirements[_key] *= _params.lvl;
-                }
-            });
-            Object.keys(_item.dataValues.effects).forEach((_key, _index) => {
-                if (_key.toLowerCase() != 'id') {
-                    _item.dataValues.effects[_key] *= _params.lvl;
-                }
-            });
-            _item.dataValues.requirements = _item.dataValues.requirements;
-            _item.dataValues.effects = _item.dataValues.effects;
-            delete _item.dataValues.requirementsID;
-            delete _item.dataValues.effectsID;
-
-            const _slot = await this._inventorySlot.create({playerID: _params.playerID, itemID: _params.itemID, lvl: _params.lvl});
-            _item.dataValues.slotID = _slot.id;
-            _item.dataValues.level = _params.lvl;
+            var _copy = JSON.parse(JSON.stringify(_item.dataValues));
+            _copy.ID = _copy.id;
+            _copy = await this.__construct_item__(_copy, _params.lvl);
 
             return {
-                data: _item.dataValues
+                data: _copy
             }
         } catch (_err) {
             console.log(_err);
@@ -463,10 +450,8 @@ class SQLController {
                     }
 
                     switch (_check.dataValues.itemType) {
-                        // weapons
-                        case 0: await this._weaponItem.update(_params.item.subProps, {where: {itemID: _check.dataValues.id}}); break;
-                        // armor
-                        case 1: await this._armorItem.update(_params.item.subProps, {where: {itemID: _check.dataValues.id}}); break;
+                        case ItemType.WEAPON: await this._weaponItem.update(_params.item.subProps, {where: {itemID: _check.dataValues.id}}); break;
+                        case ItemType.ARMOR: await this._armorItem.update(_params.item.subProps, {where: {itemID: _check.dataValues.id}}); break;
                         default: break;
                     }
 
@@ -662,9 +647,7 @@ class SQLController {
 
             var _copy = JSON.parse(JSON.stringify(_item.dataValues));
             _copy.ID = _copy.id;
-            console.log(_copy);
             _copy = await this.__construct_item__(_copy, _params.ql);
-            console.log(_copy);
 
             return {
                 data: _copy

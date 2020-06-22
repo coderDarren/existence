@@ -142,7 +142,7 @@ public class Player : GameSystem
         return m_Data.player.level * 25;
     }
 
-    public void AddInventory(ItemData _item) {
+    public void AddInventory(IItem _item) {
         m_Data.inventory.Add(_item);
 
         // redraw inventory if the window is open
@@ -159,15 +159,10 @@ public class Player : GameSystem
     /// ..such as ArmorItem, WeaponItem, etc..
     /// </summary>
     private void InitializeInventory() {
-        m_Data.inventory = new List<ItemData>();
+        m_Data.inventory = new List<IItem>();
         foreach(string _itemJson in m_Data.inventoryData) {
-            if (_itemJson.Contains("armorType")) {
-                m_Data.inventory.Add(NetworkModel.FromJsonStr<ArmorItemData>(_itemJson));
-            } else if (_itemJson.Contains("weaponType")) {
-                m_Data.inventory.Add(NetworkModel.FromJsonStr<WeaponItemData>(_itemJson));
-            } else {
-                m_Data.inventory.Add(NetworkModel.FromJsonStr<ItemData>(_itemJson));
-            }
+            IItem _item = ItemData.CreateItem(_itemJson);
+            m_Data.inventory.Add(_item);
         }
     }
 
