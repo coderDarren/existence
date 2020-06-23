@@ -85,6 +85,7 @@ public class Player : GameSystem
         m_Data.player.health = MaxHealth();
         InitializeStats();
         InitializeInventory();
+        InitializeEquipment();
 
         if (session && session.network) {
             session.network.OnMobDeath += OnMobDeath;
@@ -163,6 +164,21 @@ public class Player : GameSystem
         foreach(string _itemJson in m_Data.inventoryData) {
             IItem _item = ItemData.CreateItem(_itemJson);
             m_Data.inventory.Add(_item);
+        }
+    }
+
+    private void InitializeEquipment() {
+        m_Data.equipment = new PlayerEquipmentData();
+        m_Data.equipment.armor = new List<ArmorItemData>();
+        m_Data.equipment.weapons = new List<WeaponItemData>();
+
+        foreach(string _itemJson in m_Data.equipmentData) {
+            IItem _item = ItemData.CreateItem(_itemJson);
+            switch (_item.def.itemType) {
+                case ItemType.WEAPON: m_Data.equipment.weapons.Add((WeaponItemData)_item); break;
+                case ItemType.ARMOR: m_Data.equipment.armor.Add((ArmorItemData)_item); break;
+                default: break;
+            }
         }
     }
 

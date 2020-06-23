@@ -185,7 +185,7 @@ class SQLController {
             }
 
             const _players = await this._player.findAll({where: {accountID: _params.account}});
-            console.log(_players);
+            
             var _data = [];
             for (i in _players) {
                 const _player = _players[i];
@@ -196,11 +196,19 @@ class SQLController {
                 for (var i = 0; i < _inventory.length; i++) {
                     _inventory[i] = JSON.stringify(await this.__construct_item__(_inventory[i], _inventory[i].lvl));
                 }
+
+                const _equipment = (await this._sql.query(`select items.*, equipmentSlots.lvl as lvl from items
+                    inner join equipmentSlots on equipmentSlots.playerID = ${_player.dataValues.id} and equipmentSlots.itemID = items.ID`))[0];
+                for (var i = 0; i < _equipment.length; i++) {
+                    _equipment[i] = JSON.stringify(await this.__construct_item__(_equipment[i], _equipment[i].lvl));
+                }
+
                 _data.push({
                     player: _player.dataValues,
                     sessionData: _sessionData,
                     stats: _stats,
-                    inventoryData: _inventory
+                    inventoryData: _inventory,
+                    equipmentData: _equipment
                 });
             }
 
@@ -232,13 +240,20 @@ class SQLController {
             for (var i = 0; i < _inventory.length; i++) {
                 _inventory[i] = JSON.stringify(await this.__construct_item__(_inventory[i], _inventory[i].lvl));
             }
+
+            const _equipment = (await this._sql.query(`select items.*, equipmentSlots.lvl as lvl from items
+                inner join equipmentSlots on equipmentSlots.playerID = ${_playerId} and equipmentSlots.itemID = items.ID`))[0];
+            for (var i = 0; i < _equipment.length; i++) {
+                _equipment[i] = JSON.stringify(await this.__construct_item__(_equipment[i], _equipment[i].lvl));
+            }
             
             return {
                 data: {
                     player: _player.dataValues,
                     sessionData: _sessionData,
                     stats: _stats,
-                    inventoryData: _inventory
+                    inventoryData: _inventory,
+                    equipmentData: _equipment
                 }
             }
         } catch (_err) {
@@ -497,9 +512,7 @@ class SQLController {
                     if (_itemData.error) {
                         return _itemData;
                     }
-                    console.log(_itemData.data);
-                    _loot.push(_itemData.data);
-                    console.log(_loot);
+                    _loot.push(JSON.stringify(_itemData.data));
                 }
 
                 i++;

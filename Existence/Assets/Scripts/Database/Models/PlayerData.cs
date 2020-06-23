@@ -22,20 +22,21 @@ public class PlayerSessionData : NetworkModel {
 }
 
 public class PlayerEquipmentData : NetworkModel {
-    public ArmorItemData[] armor;
-    public WeaponItemData[] weapons;
+    public List<ArmorItemData> armor;
+    public List<WeaponItemData> weapons;
 }
 
 public class PlayerData : NetworkModel {
     public PlayerInfo player;
     public PlayerSessionData sessionData;
     public StatData stats;
-    public PlayerEquipmentData equipment;
     // bring inventory down in string format. client is responsible for manually parsing subtypes into 'inventory'
     public string[] inventoryData;
+    public string[] equipmentData;
     // this inventory list built manually by the player when connecting
     // check Player.InitializeInventory
     public List<IItem> inventory;
+    public PlayerEquipmentData equipment;
 
     /* Helper property to provide insight into player creation failure
      * 200 - OK

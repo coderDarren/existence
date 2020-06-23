@@ -31,10 +31,6 @@ public enum ArmorType {
     R_SLEEVE    
 }
 
-public class InventoryData : NetworkModel {
-    public string[] items;
-}
-
 public class ItemData : NetworkModel
 {
     public int id;
