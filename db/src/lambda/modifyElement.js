@@ -6,21 +6,23 @@ const validateParams = function(_body)
     const _account = _body.id;
     const _apiKey = _body.apiKey;
     const _method = _body.method;
-    const _mobLoot = _body.mobLoot;
-    var _job = {};
+    const _table = _body.table;
+    const _element = _body.element;
+    const _elementKey = _body.elementKey;
 
-    if (!_account || !_apiKey || !_method || !_mobLoot) return -1;
+    if (!_account || !_apiKey || !_method || !_element || !_elementKey || !_table) return -1;
 
     return {
         account: _account,
         apiKey: _apiKey,
         method: _method,
-        mobLoot: _mobLoot,
-        job: _job,
+        element: _element,
+        elementKey: _elementKey,
+        table: _table
     };
 }
 
-const modifyMobLoot = async function(_body) {
+const modifyElement = async function(_body) {
     //console.log(`body: ${JSON.stringify(_body)}`);
     const _params = validateParams(_body);
 
@@ -31,7 +33,7 @@ const modifyMobLoot = async function(_body) {
     }
 
     const _sql = new SQL();    
-    const _result = await _sql.modifyMobLoot(_params);
+    const _result = await _sql.modifyElement(_params);
     if (_result.error) {
         return _result;
     }
@@ -41,4 +43,4 @@ const modifyMobLoot = async function(_body) {
     }
 }
 
-module.exports = modifyMobLoot;
+module.exports = modifyElement;

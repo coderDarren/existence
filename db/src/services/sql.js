@@ -2,6 +2,12 @@
 const {Sequelize, DataTypes} = require('sequelize');
 const {decrypt} = require('../util/crypto.js');
 
+const ItemType = {
+    BASIC: 0,
+    WEAPON: 1,
+    ARMOR: 2
+}
+
 class SQLController {
     constructor() {
         this._sql = new Sequelize(
@@ -18,6 +24,9 @@ class SQLController {
         this.getPlayer = this.getPlayer.bind(this);
         this.__define_models__ = this.__define_models__.bind(this);
         this.__validate_account__ = this.__validate_account__.bind(this);
+        this.__construct_item__ = this.__construct_item__.bind(this);
+        this.__get_table__ = this.__get_table__.bind(this);
+        this.__check_crud_integrity__ = this.__check_crud_integrity__.bind(this);
         this.getItem = this.getItem.bind(this);
 
         this.__define_models__();
@@ -48,6 +57,44 @@ class SQLController {
         }
 
         return {};
+    }
+
+    async __construct_item__(_item, _ql) {
+        _item.requirements = await this._stat.findByPk(_item.requirementsID);
+        _item.effects = await this._stat.findByPk(_item.effectsID);
+        _item.slotID = _item.slotID;
+        Object.keys(_item.requirements.dataValues).forEach((_key, _index) => {
+            if (_key.toLowerCase() != 'id') {
+                _item.requirements.dataValues[_key] *= _ql;
+            }
+        });
+        Object.keys(_item.effects.dataValues).forEach((_key, _index) => {
+            if (_key.toLowerCase() != 'id') {
+                _item.effects.dataValues[_key] *= _ql;
+            }
+        });
+        _item.level = _ql;
+        _item.requirements = _item.requirements.dataValues;
+        _item.effects = _item.effects.dataValues;
+        delete _item["requirementsID"];
+        delete _item["effectsID"];
+
+        var _subItem = null;
+        switch (_item.itemType) {
+            case ItemType.WEAPON: _subItem = await this._weaponItem.findOne({where: {itemID: _item.ID}}); break;
+            case ItemType.ARMOR: _subItem = await this._armorItem.findOne({where: {itemID: _item.ID}}); break;
+            default: break;
+        }
+        
+        if (_subItem != null) {
+            delete _subItem.dataValues.itemID;
+            delete _subItem.dataValues.id;
+            _subItem = _subItem.dataValues;
+        }
+
+        _item = {def: _item, ..._subItem}
+
+        return _item; 
     }
 
     async connect() {
@@ -138,7 +185,7 @@ class SQLController {
             }
 
             const _players = await this._player.findAll({where: {accountID: _params.account}});
-            console.log(_players);
+            
             var _data = [];
             for (i in _players) {
                 const _player = _players[i];
@@ -147,28 +194,21 @@ class SQLController {
                 const _inventory = (await this._sql.query(`select items.*, inventorySlots.lvl as lvl, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
                     inner join inventorySlots on inventorySlots.playerID = ${_player.dataValues.id} and inventorySlots.itemID = items.ID`))[0];
                 for (var i = 0; i < _inventory.length; i++) {
-                    var _item = _inventory[i];
-                    _item.requirements = await this._stat.findByPk(_item.requirementsID);
-                    _item.effects = await this._stat.findByPk(_item.effectsID);
-                    Object.keys(_item.requirements.dataValues).forEach((_key, _index) => {
-                        if (_key.toLowerCase() != 'id') {
-                            _item.requirements.dataValues[_key] *= _item.lvl;
-                        }
-                    });
-                    Object.keys(_item.effects.dataValues).forEach((_key, _index) => {
-                        if (_key.toLowerCase() != 'id') {
-                            _item.effects.dataValues[_key] *= _item.lvl;
-                        }
-                    });
-                    _item.level = _item.lvl;
-                    delete _item["requirementsID"];
-                    delete _item["effectsID"];
+                    _inventory[i] = JSON.stringify(await this.__construct_item__(_inventory[i], _inventory[i].lvl));
                 }
+
+                const _equipment = (await this._sql.query(`select items.*, equipmentSlots.lvl as lvl from items
+                    inner join equipmentSlots on equipmentSlots.playerID = ${_player.dataValues.id} and equipmentSlots.itemID = items.ID`))[0];
+                for (var i = 0; i < _equipment.length; i++) {
+                    _equipment[i] = JSON.stringify(await this.__construct_item__(_equipment[i], _equipment[i].lvl));
+                }
+
                 _data.push({
                     player: _player.dataValues,
                     sessionData: _sessionData,
                     stats: _stats,
-                    inventory: _inventory
+                    inventoryData: _inventory,
+                    equipmentData: _equipment
                 });
             }
 
@@ -198,32 +238,22 @@ class SQLController {
             const _inventory = (await this._sql.query(`select items.*, inventorySlots.lvl as lvl, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
                 inner join inventorySlots on inventorySlots.playerID = ${_playerId} and inventorySlots.itemID = items.ID`))[0];
             for (var i = 0; i < _inventory.length; i++) {
-                var _item = _inventory[i];
-                _item.requirements = await this._stat.findByPk(_item.requirementsID);
-                _item.effects = await this._stat.findByPk(_item.effectsID);
-                _item.slotID = _item.slotID;
-                Object.keys(_item.requirements.dataValues).forEach((_key, _index) => {
-                    if (_key.toLowerCase() != 'id') {
-                        _item.requirements.dataValues[_key] *= _item.lvl;
-                    }
-                });
-                Object.keys(_item.effects.dataValues).forEach((_key, _index) => {
-                    if (_key.toLowerCase() != 'id') {
-                        _item.effects.dataValues[_key] *= _item.lvl;
-                    }
-                });
-                _item.level = _item.lvl;
-                delete _item["requirementsID"];
-                delete _item["effectsID"];
+                _inventory[i] = JSON.stringify(await this.__construct_item__(_inventory[i], _inventory[i].lvl));
             }
-            //console.log(JSON.stringify(_inventory));
+
+            const _equipment = (await this._sql.query(`select items.*, equipmentSlots.lvl as lvl from items
+                inner join equipmentSlots on equipmentSlots.playerID = ${_playerId} and equipmentSlots.itemID = items.ID`))[0];
+            for (var i = 0; i < _equipment.length; i++) {
+                _equipment[i] = JSON.stringify(await this.__construct_item__(_equipment[i], _equipment[i].lvl));
+            }
             
             return {
                 data: {
                     player: _player.dataValues,
                     sessionData: _sessionData,
                     stats: _stats,
-                    inventory: _inventory
+                    inventoryData: _inventory,
+                    equipmentData: _equipment
                 }
             }
         } catch (_err) {
@@ -356,29 +386,12 @@ class SQLController {
                 }
             }
 
-            _item.dataValues.requirements = (await this._stat.findByPk(_item.dataValues.requirementsID)).dataValues;
-            _item.dataValues.effects = (await this._stat.findByPk(_item.dataValues.effectsID)).dataValues;
-            Object.keys(_item.dataValues.requirements).forEach((_key, _index) => {
-                if (_key.toLowerCase() != 'id') {
-                    _item.dataValues.requirements[_key] *= _params.lvl;
-                }
-            });
-            Object.keys(_item.dataValues.effects).forEach((_key, _index) => {
-                if (_key.toLowerCase() != 'id') {
-                    _item.dataValues.effects[_key] *= _params.lvl;
-                }
-            });
-            _item.dataValues.requirements = _item.dataValues.requirements;
-            _item.dataValues.effects = _item.dataValues.effects;
-            delete _item.dataValues.requirementsID;
-            delete _item.dataValues.effectsID;
-
-            const _slot = await this._inventorySlot.create({playerID: _params.playerID, itemID: _params.itemID, lvl: _params.lvl});
-            _item.dataValues.slotID = _slot.id;
-            _item.dataValues.level = _params.lvl;
+            var _copy = JSON.parse(JSON.stringify(_item.dataValues));
+            _copy.ID = _copy.id;
+            _copy = await this.__construct_item__(_copy, _params.lvl);
 
             return {
-                data: _item.dataValues
+                data: _copy
             }
         } catch (_err) {
             console.log(_err);
@@ -411,7 +424,22 @@ class SQLController {
                         ..._params.item,
                         requirementsID: _reqStat.id,
                         effectsID: _effStat.id,
+                        itemType: _params.item.type == "weapon" ? 0 : _params.item.type == "armor" ? 1 : 2
                     });
+
+                    // create the sub props type if applicable
+                    if (_params.item.type) {
+                        const _subProps = {
+                            itemID: _newItem.dataValues.id,
+                            ..._params.item.subProps
+                        };
+
+                        switch (_params.item.type) {
+                            case "weapon": const _wep = await this._weaponItem.create(_subProps); break; 
+                            case "armor": const _armor = await this._armorItem.create(_subProps); break; 
+                            default: /* no-op */ break;
+                        }
+                    }
 
                     return {
                         data: _newItem
@@ -436,115 +464,14 @@ class SQLController {
                         await this._stat.update(_params.effects, {where: {id: _check.dataValues.effectsID}});
                     }
 
+                    switch (_check.dataValues.itemType) {
+                        case ItemType.WEAPON: await this._weaponItem.update(_params.item.subProps, {where: {itemID: _check.dataValues.id}}); break;
+                        case ItemType.ARMOR: await this._armorItem.update(_params.item.subProps, {where: {itemID: _check.dataValues.id}}); break;
+                        default: break;
+                    }
+
                     return {
                         data: _item
-                    }
-                default:
-                    return {
-                        error: 'Unknown method',
-                        code: 1400
-                    }
-            }
-
-        } catch (_err) {
-            return {
-                error: _err
-            }
-        }
-    }
-
-    async modifyMob(_params) {
-        try {
-            // verify account
-            const _authCheck = await this.__validate_account__(_params);
-            if (_authCheck.error) {
-                return _authCheck;
-            }
-
-            switch (_params.method) {
-                case "c": 
-                    if (await this._mob.findOne({where: {name: _params.mob.name}})) {
-                        return {
-                            error: `Cannot create. Mob ${_params.mob.name} already exists.`,
-                            code: 1401
-                        }
-                    }
-
-                    const _newMob = await this._mob.create(_params.mob);
-
-                    return {
-                        data: _newMob
-                    }
-                case "d": 
-
-                    break;
-                case "u": 
-                    const _check = await this._mob.findOne({where: {name: _params.job.mobName}});
-                    if (!_check) {
-                        return {
-                            error: `Cannot update. Mob ${_params.job.mobName} does not exist.`,
-                            code: 1402
-                        }
-                    }
-
-                    const _mob = await this._mob.update(_params.mob, {where: {name: _params.job.mobName}});
-
-                    return {
-                        data: _mob
-                    }
-                default:
-                    return {
-                        error: 'Unknown method',
-                        code: 1400
-                    }
-            }
-
-        } catch (_err) {
-            return {
-                error: _err
-            }
-        }
-    }
-
-    async modifyMobLoot(_params) {
-        try {
-            // verify account
-            const _authCheck = await this.__validate_account__(_params);
-            if (_authCheck.error) {
-                return _authCheck;
-            }
-
-            const _check = await this._mobLootItem.findOne({where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
-
-            switch (_params.method) {
-                case "c": 
-                    if (_check) {
-                        return {
-                            error: `Cannot create. Mob loot ${JSON.stringify(_params.mobLoot)} already exists.`,
-                            code: 1401
-                        }
-                    }
-
-                    const _newMobLoot = await this._mobLootItem.create(_params.mobLoot);
-
-                    return {
-                        data: _newMobLoot
-                    }
-                case "d": 
-
-                    break;
-                case "u": 
-                    if (!_check) {
-                        return {
-                            error: `Cannot update. Mob loot ${JSON.stringify(_params.mobLoot)} does not exist.`,
-                            code: 1402
-                        }
-                    }
-
-                    const _mobLoot = await this._mobLootItem.update(_params.mobLoot, {where: {mobID: _params.mobLoot.mobID, itemID: _params.mobLoot.itemID}});
-
-                    return {
-                        data: _mobLoot
                     }
                 default:
                     return {
@@ -585,9 +512,7 @@ class SQLController {
                     if (_itemData.error) {
                         return _itemData;
                     }
-                    console.log(_itemData.data);
-                    _loot.push(_itemData.data);
-                    console.log(_loot);
+                    _loot.push(JSON.stringify(_itemData.data));
                 }
 
                 i++;
@@ -604,9 +529,128 @@ class SQLController {
         }
     }
 
+    /* 
+     * Determine the table to do operations on for generic requests
+     * 1500 error code family
+     */
+    __get_table__(_tableName) {
+        if (_tableName == null) {
+            return {
+                error: `Missing expected parameter`,
+                code: 1500
+            }
+        }
+
+        switch (_tableName) {
+            case 'equipmentSlots': return this._equipmentSlot;
+            case 'mobs': return this._mob;
+            case 'mobLootItems': return this._mobLootItem;
+            default: return {
+                error: `Unsupported table operation`,
+                code: 1501
+            }
+        }
+    }
+
+    /*
+     * For generic requests, this function helps ensure request parameter integrity
+     * 1600 error code family
+     */
+    __check_crud_integrity__(_params) {
+        if (!_params.elementKey) {
+            return {
+                error: `Invalid parameters for operation.`,
+                code: 1600
+            };
+        }
+
+        switch (_params.table) {
+            case 'equipmentSlots': break;
+            case 'mobs': break;
+            case 'mobLootItems': break;
+        }
+
+        return {
+            code: 200
+        };
+    }
+
+    async modifyElement(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            // get the table
+            const _table = this.__get_table__(_params.table);
+            if (_table.error) return _table;
+
+            // enforce 
+            const _integrity = this.__check_crud_integrity__(_params);
+            if (_integrity.error) return _integrity;
+
+            const _check = await _table.findOne({where: _params.elementKey});
+
+            switch (_params.method) {
+                case "c": 
+                    if (_check) {
+                        return {
+                            error: `Cannot create. Element already exists.`,
+                            code: 1401
+                        }
+                    }
+
+                    const _newElement = await _table.create({..._params.element, ..._params.elementKey});
+
+                    return {
+                        data: _newElement
+                    }
+                case "d": 
+                    if (!_check) {
+                        return {
+                            error: `Cannot update. Element does not exist.`,
+                            code: 1402
+                        }
+                    }
+
+                    const _res = await _table.destroy({where: _params.elementKey});
+
+                    return {
+                        data: _res
+                    }
+                case "u": 
+                    if (!_check) {
+                        return {
+                            error: `Cannot update. Element does not exist.`,
+                            code: 1402
+                        }
+                    }
+
+                    const _element = await _table.update(_params.element, {where: _params.elementKey});
+
+                    return {
+                        data: _element
+                    }
+                default:
+                    return {
+                        error: 'Unknown operation',
+                        code: 1400
+                    }
+            }
+
+        } catch (_err) {
+            console.log(_err);
+            return {
+                error: _err
+            }
+        }
+    }
+
     async getItem(_params) {
         try {
-            const _item = await this._item.findByPk(_params.id);
+            var _item = await this._item.findByPk(_params.id);
             if (!_item) {
                 return {
                     error: `Item does not exist with id ${_params.id}`,
@@ -614,26 +658,12 @@ class SQLController {
                 }
             }
 
-            var _requirements = await this._stat.findByPk(_item.dataValues.requirementsID);
-            var _effects = await this._stat.findByPk(_item.dataValues.effectsID);
-            
-            Object.keys(_requirements.dataValues).forEach((_key, _index) => {
-                if (_key.toLowerCase() != 'id') {
-                    _requirements.dataValues[_key] *= _params.ql;
-                }
-            });
-            Object.keys(_effects.dataValues).forEach((_key, _index) => {
-                if (_key.toLowerCase() != 'id') {
-                    _effects.dataValues[_key] *= _params.ql;
-                }
-            });
-            _item.dataValues.requirements = _requirements;
-            _item.dataValues.effects = _effects;
-            delete _item.dataValues.requirementsID;
-            delete _item.dataValues.effectsID;
+            var _copy = JSON.parse(JSON.stringify(_item.dataValues));
+            _copy.ID = _copy.id;
+            _copy = await this.__construct_item__(_copy, _params.ql);
 
             return {
-                data: {..._item.dataValues, level: _params.ql}
+                data: _copy
             }
         } catch (_err) {
             console.log(_err);
@@ -701,6 +731,7 @@ class SQLController {
 
         // ARMOR ITEMS
         this._armorItem = this._sql.define('armorItem', {
+            itemID: DataTypes.INTEGER,
             armorType: DataTypes.INTEGER
         }, {
             timestamps: false
@@ -722,9 +753,10 @@ class SQLController {
 
         // EQUIPMENT SLOTS
         this._equipmentSlot = this._sql.define('equipmentSlot', {
+            playerID: DataTypes.INTEGER,
             itemID: DataTypes.INTEGER,
             slotType: DataTypes.INTEGER,
-            itemType: DataTypes.INTEGER
+            lvl: DataTypes.INTEGER
         }, {
             timestamps: false
         });
@@ -756,7 +788,8 @@ class SQLController {
             shopBuyable: DataTypes.TINYINT,
             stackable: DataTypes.TINYINT,
             tradeskillable: DataTypes.TINYINT,
-            icon: DataTypes.CHAR(255)
+            icon: DataTypes.CHAR(255),
+            itemType: DataTypes.INTEGER
         }, {
             timestamps: false
         });
@@ -855,7 +888,8 @@ class SQLController {
             itemID: DataTypes.INTEGER,
             weaponType: DataTypes.INTEGER,
             damageMin: DataTypes.INTEGER,
-            damageMax: DataTypes.INTEGER
+            damageMax: DataTypes.INTEGER,
+            speed: DataTypes.INTEGER
         }, {
             timestamps: false
         });

@@ -37,7 +37,7 @@ public class NetworkController : GameSystem
     public event PlayerAction OnPlayerLeft;
     public event PlayerAction OnPlayerSpawn;
     public event StringAction OnPlayerExit;
-    public delegate void InventoryUpdateAction(ItemData _data);
+    public delegate void InventoryUpdateAction(IItem _item);
     public event InventoryUpdateAction OnInventoryAdded;
     public delegate void PlayerHitAction(NetworkPlayerHitInfo _data);
     public event PlayerHitAction OnPlayerHit;
@@ -186,7 +186,7 @@ public class NetworkController : GameSystem
     private void OnAddInventorySuccess(SocketIOEvent _evt) {
         Log("Add inventory success.");
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        ItemData _item = ItemData.FromJsonStr<ItemData>(_msg);
+        IItem _item = ItemData.CreateItem(_msg);
         TryRunAction(OnInventoryAdded, _item);
     }
 
@@ -309,9 +309,9 @@ public class NetworkController : GameSystem
         } catch (System.Exception) {}
     }
 
-    private void TryRunAction(InventoryUpdateAction _action, ItemData _item) {
+    private void TryRunAction(InventoryUpdateAction _action, IItem _data) {
         try {
-            _action(_item);
+            _action(_data);
         } catch (System.Exception) {}
     }
 

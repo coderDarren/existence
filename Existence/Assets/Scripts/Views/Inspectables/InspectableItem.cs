@@ -8,7 +8,7 @@ public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHan
     public bool displayOnHover;
     public bool displayDetail;
 
-    protected ItemData m_Item;
+    protected IItem m_Item;
     protected CursorController m_Cursor;
 
     protected CursorController cursor {
@@ -23,7 +23,7 @@ public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHan
         }
     }
 
-    public ItemData item {
+    public IItem item {
         get {
             return m_Item;
         }
