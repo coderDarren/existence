@@ -85,7 +85,8 @@ public class Player : GameSystem
         m_Data.player.health = MaxHealth();
         InitializeStats();
         InitializeInventory();
-        InitializeEquipment();
+        //InitializeEquipment();
+        InitializeTestEquipment();
 
         if (session && session.network) {
             session.network.OnMobDeath += OnMobDeath;
@@ -180,6 +181,24 @@ public class Player : GameSystem
                 default: break;
             }
         }
+    }
+
+    private void InitializeTestEquipment() {
+        m_Data.equipment = new PlayerEquipmentData();
+        m_Data.equipment.armor = new List<ArmorItemData>();
+        m_Data.equipment.weapons = new List<WeaponItemData>();
+
+        // add your weapons to test here
+        // id is kind of irrelevant in test mode
+        m_Data.equipment.weapons.Add(new WeaponItemData(123, WeaponType.R_HAND));
+
+        // access the weapon type and id
+        Log("Weapon id: "+m_Data.equipment.weapons[0].def.id);
+        Log("Weapon type: "+m_Data.equipment.weapons[0].weaponType);
+
+        // accessing this from the session...
+        // session.player.data.equipment.weapons[0].def.id
+        // session.player.data.equipment.weapons[0].weaponType
     }
 
     private void InitializeStats() {

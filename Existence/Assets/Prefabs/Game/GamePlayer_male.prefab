@@ -1310,7 +1310,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acf38ac00cd445c4092d470e9b7d911f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debug: 0
+  debug: 1
   weapon: 1
   range: 5
 --- !u!114 &6591656521640595287
@@ -1328,13 +1328,6 @@ MonoBehaviour:
   debug: 0
   nameplate: {fileID: 3466836608369318363}
   selected: 0
-  m_NameplateData:
-    name: 
-    health: 0
-    maxHealth: 0
-    lvl: 0
-    displayHealth: 0
-    isVisible: 0
   isClient: 1
   sendRate: 0.2
   idleDetectionSeconds: 2
