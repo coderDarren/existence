@@ -43357,9 +43357,10 @@ GameObject:
   - component: {fileID: 175662444916157610}
   - component: {fileID: 5172543893672853908}
   - component: {fileID: 2837674666437232540}
+  - component: {fileID: -5116971970381264164}
   m_Layer: 0
   m_Name: StarterShotgun
-  m_TagString: Untagged
+  m_TagString: Weapon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43431,6 +43432,22 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &-5116971970381264164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1590332010895226082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 777cc5346dc68ba47ae097ce5d0ba913, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemIcon: {fileID: 2800000, guid: c4ecb2403e62eae4cb14a4bdae0b8633, type: 3}
+  specialIcon:
+  - {fileID: 2800000, guid: 65512aa664157c94ca0308e059d9a8f8, type: 3}
+  specials: 01000000
 --- !u!1 &5866321043345424685
 GameObject:
   m_ObjectHideFlags: 0

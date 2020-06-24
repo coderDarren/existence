@@ -9,10 +9,9 @@ public class PlayerCombatController : GameSystem
 
     public float radius;
     public KeyCode attack;
-    public enum Special {chargeShot, quickSlice};
-    public Special m_Special;
     public float specialTimer;
     public float projectileSpeed;
+    public string special;
 
     private Player m_Player;
     private Animator m_Animator;
@@ -26,14 +25,14 @@ public class PlayerCombatController : GameSystem
     private Material bladeMat;
     private float specialRecharge;
     private int m_Amount;
+    private int m_ParticleNum;
     private Vector3 m_Position;
     private Vector3 m_ParticlePos; 
     private bool m_AttackInput;
     private bool m_CancelTarget;
     private bool m_Attacking;
-    private bool m_SpecialInput;
-    private int m_ParticleNum;
-
+    private bool m_SpecialInput;    
+    
     public bool attacking {
         get {
             return m_Attacking;
@@ -98,11 +97,11 @@ public class PlayerCombatController : GameSystem
 
     private void Update(){   
         if (instance != this) return;
+        specialRecharge += Time.deltaTime;
 
         GetInput();     
         Attack();
-        ProjectileMove();
-        SpecialAttack(m_Special);
+        ProjectileMove();        
         CheckCombatIntegrity();
     }
 #endregion
@@ -124,6 +123,42 @@ public class PlayerCombatController : GameSystem
             m_Target = null;
         }
     }
+
+    public void SpecialAttack(string _special) {
+        special = _special;
+        Debug.Log("Attempting to use special");
+        
+        if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
+            Debug.Log("Too far away");
+            return;
+        }
+        
+        if(specialRecharge >= specialTimer){     // All the events that happen when you use your special successfully     
+            specialRecharge = 0;
+            m_SpecialInput = true;            
+            StartAutoAttack();
+            m_Animator.SetBool(_special, true);
+            try{
+                for(int i = 0; i < m_Effect.Length; i++){
+                    ParticleSystem m_currentSystem = m_Effect[i];
+                    m_currentSystem.Play();
+                }
+            } catch (System.Exception _e){
+            }
+            try{
+                for(int i = 0; i < m_Projectile.Length; i++){
+                    ParticleSystem m_currentSystem = m_Projectile[i];
+                    m_currentSystem.Play();
+                }
+            } catch (System.Exception _e){
+            }
+            m_Target.Hit(25);
+            ChargeEffects();
+            m_SpecialInput = false; 
+            
+        }
+        else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialTimer - specialRecharge) +" seconds");
+    }
 #endregion
 
 #region Private Functions 
@@ -139,7 +174,7 @@ public class PlayerCombatController : GameSystem
     private void GetInput() {
         m_AttackInput = Input.GetKeyDown(attack);
         m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
-        m_SpecialInput = Input.GetKeyDown(KeyCode.Alpha1);
+        
     }
 
     private void Attack(){
@@ -166,40 +201,6 @@ public class PlayerCombatController : GameSystem
         m_Animator.SetBool(m_Player.weapon.ToString(), false); 
     }
 
-    private void SpecialAttack(Special _special) {
-        specialRecharge += Time.deltaTime;
-        if (!m_SpecialInput) return;
-        Debug.Log("Attempting to use special");
-        
-        if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
-            Debug.Log("Too far away");
-            return;
-        }
-        
-        if(specialRecharge >= specialTimer){     // All the events that happen when you use your special successfully     
-            specialRecharge = 0;            
-            StartAutoAttack();
-            m_Animator.SetBool(m_Special.ToString(), true);
-            try{
-                for(int i = 0; i < m_Effect.Length; i++){
-                    ParticleSystem m_currentSystem = m_Effect[i];
-                    m_currentSystem.Play();
-                }
-            } catch (System.Exception _e){
-            }
-            try{
-                for(int i = 0; i < m_Projectile.Length; i++){
-                    ParticleSystem m_currentSystem = m_Projectile[i];
-                    m_currentSystem.Play();
-                }
-            } catch (System.Exception _e){
-            }
-            m_Target.Hit(25);
-            ChargeEffects(); 
-            
-        }
-        else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialTimer - specialRecharge) +" seconds");
-    }
 
     private void RechargeTimer(float _specialTimer){
         specialTimer = _specialTimer;
