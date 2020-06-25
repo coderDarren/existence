@@ -8,5 +8,11 @@ public class SpecialInt : MonoBehaviour
 
     public void SendInt(){
         GameObject.FindGameObjectWithTag("Weapon").GetComponent<EquipIcon>().SendSpecial(specialInt);
-  }
+        
+    }
+
+    private void Update(){
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+            SendInt();
+    }
 }
