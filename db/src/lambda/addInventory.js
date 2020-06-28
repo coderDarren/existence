@@ -20,9 +20,9 @@ const validateParams = function(_body)
 }
 
 const addInventory = async function(_body) {
-    console.log(`body: ${JSON.stringify(_body)}`);
+    //console.log(`body: ${JSON.stringify(_body)}`);
     const _params = validateParams(_body);
-    console.log(_params);
+    //console.log(_params);
     if (_params == -1) {
         return {
             error: "Invalid request body."

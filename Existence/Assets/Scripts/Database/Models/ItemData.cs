@@ -82,13 +82,13 @@ public class BasicItemData : NetworkModel, IItem
 public class ArmorItemData : NetworkModel, IItem
 {
     public ItemData def {get;set;}
-    public int armorType;
+    public int slotType;
 }
 
 public class WeaponItemData : NetworkModel, IItem
 {
     public ItemData def {get;set;}
-    public int weaponType;
+    public int slotType;
     public int damageMin;
     public int damageMax;
     public int speed;
@@ -96,6 +96,6 @@ public class WeaponItemData : NetworkModel, IItem
     public WeaponItemData(int _id, WeaponType _type) {
         def = new ItemData(_id);
         def.itemType = ItemType.WEAPON;
-        weaponType = (int)_type;
+        slotType = (int)_type;
     }
 }

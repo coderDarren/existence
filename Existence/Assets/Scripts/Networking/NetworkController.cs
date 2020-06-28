@@ -41,6 +41,11 @@ public class NetworkController : GameSystem
     public event InventoryUpdateAction OnInventoryAdded;
     public delegate void PlayerHitAction(NetworkPlayerHitInfo _data);
     public event PlayerHitAction OnPlayerHit;
+    public delegate void PlayerEquipAction(NetworkEquipSuccessData _data);
+    public event PlayerEquipAction OnPlayerEquipSuccess;
+    public event PlayerEquipAction OnPlayerUnequipSuccess;
+    public event StringAction OnPlayerEquipFail;
+    public event StringAction OnPlayerUnequipFail;
 #endregion
 
 #region MOB NETWORK EVENTS
@@ -96,6 +101,12 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_PLAYER_LOOT_MOB = "PLAYER_LOOT_MOB";
     private static readonly string NETMSG_MOB_LOOTED = "MOB_LOOTED";
     private static readonly string NETMSG_MOB_LOOT_LOCKED = "PLAYER_MOB_LOOT_LOCKED";
+    private static readonly string NETMSG_PLAYER_EQUIP = "PLAYER_EQUIP";
+    private static readonly string NETMSG_PLAYER_UNEQUIP = "PLAYER_UNEQUIP";
+    private static readonly string NETMSG_PLAYER_EQUIP_SUCCESS = "PLAYER_EQUIP_SUCCESS";
+    private static readonly string NETMSG_PLAYER_EQUIP_FAILURE = "PLAYER_EQUIP_FAILURE";
+    private static readonly string NETMSG_PLAYER_UNEQUIP_SUCCESS = "PLAYER_UNEQUIP_SUCCESS";
+    private static readonly string NETMSG_PLAYER_UNEQUIP_FAILURE = "PLAYER_UNEQUIP_FAILURE";
 
     public bool IsConnected { get { return m_Network.IsConnected; } }
 
@@ -130,6 +141,10 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_PLAYER_HIT_MOB_CONFIRMATION, OnNetworkPlayerHitMobConfirmation);
         m_Network.On(NETMSG_MOB_DEATH, OnNetworkMobDeath);
         m_Network.On(NETMSG_MOB_LOOTED, OnNetworkMobLooted);
+        m_Network.On(NETMSG_PLAYER_EQUIP_SUCCESS, OnNetworkPlayerEquipSuccess);
+        m_Network.On(NETMSG_PLAYER_UNEQUIP_SUCCESS, OnNetworkPlayerUnequipSuccess);
+        m_Network.On(NETMSG_PLAYER_EQUIP_FAILURE, OnNetworkPlayerEquipFail);
+        m_Network.On(NETMSG_PLAYER_UNEQUIP_FAILURE, OnNetworkPlayerUnequipFail);
     }
 
     private void OnDisable() {
@@ -285,6 +300,32 @@ public class NetworkController : GameSystem
         TryRunAction(OnMobLooted, _data);
     }
 
+    private void OnNetworkPlayerEquipSuccess(SocketIOEvent _evt) {
+        Log("Player equip succeeded");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkEquipSuccessData _data = NetworkEquipSuccessData.FromJsonStr<NetworkEquipSuccessData>(_msg);
+        TryRunAction(OnPlayerEquipSuccess, _data);
+    }
+
+    private void OnNetworkPlayerUnequipSuccess(SocketIOEvent _evt) {
+        Log("Player unequip succeeded");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkEquipSuccessData _data = NetworkEquipSuccessData.FromJsonStr<NetworkEquipSuccessData>(_msg);
+        TryRunAction(OnPlayerUnequipSuccess, _data);
+    }
+
+    private void OnNetworkPlayerEquipFail(SocketIOEvent _evt) {
+        Log("Player equip failed");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        TryRunAction(OnPlayerEquipFail, _msg);
+    }
+
+    private void OnNetworkPlayerUnequipFail(SocketIOEvent _evt) {
+        Log("Player unequip failed");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        TryRunAction(OnPlayerUnequipFail, _msg);
+    }
+
     private void TryRunAction(BasicAction _action) {
         try {
             _action();
@@ -351,6 +392,12 @@ public class NetworkController : GameSystem
         } catch (System.Exception) {}
     }
 
+    private void TryRunAction(PlayerEquipAction _action, NetworkEquipSuccessData _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception) {}
+    }
+
     private void SendString(string _id, string _data) {
         //Log("Sending {\"message\":\""+_data+"\"} to "+_id);
         m_Network.Emit(_id, new JSONObject("{\"message\":\""+_data+"\"}"));
@@ -398,6 +445,14 @@ public class NetworkController : GameSystem
 
     public void LootMob(NetworkPlayerLootData _data) {
         SendNetworkData<NetworkPlayerLootData>(NETMSG_PLAYER_LOOT_MOB, _data);
+    }
+
+    public void Equip(NetworkEquipData _data) {
+        SendNetworkData<NetworkEquipData>(NETMSG_PLAYER_EQUIP, _data);
+    }
+    
+    public void Unequip(NetworkEquipData _data) {
+        SendNetworkData<NetworkEquipData>(NETMSG_PLAYER_UNEQUIP, _data);
     }
 #endregion
 }

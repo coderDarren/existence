@@ -34,6 +34,15 @@ public class InventorySlot : InspectableItem
         }
     }
 
+#region Unity Functions
+    private void Update() {
+        // check input for equip attempts
+        if (Input.GetMouseButtonUp(1)) {
+            EquipItem();
+        }
+    }
+#endregion
+
 #region Public Functions
     public void Init(int _id) {
         m_Id = _id;
@@ -115,6 +124,13 @@ public class InventorySlot : InspectableItem
 
         // all inventory slots should forget recently grabbed slots
         m_GrabbedSlot = null;
+    }
+
+    private void EquipItem() {
+        if (!m_Hovering) return;
+        if (m_Item == null) return;
+        if (controller == null) return;
+        controller.EquipItem(m_Item);
     }
 
     private void TryInventoryAction(InventoryAction _action) {

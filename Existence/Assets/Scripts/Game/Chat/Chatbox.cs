@@ -248,8 +248,8 @@ public class Chatbox : GameSystem
         chatBox.text += "\nItem "+_item.def.name+" was added to your inventory. "+_item.def.itemType.ToString();
         
         switch (_item.def.itemType) {
-            case ItemType.WEAPON: chatBox.text += "\nWeapon type: "+(((WeaponItemData)_item).weaponType.ToString()); break;
-            case ItemType.ARMOR: chatBox.text += "\nArmor type: "+(((ArmorItemData)_item).armorType.ToString()); break;
+            case ItemType.WEAPON: chatBox.text += "\nWeapon type: "+(((WeaponItemData)_item).slotType.ToString()); break;
+            case ItemType.ARMOR: chatBox.text += "\nArmor type: "+(((ArmorItemData)_item).slotType.ToString()); break;
             default: break;
         }
 

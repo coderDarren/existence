@@ -10,6 +10,7 @@ public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHan
 
     protected IItem m_Item;
     protected CursorController m_Cursor;
+    protected bool m_Hovering;
 
     protected CursorController cursor {
         get {
@@ -41,6 +42,7 @@ public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHan
         if (cursor.hoverItem == m_Item) {
             cursor.CloseHoverItem();
         }
+        m_Hovering = false;
     }
 #endregion
 
@@ -50,12 +52,14 @@ public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHan
         if (m_Item == null) return;
         if (!cursor) return;
         cursor.OpenHoverItem(m_Item);
+        m_Hovering = true;
     }
 
     public void OnPointerExit(PointerEventData _ped) {
         if (!displayOnHover) return;
         if (m_Item == null) return;
         cursor.CloseHoverItem();
+        m_Hovering = false;
     }
 #endregion
 }

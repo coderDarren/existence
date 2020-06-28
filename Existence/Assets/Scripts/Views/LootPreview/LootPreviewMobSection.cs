@@ -56,7 +56,7 @@ public class LootPreviewMobSection : MonoBehaviour
             _rect.SetParent(itemContainer);
             _rect.localScale = Vector3.one;
             _preview.Init(m_Mob, _data);
-            UpdateContainerWidth(i * 60 + i * 8);
+            UpdateContainerWidth(i * 48 + i * 8);
         }
     }
 #endregion

@@ -390,8 +390,10 @@ class SQLController {
             _copy.ID = _copy.id;
             _copy = await this.__construct_item__(_copy, _params.lvl);
 
+            const _res = await this._inventorySlot.create({playerID: _params.playerID, itemID: _params.itemID, lvl: _params.lvl, loc: -1})
+
             return {
-                data: _copy
+                data: _res
             }
         } catch (_err) {
             console.log(_err);
@@ -633,6 +635,19 @@ class SQLController {
                     return {
                         data: _element
                     }
+                case "r":
+                    if (!_check) {
+                        return {
+                            error: `Cannot read. Element does not exist.`,
+                            code: 1402
+                        }
+                    }
+
+                    const _el = await _table.findOne({where: _params.elementKey});
+
+                    return {
+                        data: _el
+                    }
                 default:
                     return {
                         error: 'Unknown operation',
@@ -642,6 +657,122 @@ class SQLController {
 
         } catch (_err) {
             console.log(_err);
+            return {
+                error: _err
+            }
+        }
+    }
+
+    async equip(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            // !! TODO 
+            // Handle duplicate inventory items
+
+            // make sure the item is in the inventory of the player
+            const _inventoryCheck = (await this._sql.query(`select * from items inner join inventorySlots on inventorySlots.playerID = ${_params.playerID} and inventorySlots.itemID = ${_params.itemID} and inventorySlots.loc = ${_params.inventoryLoc}`))[0];
+            if (_inventoryCheck.length == 0) {
+                return {
+                    error: `Item does not exist in the player's inventory`,
+                    code: 1401
+                }
+            }
+
+            // get the item that needs to be equipped
+            const _item = await this.getItem({id:_params.itemID,ql:_params.lvl});
+            if (_item.error) {
+                return _item;
+            }
+
+            // ignore basic items
+            if (_item.data.def.itemType == ItemType.BASIC) {
+                return {
+                    error: `Item is not equippable.`,
+                    code: 1402
+                }
+            }
+
+            // determine subtype table
+            const _subType = _item.data.def.itemType == ItemType.Weapon ? `weaponItems` : `armorItems`;
+
+            // get all relevant equipment
+            const _equipment = (await this._sql.query(`select items.*,equipmentSlots.ID as equipmentID, ${_subType}.slotType as slotType from items 
+                                                       inner join equipmentSlots on equipmentSlots.playerID = ${_params.playerID} and items.ID = equipmentSlots.itemID 
+                                                       inner join ${_subType} on items.ID = ${_subType}.itemID and ${_subType}.slotType = ${_item.data.slotType}`))[0];
+
+            if (_equipment.length != 0) {
+                return {
+                    error: `Equipment slot is occupied.`,
+                    code: 1403
+                }
+            }
+
+            // remove from inventory
+            const _del = await this._inventorySlot.destroy({where: {playerID:_params.playerID,itemID:_params.itemID,loc:_params.inventoryLoc}});
+
+            // add equipment
+            const _res = await this._equipmentSlot.create({..._params, lvl: _inventoryCheck[0].lvl});
+
+            return {
+                data: _res
+            }
+        } catch (_err) {
+            console.log(_err);
+            return {
+                error: _err
+            }
+        }
+    }
+
+    async unequip(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            // !! TODO 
+            // Handle duplicate items in equipment 
+
+            // make sure player has this item equipped
+            const _equipCheck = (await this._sql.query(`select * from items inner join equipmentSlots on equipmentSlots.playerID = ${_params.playerID} and items.ID = equipmentSlots.itemID and equipmentSlots.itemID = ${_params.itemID}`))[0];
+            if (_equipCheck.length == 0) {
+                return {
+                    error: `Item does not exist in the player's equipment`,
+                    code: 1401
+                }
+            }
+
+            // get item
+            const _item = await this.getItem({id:_params.itemID,ql:_params.lvl});
+            if (_item.error) {
+                return _item;
+            }
+
+            // ignore basic items
+            if (_item.data.def.itemType == ItemType.BASIC) {
+                return {
+                    error: `Item is not equippable.`,
+                    code: 1402
+                }
+            }
+
+            // remove from equipment
+            const _del = await this._equipmentSlot.destroy({where: {playerID: _params.playerID, itemID: _params.itemID, lvl: _equipCheck[0].lvl}});
+
+            // add to inventory
+            const _res = await this._inventorySlot.create({itemID: _params.itemID, playerID: _params.playerID, lvl: _equipCheck[0].lvl, loc: -1});
+
+            return {
+                data: _res
+            }
+        } catch (_err) {
             return {
                 error: _err
             }
@@ -732,7 +863,7 @@ class SQLController {
         // ARMOR ITEMS
         this._armorItem = this._sql.define('armorItem', {
             itemID: DataTypes.INTEGER,
-            armorType: DataTypes.INTEGER
+            slotType: DataTypes.INTEGER
         }, {
             timestamps: false
         });
@@ -755,7 +886,6 @@ class SQLController {
         this._equipmentSlot = this._sql.define('equipmentSlot', {
             playerID: DataTypes.INTEGER,
             itemID: DataTypes.INTEGER,
-            slotType: DataTypes.INTEGER,
             lvl: DataTypes.INTEGER
         }, {
             timestamps: false
@@ -886,7 +1016,7 @@ class SQLController {
         // WEAPON ITEMS
         this._weaponItem = this._sql.define('weaponItem', {
             itemID: DataTypes.INTEGER,
-            weaponType: DataTypes.INTEGER,
+            slotType: DataTypes.INTEGER,
             damageMin: DataTypes.INTEGER,
             damageMax: DataTypes.INTEGER,
             speed: DataTypes.INTEGER

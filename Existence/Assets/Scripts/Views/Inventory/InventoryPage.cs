@@ -74,6 +74,13 @@ public class InventoryPage : Page
         session.network.SaveInventory(_data);
     }
 
+    public void EquipItem(IItem _item) {
+        if (!session) return;
+        if (!session.network) return;
+        NetworkEquipData _data = new NetworkEquipData(_item.def.id, _item.def.slotLoc);
+        session.network.Equip(_data);
+    }
+
     public void Redraw() {
         EraseInventory();
         DrawInventory();
