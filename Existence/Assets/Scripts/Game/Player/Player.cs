@@ -190,7 +190,7 @@ public class Player : GameSystem
 
         // add your weapons to test here
         // id is kind of irrelevant in test mode
-        m_Data.equipment.weapons.Add(new WeaponItemData(123, WeaponType.R_HAND));
+        m_Data.equipment.weapons.Add(new WeaponItemData(123, GearType.R_HAND));
 
         // access the weapon type and id
         Log("Weapon id: "+m_Data.equipment.weapons[0].def.id);

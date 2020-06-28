@@ -11,24 +11,21 @@ public enum ItemType {
     ARMOR
 }
 
-public enum WeaponType {
-    L_HAND,
-    R_HAND,
-    LR_HAND
-}
-
-public enum ArmorType {
-    HEAD,
-    CHEST,
-    GLOVES,
-    PANTS,
-    BOOTS,
-    NECK,
-    BACK,
-    L_SHOULDER,
-    R_SHOULDER,
-    L_SLEEVE,
-    R_SLEEVE    
+public enum GearType {
+    HEAD=0,
+    CHEST=1,
+    GLOVES=2,
+    PANTS=3,
+    BOOTS=4,
+    NECK=5,
+    BACK=6,
+    L_SHOULDER=7,
+    R_SHOULDER=8,
+    L_SLEEVE=9,
+    R_SLEEVE=10,
+    L_HAND=11,
+    R_HAND=12,
+    LR_HAND=13
 }
 
 public class ItemData : NetworkModel
@@ -93,7 +90,7 @@ public class WeaponItemData : NetworkModel, IItem
     public int damageMax;
     public int speed;
 
-    public WeaponItemData(int _id, WeaponType _type) {
+    public WeaponItemData(int _id, GearType _type) {
         def = new ItemData(_id);
         def.itemType = ItemType.WEAPON;
         slotType = (int)_type;
