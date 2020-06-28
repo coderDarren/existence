@@ -378,22 +378,12 @@ class SQLController {
                 }
             }
 
-            var _item = await this._item.findByPk(_params.itemID);
-            if (!_item) {
-                return {
-                    error: `Item does not exist with id ${_params.itemID}`,
-                    code: 1401
-                }
-            }
-
-            var _copy = JSON.parse(JSON.stringify(_item.dataValues));
-            _copy.ID = _copy.id;
-            _copy = await this.__construct_item__(_copy, _params.lvl);
+            const _item = await this.getItem({id:_params.itemID,ql:_params.lvl});
 
             const _res = await this._inventorySlot.create({playerID: _params.playerID, itemID: _params.itemID, lvl: _params.lvl, loc: -1})
 
             return {
-                data: _res
+                data: _item.data
             }
         } catch (_err) {
             console.log(_err);

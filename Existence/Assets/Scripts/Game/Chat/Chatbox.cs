@@ -242,8 +242,10 @@ public class Chatbox : GameSystem
         chatBox.text += "\n<color=#fc0>You earned "+_xp+"xp.</color>";
     }
 
-    private void OnInventoryAdded(IItem _item) {
+    private void OnInventoryAdded(string _itemStr) {
         if (!session) return;
+
+        IItem _item = ItemData.CreateItem(_itemStr);
         
         chatBox.text += "\nItem "+_item.def.name+" was added to your inventory. "+_item.def.itemType.ToString();
         
