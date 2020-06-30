@@ -90,9 +90,10 @@ public class WeaponItemData : NetworkModel, IItem
     public int damageMax;
     public int speed;
 
-    public WeaponItemData(int _id, GearType _type) {
+    public WeaponItemData(int _id, GearType _type, string _icon) {
         def = new ItemData(_id);
         def.itemType = ItemType.WEAPON;
+        def.icon = _icon;
         slotType = (int)_type;
     }
 }

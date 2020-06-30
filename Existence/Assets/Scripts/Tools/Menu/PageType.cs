@@ -15,7 +15,8 @@
             AccountCreation,
             CharacterCreation,
             Inventory,
-            LootPreview
+            LootPreview,
+            Equipment
         }
     }
 }

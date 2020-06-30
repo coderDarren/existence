@@ -85,8 +85,8 @@ public class Player : GameSystem
         m_Data.player.health = MaxHealth();
         InitializeStats();
         InitializeInventory();
-        //InitializeEquipment();
-        InitializeTestEquipment();
+        InitializeEquipment();
+        //InitializeTestEquipment();
 
         if (session && session.network) {
             session.network.OnMobDeath += OnMobDeath;
@@ -174,10 +174,12 @@ public class Player : GameSystem
         m_Data.equipment.weapons = new List<WeaponItemData>();
 
         foreach(string _itemJson in m_Data.equipmentData) {
-            IItem _item = ItemData.CreateItem(_itemJson);
-            switch (_item.def.itemType) {
-                case ItemType.WEAPON: m_Data.equipment.weapons.Add((WeaponItemData)_item); break;
-                case ItemType.ARMOR: m_Data.equipment.armor.Add((ArmorItemData)_item); break;
+            string _searchStr = "\"itemType\":";
+            int _type = System.Int32.Parse(_itemJson.Substring(_itemJson.IndexOf(_searchStr)+_searchStr.Length, 1));
+            
+            switch ((ItemType)_type) {
+                case ItemType.WEAPON: m_Data.equipment.weapons.Add(NetworkModel.FromJsonStr<WeaponItemData>(_itemJson)); break;
+                case ItemType.ARMOR: m_Data.equipment.armor.Add(NetworkModel.FromJsonStr<ArmorItemData>(_itemJson)); break;
                 default: break;
             }
         }
@@ -190,7 +192,7 @@ public class Player : GameSystem
 
         // add your weapons to test here
         // id is kind of irrelevant in test mode
-        m_Data.equipment.weapons.Add(new WeaponItemData(123, GearType.R_HAND));
+        m_Data.equipment.weapons.Add(new WeaponItemData(123, GearType.R_HAND, "/db/icons/low-amp-phaser.png"));
 
         // access the weapon type and id
         Log("Weapon id: "+m_Data.equipment.weapons[0].def.id);

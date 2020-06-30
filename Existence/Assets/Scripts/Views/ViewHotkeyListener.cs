@@ -8,6 +8,7 @@ public class ViewHotkeyListener : GameSystem
     public KeyCode skillsKey=KeyCode.U;
     public KeyCode hudKey=KeyCode.H;
     public KeyCode inventoryKey=KeyCode.I;
+    public KeyCode equipmentKey=KeyCode.C;
 
     private Chatbox m_Chat;
     private bool m_InputLocked;
@@ -50,6 +51,10 @@ public class ViewHotkeyListener : GameSystem
 
         if (Input.GetKeyDown(inventoryKey)) {
             TogglePage(PageType.Inventory);
+        }
+
+        if (Input.GetKeyDown(equipmentKey)) {
+            TogglePage(PageType.Equipment);
         }
     }
 #endregion
