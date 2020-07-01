@@ -48,7 +48,7 @@ public class EquipmentPage : Page
         if (session.playerData == null) return;
         
         m_PlayerData = session.playerData;
-        windows[m_ActiveWindow].InitWindow(m_PlayerData);
+        windows[m_ActiveWindow].InitWindow(this, m_PlayerData);
         Redraw();
     }
 

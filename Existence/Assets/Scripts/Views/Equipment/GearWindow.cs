@@ -5,10 +5,11 @@ public class GearWindow : EquipmentWindow
 {
     public EquipmentSlot[] slots;
 
+    private EquipmentPage m_Controller;
     private Hashtable m_SlotsHash;
     
 #region Override Functions
-    public override void InitWindow(PlayerData _data) {
+    public override void InitWindow(EquipmentPage _controller, PlayerData _data) {
         m_Canvas = GetComponent<CanvasGroup>();
         m_Data = _data;
         m_SlotsHash = new Hashtable();

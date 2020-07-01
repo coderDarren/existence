@@ -7,6 +7,13 @@ public class EquipmentSlot : InspectableItem
     public GearType type;
     public Image icon;
 
+#region Unity Functions
+    private void Update() {
+        if (!m_Item) return;
+        
+    }
+#endregion
+
 #region Public Functions
     public void AssignItem(IItem _item) {
         m_Item = _item;
