@@ -9,6 +9,7 @@ namespace UnityCore {
         {
             public static AudioController instance;
 
+            public bool persist;
             public bool debug;
             public AudioTrack[] tracks;
 
@@ -52,9 +53,14 @@ namespace UnityCore {
 
 #region Unity Functions
             private void Awake() {
-                if (!instance) {
-                    Configure();
+                if (!instance && persist) {
+                    instance = this;
+                } else if (persist) {
+                    // only 1 allowed
+                    Destroy(gameObject);
                 }
+
+                Configure();
             }
 
             private void OnDisable() {
@@ -78,7 +84,6 @@ namespace UnityCore {
 
 #region Private Functions
             private void Configure() {
-                instance = this;
                 m_AudioTable = new Hashtable();
                 m_JobTable = new Hashtable();
                 GenerateAudioTable();
