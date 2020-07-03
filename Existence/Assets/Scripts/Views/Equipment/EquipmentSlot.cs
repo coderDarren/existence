@@ -9,8 +9,8 @@ public class EquipmentSlot : InspectableItem
 
 #region Unity Functions
     private void Update() {
-        if (!m_Item) return;
-        
+        if (m_Item == null) return;
+
     }
 #endregion
 

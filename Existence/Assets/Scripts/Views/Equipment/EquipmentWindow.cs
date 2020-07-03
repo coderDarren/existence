@@ -12,7 +12,7 @@ public abstract class EquipmentWindow : GameSystem
     protected PlayerData m_Data;
 
 #region Overridable Functions
-    public abstract void InitWindow(PlayerData _data);
+    public abstract void InitWindow(EquipmentPage _controller, PlayerData _data);
     public abstract void DisposeWindow();
     public abstract void DrawWindow();
     public abstract void EraseWindow();
