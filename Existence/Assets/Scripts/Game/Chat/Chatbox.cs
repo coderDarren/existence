@@ -242,9 +242,17 @@ public class Chatbox : GameSystem
         chatBox.text += "\n<color=#fc0>You earned "+_xp+"xp.</color>";
     }
 
-    private void OnInventoryAdded(ItemData _item) {
+    private void OnInventoryAdded(IItem _item) {
         if (!session) return;
-        chatBox.text += "\nItem "+_item.name+" was added to your inventory.";
+        
+        chatBox.text += "\nItem "+_item.def.name+" was added to your inventory. "+_item.def.itemType.ToString();
+        
+        switch (_item.def.itemType) {
+            case ItemType.WEAPON: chatBox.text += "\nWeapon type: "+(((WeaponItemData)_item).weaponType.ToString()); break;
+            case ItemType.ARMOR: chatBox.text += "\nArmor type: "+(((ArmorItemData)_item).armorType.ToString()); break;
+            default: break;
+        }
+
         session.player.AddInventory(_item);
     }
 

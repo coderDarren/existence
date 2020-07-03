@@ -83,9 +83,10 @@ public class Player : GameSystem
         Dispose();
         m_Data = _data;
         m_Data.player.health = MaxHealth();
-        m_GearStats = new StatData();
-        m_BuffStats = new StatData();
-        m_TrickleStats = new StatData();
+        InitializeStats();
+        InitializeInventory();
+        //InitializeEquipment();
+        InitializeTestEquipment();
 
         if (session && session.network) {
             session.network.OnMobDeath += OnMobDeath;
@@ -143,10 +144,8 @@ public class Player : GameSystem
         return m_Data.player.level * 25;
     }
 
-    public void AddInventory(ItemData _item) {
-        List<ItemData> _inventory = new List<ItemData>(m_Data.inventory);
-        _inventory.Add(_item);
-        m_Data.inventory = _inventory.ToArray();
+    public void AddInventory(IItem _item) {
+        m_Data.inventory.Add(_item);
 
         // redraw inventory if the window is open
         if (inventoryWindow) {
@@ -156,6 +155,58 @@ public class Player : GameSystem
 #endregion
 
 #region Private Functions
+    /// <summary>
+    /// When player is created (ConnectWithData ^^^) we receive a json string array for each item
+    /// This function builds the ItemData array, parsing ItemData entries into various children..
+    /// ..such as ArmorItem, WeaponItem, etc..
+    /// </summary>
+    private void InitializeInventory() {
+        m_Data.inventory = new List<IItem>();
+        foreach(string _itemJson in m_Data.inventoryData) {
+            IItem _item = ItemData.CreateItem(_itemJson);
+            m_Data.inventory.Add(_item);
+        }
+    }
+
+    private void InitializeEquipment() {
+        m_Data.equipment = new PlayerEquipmentData();
+        m_Data.equipment.armor = new List<ArmorItemData>();
+        m_Data.equipment.weapons = new List<WeaponItemData>();
+
+        foreach(string _itemJson in m_Data.equipmentData) {
+            IItem _item = ItemData.CreateItem(_itemJson);
+            switch (_item.def.itemType) {
+                case ItemType.WEAPON: m_Data.equipment.weapons.Add((WeaponItemData)_item); break;
+                case ItemType.ARMOR: m_Data.equipment.armor.Add((ArmorItemData)_item); break;
+                default: break;
+            }
+        }
+    }
+
+    private void InitializeTestEquipment() {
+        m_Data.equipment = new PlayerEquipmentData();
+        m_Data.equipment.armor = new List<ArmorItemData>();
+        m_Data.equipment.weapons = new List<WeaponItemData>();
+
+        // add your weapons to test here
+        // id is kind of irrelevant in test mode
+        m_Data.equipment.weapons.Add(new WeaponItemData(123, WeaponType.R_HAND));
+
+        // access the weapon type and id
+        Log("Weapon id: "+m_Data.equipment.weapons[0].def.id);
+        Log("Weapon type: "+m_Data.equipment.weapons[0].weaponType);
+
+        // accessing this from the session...
+        // session.player.data.equipment.weapons[0].def.id
+        // session.player.data.equipment.weapons[0].weaponType
+    }
+
+    private void InitializeStats() {
+        m_GearStats = new StatData();
+        m_BuffStats = new StatData();
+        m_TrickleStats = new StatData();
+    }
+
     /// <summary>
     /// Simple linear calculation using a coefficient of 500
     /// </summary>

@@ -18,17 +18,17 @@ public class CursorController : GameSystem
     public Sprite drag;
 
     private RectTransform m_Rect;
-    private ItemData m_SelectedItem;
-    private ItemData m_HoverItem;
+    private IItem m_SelectedItem;
+    private IItem m_HoverItem;
     private PreviewItemData m_HoverPreviewItem;
 
-    public ItemData selectedItem {
+    public IItem selectedItem {
         get {
             return m_SelectedItem;
         }
     }
 
-    public ItemData hoverItem {
+    public IItem hoverItem {
         get {
             return m_HoverItem;
         }
@@ -109,9 +109,9 @@ public class CursorController : GameSystem
         m_Rect.localScale = Vector2.one * 1.35f;
     }
 
-    public void SelectItem(ItemData _item) {
+    public void SelectItem(IItem _item) {
         m_SelectedItem = _item;
-        pickup.sprite = Utilities.LoadStreamingAssetsSprite(m_SelectedItem.icon);
+        pickup.sprite = Utilities.LoadStreamingAssetsSprite(m_SelectedItem.def.icon);
         SetImageAlpha(pickup, 1);
     }
 
@@ -120,9 +120,9 @@ public class CursorController : GameSystem
         SetImageAlpha(pickup, 0);
     }
 
-    public void OpenHoverItem(ItemData _item) {
+    public void OpenHoverItem(IItem _item) {
         m_HoverItem = _item;
-        inspectableItemView.Open(_item);
+        inspectableItemView.Open(_item.def);
     }
 
     public void CloseHoverItem() {

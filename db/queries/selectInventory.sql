@@ -1,2 +1,2 @@
-
-select * from inventorySlots
+select * from inventorySlots;
+select * from equipmentSlots;
