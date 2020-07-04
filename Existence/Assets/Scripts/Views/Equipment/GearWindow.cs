@@ -38,6 +38,9 @@ public class GearWindow : EquipmentWindow
     
     public override void EraseWindow() {
         m_Canvas.alpha = 0;
+        foreach (EquipmentSlot _slot in slots) {
+            _slot.ClearItem();
+        }
     }
 #endregion
 }

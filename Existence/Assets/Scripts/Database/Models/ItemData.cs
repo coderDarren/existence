@@ -57,13 +57,14 @@ public class ItemData : NetworkModel
      * Use this function on the item json to get the correct item data
      */
     public static IItem CreateItem(string _json) {
-        if (_json.Contains("armorType")) {
-            return NetworkModel.FromJsonStr<ArmorItemData>(_json);
-        } else if (_json.Contains("weaponType")) {
-            return NetworkModel.FromJsonStr<WeaponItemData>(_json);
+        string _searchStr = "\"itemType\":";
+        int _type = System.Int32.Parse(_json.Substring(_json.IndexOf(_searchStr)+_searchStr.Length, 1));
+        
+        switch ((ItemType)_type) {
+            case ItemType.WEAPON: return NetworkModel.FromJsonStr<WeaponItemData>(_json);
+            case ItemType.ARMOR: return NetworkModel.FromJsonStr<ArmorItemData>(_json);
+            default: return NetworkModel.FromJsonStr<BasicItemData>(_json);
         }
-
-        return NetworkModel.FromJsonStr<BasicItemData>(_json);
     }
 }
 

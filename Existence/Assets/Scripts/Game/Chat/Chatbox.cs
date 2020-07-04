@@ -68,6 +68,8 @@ public class Chatbox : GameSystem
             network.OnMobAttackStart += OnMobAttackStart;
             network.OnMobHit += OnMobHit;
             network.OnMobDeath += OnMobDeath;
+            network.OnPlayerEquipSuccess += OnPlayerEquipSuccess;
+            network.OnPlayerUnequipSuccess += OnPlayerUnequipSuccess;
         }
     }
 
@@ -99,6 +101,8 @@ public class Chatbox : GameSystem
             network.OnMobAttackStart -= OnMobAttackStart;
             network.OnMobHit -= OnMobHit;
             network.OnMobDeath -= OnMobDeath;
+            network.OnPlayerEquipSuccess -= OnPlayerEquipSuccess;
+            network.OnPlayerUnequipSuccess -= OnPlayerUnequipSuccess;
         }
 
         if (session) {
@@ -292,6 +296,26 @@ public class Chatbox : GameSystem
     private void OnMobInit(Mob _mob) {
         foreach (NetworkLootPreviewData _preview in _mob.data.lootPreview) {
             chatBox.text += "\nYou are near a "+_mob.data.name+", which dropped a LV. "+_preview.level+" "+_preview.name+".";
+        }
+    }
+
+    private void OnPlayerEquipSuccess(NetworkEquipSuccessData _data) {
+        if (!session) return;
+        if (session.player.data.player.ID == _data.playerID) {
+            // equip for this player
+            // NetworkEntityHandler will equip for other players
+            session.player.EquipItem(_data.itemID);
+            chatBox.text += "\nYou equipped item "+_data.itemID+".";
+        }
+    }
+
+    private void OnPlayerUnequipSuccess(NetworkEquipSuccessData _data) {
+        if (!session) return;
+        if (session.player.data.player.ID == _data.playerID) {
+            // equip for this player
+            // NetworkEntityHandler will unequip for other players
+            session.player.UnequipItem(_data.itemID);
+            chatBox.text += "\nYou unequipped item "+_data.itemID+".";
         }
     }
 

@@ -22,6 +22,7 @@ public class Player : GameSystem
     private StatData m_TrickleStats;
     private Session m_Session;
     private InventoryPage m_InventoryWindow;
+    private EquipmentPage m_EquipmentWindow;
     private int healDelta = 5;
     private float healDeltaTimer = 0;
     private float healDeltaSeconds = 1;
@@ -66,6 +67,15 @@ public class Player : GameSystem
                 m_InventoryWindow = InventoryPage.instance;
             }
             return m_InventoryWindow;
+        }
+    }
+
+    private EquipmentPage equipmentWindow {
+        get {
+            if (!m_EquipmentWindow) {
+                m_EquipmentWindow = EquipmentPage.instance;
+            }
+            return m_EquipmentWindow;
         }
     }
 
@@ -152,6 +162,45 @@ public class Player : GameSystem
             inventoryWindow.Redraw();
         }
     }
+
+    public void EquipItem(int _id) {
+        for (int i = m_Data.inventory.Count - 1; i >= 0; i--) {
+            if (m_Data.inventory[i].def.id == _id) {
+                switch (m_Data.inventory[i].def.itemType) {
+                    case ItemType.WEAPON: m_Data.equipment.weapons.Add((WeaponItemData)m_Data.inventory[i]); break;
+                    case ItemType.ARMOR: m_Data.equipment.armor.Add((ArmorItemData)m_Data.inventory[i]); break;
+                    default: break;
+                }
+                m_Data.inventory.RemoveAt(i);
+                break;
+            }
+        }
+
+        // redraw inventory if the window is open
+        if (inventoryWindow) {
+            inventoryWindow.Redraw();
+        }
+
+        // redraw equipment if the window is open
+        if (equipmentWindow) {
+            equipmentWindow.Redraw();
+        }
+    }
+
+    public void UnequipItem(int _id) {
+        TryUnequipItem(_id, ref m_Data.equipment.armor);
+        TryUnequipItem(_id, ref m_Data.equipment.weapons);
+
+        // redraw inventory if the window is open
+        if (inventoryWindow) {
+            inventoryWindow.Redraw();
+        }
+
+        // redraw equipment if the window is open
+        if (equipmentWindow) {
+            equipmentWindow.Redraw();
+        }
+    }
 #endregion
 
 #region Private Functions
@@ -174,12 +223,12 @@ public class Player : GameSystem
         m_Data.equipment.weapons = new List<WeaponItemData>();
 
         foreach(string _itemJson in m_Data.equipmentData) {
-            string _searchStr = "\"itemType\":";
-            int _type = System.Int32.Parse(_itemJson.Substring(_itemJson.IndexOf(_searchStr)+_searchStr.Length, 1));
-            
-            switch ((ItemType)_type) {
-                case ItemType.WEAPON: m_Data.equipment.weapons.Add(NetworkModel.FromJsonStr<WeaponItemData>(_itemJson)); break;
-                case ItemType.ARMOR: m_Data.equipment.armor.Add(NetworkModel.FromJsonStr<ArmorItemData>(_itemJson)); break;
+
+            IItem _item = ItemData.CreateItem(_itemJson);
+
+            switch (_item.def.itemType) {
+                case ItemType.WEAPON: m_Data.equipment.weapons.Add((WeaponItemData)_item); break;
+                case ItemType.ARMOR: m_Data.equipment.armor.Add((ArmorItemData)_item); break;
                 default: break;
             }
         }
@@ -237,6 +286,18 @@ public class Player : GameSystem
         foreach (NetworkMobXpAllottment _mxa in _data.xpAllottment) {
             if (m_Data.player.name == _mxa.playerName) {
                 AddXp(_mxa.xp);
+                break;
+            }
+        }
+    }
+
+    private void TryUnequipItem<T>(int _id, ref List<T> _arr) where T : IItem {
+        for (int i = _arr.Count - 1; i >= 0; i--) {
+            if (_arr[i].def.id == _id) {
+                _arr[i].def.slotLoc = -1;
+                //m_Data.inventory.Add(_arr[i]);
+                session.network.AddInventory(_arr[i].def);
+                _arr.RemoveAt(i);
                 break;
             }
         }

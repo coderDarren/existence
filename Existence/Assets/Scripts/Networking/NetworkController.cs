@@ -327,67 +327,89 @@ public class NetworkController : GameSystem
     private void TryRunAction(BasicAction _action) {
         try {
             _action();
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void TryRunAction(StringAction _action, string _msg) {
         try {
             _action(_msg);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void TryRunAction(PlayerAction _action, NetworkPlayerData _data) {
         try {
             _action(_data);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void TryRunAction(InstanceUpdateAction _action, NetworkInstanceData _data) {
         try {
             _action(_data);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void TryRunAction(PlayerHitAction _action, NetworkPlayerHitInfo _data) {
         try {
             _action(_data);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void TryRunAction(MobAttackAction _action, NetworkMobAttackData _data) {
         try {
             _action(_data);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void TryRunAction(MobAction _action, NetworkMobData _data) {
         try {
             _action(_data);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void TryRunAction(MobHitAction _action, NetworkMobHitInfo _data) {
         try {
             _action(_data);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void TryRunAction(MobDeathAction _action, NetworkMobDeathData _data) {
         try {
             _action(_data);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void TryRunAction(MobLootedAction _action, NetworkMobLootData _data) {
         try {
             _action(_data);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void TryRunAction(PlayerEquipAction _action, NetworkEquipSuccessData _data) {
         try {
             _action(_data);
-        } catch (System.Exception) {}
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
     }
 
     private void SendString(string _id, string _data) {

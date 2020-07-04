@@ -9,7 +9,7 @@ const validateParams = function(_body)
     const _itemID = _body.itemID;
     const _inventoryLoc = _body.inventoryLoc
 
-    if (!_account || !_apiKey || !_playerID || !_itemID || !_inventoryLoc) return -1;
+    if (_account == undefined || !_apiKey || _playerID == undefined || _itemID == undefined || _inventoryLoc == undefined) return -1;
 
     return {
         account: _account,

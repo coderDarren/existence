@@ -10,6 +10,7 @@ using UnityCore.Menu;
  */
 public class EquipmentPage : Page
 {
+    public static EquipmentPage instance;
     
     public EquipmentWindow[] windows;
 
@@ -31,13 +32,18 @@ public class EquipmentPage : Page
     }
 
 #region Public Functions
-
-#endregion
-
-#region Private Functions
-    private void Redraw() {
+    public void Redraw() {
+        m_PlayerData = session.playerData;
+        windows[m_ActiveWindow].InitWindow(this, m_PlayerData);
         windows[m_ActiveWindow].EraseWindow();
         windows[m_ActiveWindow].DrawWindow();
+    }
+
+    public void UnequipItem(IItem _item) {
+        if (!session) return;
+        if (!session.network) return;
+        NetworkEquipData _data = new NetworkEquipData(_item.def.id, -1);
+        session.network.Unequip(_data);
     }
 #endregion
     
@@ -46,15 +52,17 @@ public class EquipmentPage : Page
         base.OnPageEnabled();
         if (!session) return;
         if (session.playerData == null) return;
+        if (!instance) {
+            instance = this;
+        }
         
-        m_PlayerData = session.playerData;
-        windows[m_ActiveWindow].InitWindow(this, m_PlayerData);
         Redraw();
     }
 
     protected override void OnPageDisabled() {
         base.OnPageDisabled();
         windows[m_ActiveWindow].DisposeWindow();
+        instance = null;
     }
 #endregion
 }

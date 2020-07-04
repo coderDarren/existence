@@ -9,8 +9,10 @@ public class EquipmentSlot : InspectableItem
 
 #region Unity Functions
     private void Update() {
-        if (m_Item == null) return;
-
+        // check input for equip attempts
+        if (Input.GetMouseButtonUp(1)) {
+            UnequipItem();
+        }
     }
 #endregion
 
@@ -27,6 +29,12 @@ public class EquipmentSlot : InspectableItem
         icon.sprite = _s;
         UpdateAlpha(1);
     }
+
+    public void ClearItem() {
+        m_Item = null;
+        icon.sprite = null;
+        UpdateAlpha(0);
+    }
 #endregion
 
 #region Private Functions
@@ -34,6 +42,13 @@ public class EquipmentSlot : InspectableItem
         Color _c = icon.color;
         _c.a = _alpha;
         icon.color = _c;
+    }
+
+    private void UnequipItem() {
+        if (!m_Hovering) return;
+        if (m_Item == null) return;
+        if (!EquipmentPage.instance) return;
+        EquipmentPage.instance.UnequipItem(m_Item);
     }
 #endregion
 }

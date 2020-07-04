@@ -688,7 +688,7 @@ class SQLController {
             }
 
             // determine subtype table
-            const _subType = _item.data.def.itemType == ItemType.Weapon ? `weaponItems` : `armorItems`;
+            const _subType = _item.data.def.itemType == ItemType.WEAPON ? `weaponItems` : `armorItems`;
 
             // get all relevant equipment
             const _equipment = (await this._sql.query(`select items.*,equipmentSlots.ID as equipmentID, ${_subType}.slotType as slotType from items 
