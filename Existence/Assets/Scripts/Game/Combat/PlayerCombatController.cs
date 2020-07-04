@@ -15,6 +15,7 @@ public class PlayerCombatController : GameSystem
 
     private Player m_Player;
     private Animator m_Animator;
+    private GameObject m_Weapon;
     private ParticleSystem[] m_Glow;
     private ParticleSystem[] m_Effect;
     private ParticleSystem[] m_Charge;
@@ -58,6 +59,7 @@ public class PlayerCombatController : GameSystem
         m_Amount = 0;
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
+        
 
         try{
             m_Charge = transform.FindDeepChild("Charge").GetComponentsInChildren<ParticleSystem>();
@@ -98,6 +100,7 @@ public class PlayerCombatController : GameSystem
     private void Update(){   
         if (instance != this) return;
         specialRecharge += Time.deltaTime;
+        m_Weapon = GameObject.FindGameObjectWithTag("Weapon");
 
         GetInput();     
         Attack();
@@ -109,6 +112,7 @@ public class PlayerCombatController : GameSystem
 #region Public Functions
     public void AttackEnd(){        
         if(!m_Target) return;
+        m_Weapon.GetComponent<AudioSource>().Play();
         m_Target.Hit(50);         
     }
 
@@ -138,6 +142,7 @@ public class PlayerCombatController : GameSystem
             m_SpecialInput = true;            
             StartAutoAttack();
             m_Animator.SetBool(_special, true);
+            m_Weapon.GetComponent<AudioSource>().Play();
             try{
                 for(int i = 0; i < m_Effect.Length; i++){
                     ParticleSystem m_currentSystem = m_Effect[i];
