@@ -25,14 +25,16 @@ public class EquipIcon : MonoBehaviour
 
     private void Update(){
         if(!m_Activated){
-            if(specials[0].ToString() == ("quickSlice")){
-                m_Activated = true;
-                Instantiate(qsPrefab, GameObject.Find("slotOne").transform);
-            }
-            if(specials[0].ToString() == ("chargeShot")){
-                m_Activated = true;
-                Instantiate(csPrefab, GameObject.Find("slotOne").transform);
-               
+            if(specials.Length > 0){
+                if(specials[0].ToString() == ("quickSlice")){
+                    m_Activated = true;
+                    Instantiate(qsPrefab, GameObject.Find("slotOne").transform);
+                }
+                if(specials[0].ToString() == ("chargeShot")){
+                    m_Activated = true;
+                    Instantiate(csPrefab, GameObject.Find("slotOne").transform);
+                
+                }
             }
         }
     }

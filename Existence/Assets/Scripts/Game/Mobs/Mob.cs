@@ -129,6 +129,7 @@ public class Mob : Selectable
 
     public void Die(NetworkMobDeathData _data) {
         m_Animator.SetBool("Death", true);
+        GetComponents<AudioSource>()[1].Play();
         m_Data.dead = true;
         m_Data.lootPreview = _data.lootPreview;
     }
@@ -190,6 +191,7 @@ public class Mob : Selectable
     public void Global_Mob_AttackEnd(){
         m_Animator.ResetTrigger("Cycle");
         m_Animator.SetTrigger("Recharge");
+        GetComponents<AudioSource>()[0].Play();
     }
         
     public void Global_Mob_RechargeEnd(){

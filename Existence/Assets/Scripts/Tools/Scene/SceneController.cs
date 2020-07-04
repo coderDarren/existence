@@ -13,7 +13,6 @@ namespace UnityCore {
             public delegate void SceneLoadDelegate(SceneType _scene);
 
             public static SceneController instance;
-
             public bool debug;
 
             private PageController m_Menu;
@@ -92,6 +91,10 @@ namespace UnityCore {
                 SceneType _sceneType = StringToSceneType(_scene.name);
                 if (m_TargetScene != _sceneType) {
                     return;
+                }
+
+                if (m_TargetScene == SceneType.Game){
+                    //m_AudioController.PlayAudio(UnityCore.Audio.AudioType.ST_01, true, 0.15f, 0.0f);
                 }
 
                 if (m_SceneLoadDelegate != null) {
