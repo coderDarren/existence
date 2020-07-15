@@ -27,9 +27,11 @@ public class InventoryPage : Page
 
 #region Private Functions
     private void EraseInventory() {
+        int _index = 0;
         foreach (Transform _t in slotParent) {
             if (_t == slotParent) continue;
             _t.GetComponent<InventorySlot>().EraseIcon();
+            _index++;
         }
     }
 
@@ -46,6 +48,7 @@ public class InventoryPage : Page
             _index++;
         }
 
+        _index = 0;
         foreach (IItem _item in m_PlayerData.inventory) {
             if (_item.def.slotLoc == -1) {
                 for (int i = 0; i < slotParent.transform.childCount; i++) {
@@ -58,10 +61,12 @@ public class InventoryPage : Page
                         break;
                     }
                 }
+                _index++;
                 continue;
             }
             InventorySlot _slot = slotParent.transform.GetChild(_item.def.slotLoc).GetComponent<InventorySlot>();
             _slot.AssignIcon(_item);
+            _index++;
         }
     }
 #endregion
@@ -95,7 +100,7 @@ public class InventoryPage : Page
         if (!instance) {
             instance = this;
         }
-
+        
         m_PlayerData = session.playerData;
         Redraw();
     }

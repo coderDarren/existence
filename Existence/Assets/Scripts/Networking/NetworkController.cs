@@ -450,6 +450,7 @@ public class NetworkController : GameSystem
     }
 
     public void SaveInventory(NetworkInventoryUpdate _data) {
+        Log("saving inventory "+_data.slotID+", "+_data.slotLoc);
         SendNetworkData<NetworkInventoryUpdate>(NETMSG_INVENTORY_CHANGED, _data);
     }
 

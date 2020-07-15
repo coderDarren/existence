@@ -381,6 +381,7 @@ class SQLController {
             const _item = await this.getItem({id:_params.itemID,ql:_params.lvl});
 
             const _res = await this._inventorySlot.create({playerID: _params.playerID, itemID: _params.itemID, lvl: _params.lvl, loc: -1})
+            _item.data.def.slotID = _res.id;
 
             return {
                 data: _item.data
@@ -416,7 +417,7 @@ class SQLController {
                         ..._params.item,
                         requirementsID: _reqStat.id,
                         effectsID: _effStat.id,
-                        itemType: _params.item.type == "weapon" ? 0 : _params.item.type == "armor" ? 1 : 2
+                        itemType: _params.item.type == "weapon" ? 1 : _params.item.type == "armor" ? 2 : 0
                     });
 
                     // create the sub props type if applicable
@@ -668,7 +669,7 @@ class SQLController {
             const _inventoryCheck = (await this._sql.query(`select * from items inner join inventorySlots on inventorySlots.playerID = ${_params.playerID} and inventorySlots.itemID = ${_params.itemID} and inventorySlots.loc = ${_params.inventoryLoc}`))[0];
             if (_inventoryCheck.length == 0) {
                 return {
-                    error: `Item does not exist in the player's inventory`,
+                    error: `Item does not exist in the player's inventory (${_params.playerID},${_params.itemID},${_params.inventoryLoc})`,
                     code: 1401
                 }
             }

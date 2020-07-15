@@ -304,8 +304,10 @@ public class Chatbox : GameSystem
         if (session.player.data.player.ID == _data.playerID) {
             // equip for this player
             // NetworkEntityHandler will equip for other players
-            session.player.EquipItem(_data.itemID);
+            session.player.EquipItem(_data.itemID, _data.inventoryLoc);
             chatBox.text += "\nYou equipped item "+_data.itemID+".";
+        } else {
+            chatBox.text += "\nPlayer "+_data.playerID+" equipped item "+_data.itemID+".";
         }
     }
 
@@ -314,8 +316,10 @@ public class Chatbox : GameSystem
         if (session.player.data.player.ID == _data.playerID) {
             // equip for this player
             // NetworkEntityHandler will unequip for other players
-            session.player.UnequipItem(_data.itemID);
+            session.player.UnequipItem(_data.itemID, _data.inventorySlot);
             chatBox.text += "\nYou unequipped item "+_data.itemID+".";
+        } else {
+            chatBox.text += "\nPlayer "+_data.playerID+" unequipped item "+_data.itemID+".";
         }
     }
 

@@ -9,6 +9,7 @@ inner join weaponItems on items.ID = weaponItems.itemID and weaponItems.slotType
 */
 
 # selects all inventory belonging to a player
-#select * from items inner join inventorySlots on inventorySlots.playerID = 18 and items.ID = inventorySlots.itemID;
+#delete from inventorySlots where playerID = 20 and ID >= 221;
+select * from items inner join inventorySlots on inventorySlots.playerID = 20 and items.ID = inventorySlots.itemID;
 # selects all equipment belonging to a player
 select * from items inner join equipmentSlots on equipmentSlots.playerID = 20 and items.ID = equipmentSlots.itemID;

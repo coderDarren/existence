@@ -163,9 +163,9 @@ public class Player : GameSystem
         }
     }
 
-    public void EquipItem(int _id) {
+    public void EquipItem(int _id, int _loc) {
         for (int i = m_Data.inventory.Count - 1; i >= 0; i--) {
-            if (m_Data.inventory[i].def.id == _id) {
+            if (m_Data.inventory[i].def.id == _id && m_Data.inventory[i].def.slotLoc == _loc) {
                 switch (m_Data.inventory[i].def.itemType) {
                     case ItemType.WEAPON: m_Data.equipment.weapons.Add((WeaponItemData)m_Data.inventory[i]); break;
                     case ItemType.ARMOR: m_Data.equipment.armor.Add((ArmorItemData)m_Data.inventory[i]); break;
@@ -187,9 +187,9 @@ public class Player : GameSystem
         }
     }
 
-    public void UnequipItem(int _id) {
-        TryUnequipItem(_id, ref m_Data.equipment.armor);
-        TryUnequipItem(_id, ref m_Data.equipment.weapons);
+    public void UnequipItem(int _id, int _inventoryID) {
+        TryUnequipItem(_id, _inventoryID, ref m_Data.equipment.armor);
+        TryUnequipItem(_id, _inventoryID, ref m_Data.equipment.weapons);
 
         // redraw inventory if the window is open
         if (inventoryWindow) {
@@ -291,12 +291,13 @@ public class Player : GameSystem
         }
     }
 
-    private void TryUnequipItem<T>(int _id, ref List<T> _arr) where T : IItem {
+    private void TryUnequipItem<T>(int _id, int _inventoryID, ref List<T> _arr) where T : IItem {
         for (int i = _arr.Count - 1; i >= 0; i--) {
             if (_arr[i].def.id == _id) {
                 _arr[i].def.slotLoc = -1;
-                //m_Data.inventory.Add(_arr[i]);
-                session.network.AddInventory(_arr[i].def);
+                _arr[i].def.slotID = _inventoryID;
+                m_Data.inventory.Add(_arr[i]);
+                //session.network.AddInventory(_arr[i].def);
                 _arr.RemoveAt(i);
                 break;
             }

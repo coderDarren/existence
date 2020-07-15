@@ -20,6 +20,7 @@ public class Session : GameSystem
     public static Session instance;
 
     public bool testing;
+    public EquipmentData equipmentItemData;
     public GameObject playerObject;
     [HideInInspector]
     public PageType entryPage=PageType.Login;
@@ -33,6 +34,7 @@ public class Session : GameSystem
     private SceneController m_SceneController;
     private Hashtable m_Players;
     private Hashtable m_Mobs;
+    private Hashtable m_EquipmentItems;
 
     public AccountData account {
         get {
@@ -49,6 +51,12 @@ public class Session : GameSystem
     public Player player {
         get {
             return m_Player;
+        }
+    }
+
+    public Hashtable equipmentItems {
+        get {
+            return m_EquipmentItems;
         }
     }
 
@@ -93,28 +101,12 @@ public class Session : GameSystem
         if (!instance) {
             instance = this;
         }
-
-        /*ArmorItemData _armor = new ArmorItemData();
-        WeaponItemData _wep = new WeaponItemData();
-        InventoryData _data = new InventoryData();
-        _data.items = new string[2]{_armor.ToJsonString(), _wep.ToJsonString()};
-        string _json = _data.ToJsonString();
-        Log(_json);
-        _data = NetworkModel.FromJsonStr<InventoryData>(_json);
-        _armor = NetworkModel.FromJsonStr<ArmorItemData>(_data.items[0]);
-        List<IItem> _inventory = new List<IItem>();
-        _inventory.Add(_armor);
-        ArmorItemData _armorCast = (ArmorItemData)_inventory[0];
-        Log(_armorCast.armorType.ToString());*/
     }
 
     private void Start() {
         if (testing) {
             InitTestGame();
         }
-
-        // params (audioType, fadeIn(optional, default=false), maxVolume(optional, default=1), delay(optional, default=0))
-        //AudioController.instance.PlayAudio(UnityCore.Audio.AudioType.ST_01, true, 0.15f, 0.0f);
 
         if (!network) return;
         network.OnConnect += OnServerConnect;
@@ -252,8 +244,24 @@ public class Session : GameSystem
         Camera.main.GetComponent<CameraController>().target = _go.transform;
     }
 
+    private void InitItemDB() {
+        m_EquipmentItems = new Hashtable();
+        foreach (EquipmentData.ListingObject _obj in equipmentItemData.data) {
+            if (m_EquipmentItems.ContainsKey(_obj.item)) {
+                List<EquipmentData.Props> _props = (List<EquipmentData.Props>)m_EquipmentItems[_obj.item];
+                _props.Add(_obj.props);
+                m_EquipmentItems[_obj.item] = _props;
+            } else {
+                List<EquipmentData.Props> _props = new List<EquipmentData.Props>();
+                _props.Add(_obj.props);
+                m_EquipmentItems.Add(_obj.item, _props);
+            }
+        }
+    }
+
     private void InitSystems() {
         Chatbox.instance.ConfigurePlayerEvents();
+        InitItemDB();
     }
 
     private void TryRunAction(BasicAction _action) {

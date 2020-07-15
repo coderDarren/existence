@@ -11,4 +11,6 @@ public class NetworkEquipData : NetworkModel {
 public class NetworkEquipSuccessData : NetworkModel {
     public int playerID;
     public int itemID;
+    public int inventoryLoc;
+    public int inventorySlot;
 }
