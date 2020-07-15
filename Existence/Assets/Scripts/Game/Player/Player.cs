@@ -222,6 +222,11 @@ public class Player : GameSystem
         m_Data.equipment.armor = new List<ArmorItemData>();
         m_Data.equipment.weapons = new List<WeaponItemData>();
 
+        if (m_Data.equipmentData == null) {
+            InitializeTestEquipment();
+            return;
+        }
+
         foreach(string _itemJson in m_Data.equipmentData) {
 
             IItem _item = ItemData.CreateItem(_itemJson);
