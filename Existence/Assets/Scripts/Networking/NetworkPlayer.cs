@@ -124,7 +124,7 @@ public class NetworkPlayer : Selectable
         m_ClientData = new NetworkPlayerData();
         m_ClientData.id = _data.player.ID;
         m_ClientData.name = _data.player.name;
-        m_ClientData.weaponName = Player.Weapon.oneHandRanged.ToString();
+        m_ClientData.weaponName = Player.Weapon.oneHandRanged.ToString(); // ???
     }
 
     public void Dispose() {
@@ -199,8 +199,8 @@ public class NetworkPlayer : Selectable
         m_ClientData.input.attacking = m_PlayerCombat.attacking;
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
         m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");
-        m_ClientData.input.special = m_Animator.GetBool(m_PlayerCombat.m_Special.ToString());
-        m_ClientData.specialName = m_PlayerCombat.m_Special.ToString(); 
+        m_ClientData.input.special = m_Animator.GetBool(m_PlayerCombat.special);
+        m_ClientData.specialName = m_PlayerCombat.special; 
         m_ClientData.weaponName = m_Player.weapon.ToString();
         m_ClientData.maxHealth = m_Player.MaxHealth();
         m_ClientData.health = m_Player.data.player.health;

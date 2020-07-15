@@ -11,9 +11,10 @@ GameObject:
   - component: {fileID: 2486030880306137947}
   - component: {fileID: 7437873721725593189}
   - component: {fileID: 545289499103191149}
+  - component: {fileID: -132719138214350042}
   m_Layer: 0
   m_Name: FirstSword
-  m_TagString: Untagged
+  m_TagString: Weapon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -81,3 +82,18 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &-132719138214350042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3954667844372894483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 777cc5346dc68ba47ae097ce5d0ba913, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemIcon: {fileID: 2800000, guid: 0bd3fff85c166e241acf661f72c28cc4, type: 3}
+  specialIcon: []
+  specials: 

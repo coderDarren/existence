@@ -285,6 +285,7 @@ GameObject:
   - component: {fileID: 8755350988495127635}
   - component: {fileID: 3639223173591321712}
   - component: {fileID: 3639223173591321713}
+  - component: {fileID: 9012742820504887234}
   m_Layer: 0
   m_Name: HighPolyTent
   m_TagString: Untagged
@@ -362,8 +363,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 0}
   m_AABB:
-    m_Center: {x: 0, y: 0.00000047683716, z: -1.4129897}
-    m_Extent: {x: 4.8666096, y: 4.8666086, z: 0.967363}
+    m_Center: {x: 0, y: 9.313226e-10, z: -0.0034431112}
+    m_Extent: {x: 0.01, y: 0.01, z: 0.0023572277}
   m_DirtyAABB: 0
 --- !u!183 &3639223173591321713
 Cloth:
@@ -2577,6 +2578,19 @@ Cloth:
   - {x: 0.6666667, y: 0.16666667, z: 0.16666667}
   - {x: 0.5, y: 0.5, z: 0}
   m_VirtualParticleIndices: 
+--- !u!114 &9012742820504887234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3639223173591321718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3845d1979a4e3b42a56ce86b6b9086a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skinnedMeshRenderer: {fileID: 3639223173591321712}
 --- !u!1 &4273402467258659734
 GameObject:
   m_ObjectHideFlags: 0

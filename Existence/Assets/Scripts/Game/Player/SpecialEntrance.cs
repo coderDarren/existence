@@ -24,7 +24,7 @@ public class SpecialEntrance : StateMachineBehaviour
    
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-       animator.SetBool(m_PlayerCombat.m_Special.ToString(), false);
+       animator.SetBool(m_PlayerCombat.special, false);
        
        if(animator.GetBool(m_Player.weapon.ToString()) == false){
             animator.SetBool(m_Player.weapon.ToString(), true);

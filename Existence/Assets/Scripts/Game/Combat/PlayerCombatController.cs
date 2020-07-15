@@ -9,13 +9,13 @@ public class PlayerCombatController : GameSystem
 
     public float radius;
     public KeyCode attack;
-    public enum Special {chargeShot, quickSlice};
-    public Special m_Special;
     public float specialTimer;
     public float projectileSpeed;
+    public string special;
 
     private Player m_Player;
     private Animator m_Animator;
+    private GameObject m_Weapon;
     private ParticleSystem[] m_Glow;
     private ParticleSystem[] m_Effect;
     private ParticleSystem[] m_Charge;
@@ -26,14 +26,14 @@ public class PlayerCombatController : GameSystem
     private Material bladeMat;
     private float specialRecharge;
     private int m_Amount;
+    private int m_ParticleNum;
     private Vector3 m_Position;
     private Vector3 m_ParticlePos; 
     private bool m_AttackInput;
     private bool m_CancelTarget;
     private bool m_Attacking;
-    private bool m_SpecialInput;
-    private int m_ParticleNum;
-
+    private bool m_SpecialInput;    
+    
     public bool attacking {
         get {
             return m_Attacking;
@@ -59,6 +59,7 @@ public class PlayerCombatController : GameSystem
         m_Amount = 0;
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
+        
 
         try{
             m_Charge = transform.FindDeepChild("Charge").GetComponentsInChildren<ParticleSystem>();
@@ -98,11 +99,12 @@ public class PlayerCombatController : GameSystem
 
     private void Update(){   
         if (instance != this) return;
+        specialRecharge += Time.deltaTime;
+        m_Weapon = GameObject.FindGameObjectWithTag("Weapon");
 
         GetInput();     
         Attack();
-        ProjectileMove();
-        SpecialAttack(m_Special);
+        ProjectileMove();        
         CheckCombatIntegrity();
     }
 #endregion
@@ -110,6 +112,8 @@ public class PlayerCombatController : GameSystem
 #region Public Functions
     public void AttackEnd(){        
         if(!m_Target) return;
+        if (m_Weapon.GetComponent<AudioSource>())
+            m_Weapon.GetComponent<AudioSource>().Play();
         m_Target.Hit(50);         
     }
 
@@ -123,6 +127,44 @@ public class PlayerCombatController : GameSystem
         if (_primary) {
             m_Target = null;
         }
+    }
+
+    public void SpecialAttack(string _special) {
+        special = _special;
+        Debug.Log("Attempting to use special");
+        
+        if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
+            Debug.Log("Too far away");
+            return;
+        }
+        
+        if(specialRecharge >= specialTimer){     // All the events that happen when you use your special successfully     
+            specialRecharge = 0;
+            m_SpecialInput = true;            
+            StartAutoAttack();
+            m_Animator.SetBool(_special, true);
+            if (m_Weapon.GetComponent<AudioSource>())
+                m_Weapon.GetComponent<AudioSource>().Play();
+            try{
+                for(int i = 0; i < m_Effect.Length; i++){
+                    ParticleSystem m_currentSystem = m_Effect[i];
+                    m_currentSystem.Play();
+                }
+            } catch (System.Exception _e){
+            }
+            try{
+                for(int i = 0; i < m_Projectile.Length; i++){
+                    ParticleSystem m_currentSystem = m_Projectile[i];
+                    m_currentSystem.Play();
+                }
+            } catch (System.Exception _e){
+            }
+            m_Target.Hit(25);
+            ChargeEffects();
+            m_SpecialInput = false; 
+            
+        }
+        else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialTimer - specialRecharge) +" seconds");
     }
 #endregion
 
@@ -139,7 +181,7 @@ public class PlayerCombatController : GameSystem
     private void GetInput() {
         m_AttackInput = Input.GetKeyDown(attack);
         m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
-        m_SpecialInput = Input.GetKeyDown(KeyCode.Alpha1);
+        
     }
 
     private void Attack(){
@@ -166,40 +208,6 @@ public class PlayerCombatController : GameSystem
         m_Animator.SetBool(m_Player.weapon.ToString(), false); 
     }
 
-    private void SpecialAttack(Special _special) {
-        specialRecharge += Time.deltaTime;
-        if (!m_SpecialInput) return;
-        Debug.Log("Attempting to use special");
-        
-        if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
-            Debug.Log("Too far away");
-            return;
-        }
-        
-        if(specialRecharge >= specialTimer){     // All the events that happen when you use your special successfully     
-            specialRecharge = 0;            
-            StartAutoAttack();
-            m_Animator.SetBool(m_Special.ToString(), true);
-            try{
-                for(int i = 0; i < m_Effect.Length; i++){
-                    ParticleSystem m_currentSystem = m_Effect[i];
-                    m_currentSystem.Play();
-                }
-            } catch (System.Exception _e){
-            }
-            try{
-                for(int i = 0; i < m_Projectile.Length; i++){
-                    ParticleSystem m_currentSystem = m_Projectile[i];
-                    m_currentSystem.Play();
-                }
-            } catch (System.Exception _e){
-            }
-            m_Target.Hit(25);
-            ChargeEffects(); 
-            
-        }
-        else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialTimer - specialRecharge) +" seconds");
-    }
 
     private void RechargeTimer(float _specialTimer){
         specialTimer = _specialTimer;
@@ -208,7 +216,7 @@ public class PlayerCombatController : GameSystem
     }
 
     private void ChargeEffects(){
-        
+        if (m_Glow == null || m_Charge == null) return;
         if(m_Glow[0].gameObject != null){
             for(int i = 0; i < m_Glow.Length; i++){                
                 ParticleSystem m_currentSystem = m_Glow[i];

@@ -4712,7 +4712,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 795909785}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 4
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
@@ -17699,7 +17699,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   url: ws://ec2-52-205-254-61.compute-1.amazonaws.com:8081/socket.io/?EIO=4&transport=websocket
-  localhost: 1
+  localhost: 0
   autoConnect: 0
   reconnectDelay: 4
   ackExpirationTime: 1800
