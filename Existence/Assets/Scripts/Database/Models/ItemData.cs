@@ -11,24 +11,21 @@ public enum ItemType {
     ARMOR
 }
 
-public enum WeaponType {
-    L_HAND,
-    R_HAND,
-    LR_HAND
-}
-
-public enum ArmorType {
-    HEAD,
-    CHEST,
-    GLOVES,
-    PANTS,
-    BOOTS,
-    NECK,
-    BACK,
-    L_SHOULDER,
-    R_SHOULDER,
-    L_SLEEVE,
-    R_SLEEVE    
+public enum GearType {
+    HEAD=0,
+    CHEST=1,
+    GLOVES=2,
+    PANTS=3,
+    BOOTS=4,
+    NECK=5,
+    BACK=6,
+    L_SHOULDER=7,
+    R_SHOULDER=8,
+    L_SLEEVE=9,
+    R_SLEEVE=10,
+    L_HAND=11,
+    R_HAND=12,
+    LR_HAND=13
 }
 
 public class ItemData : NetworkModel
@@ -60,13 +57,14 @@ public class ItemData : NetworkModel
      * Use this function on the item json to get the correct item data
      */
     public static IItem CreateItem(string _json) {
-        if (_json.Contains("armorType")) {
-            return NetworkModel.FromJsonStr<ArmorItemData>(_json);
-        } else if (_json.Contains("weaponType")) {
-            return NetworkModel.FromJsonStr<WeaponItemData>(_json);
+        string _searchStr = "\"itemType\":";
+        int _type = System.Int32.Parse(_json.Substring(_json.IndexOf(_searchStr)+_searchStr.Length, 1));
+        
+        switch ((ItemType)_type) {
+            case ItemType.WEAPON: return NetworkModel.FromJsonStr<WeaponItemData>(_json);
+            case ItemType.ARMOR: return NetworkModel.FromJsonStr<ArmorItemData>(_json);
+            default: return NetworkModel.FromJsonStr<BasicItemData>(_json);
         }
-
-        return NetworkModel.FromJsonStr<BasicItemData>(_json);
     }
 }
 
@@ -82,20 +80,21 @@ public class BasicItemData : NetworkModel, IItem
 public class ArmorItemData : NetworkModel, IItem
 {
     public ItemData def {get;set;}
-    public int armorType;
+    public int slotType;
 }
 
 public class WeaponItemData : NetworkModel, IItem
 {
     public ItemData def {get;set;}
-    public int weaponType;
+    public int slotType;
     public int damageMin;
     public int damageMax;
     public int speed;
 
-    public WeaponItemData(int _id, WeaponType _type) {
+    public WeaponItemData(int _id, GearType _type, string _icon) {
         def = new ItemData(_id);
         def.itemType = ItemType.WEAPON;
-        weaponType = (int)_type;
+        def.icon = _icon;
+        slotType = (int)_type;
     }
 }

@@ -1,5 +1,16 @@
 ﻿using System.Collections.Generic;
 
+public enum Sex {
+    AGNOSTIC,
+    MALE,
+    FEMALE
+}
+
+public enum Race {
+    AGNOSTIC,
+    HUMAN
+}
+
 [System.Serializable]
 public class PlayerInfo : NetworkModel {
     public int ID;
@@ -9,6 +20,8 @@ public class PlayerInfo : NetworkModel {
     public int statPoints;
     public int health;
     public int maxHealth;
+    public Sex sex;
+    public Race race;
 }
 
 public class PlayerSessionData : NetworkModel {

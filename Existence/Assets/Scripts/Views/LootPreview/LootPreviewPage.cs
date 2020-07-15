@@ -75,7 +75,7 @@ public class LootPreviewPage : Page
         LootPreviewMobSection _section = _obj.GetComponent<LootPreviewMobSection>();
         _section.Init(masterContainer, _mob);
         m_Previews.Add(_mob, _obj);
-        SetContainerHeight(m_Previews.Count * 100 + m_Previews.Count * 8);
+        SetContainerHeight(m_Previews.Count * 70 + m_Previews.Count * 8);
         RestartFlashNotification();
     }
 

@@ -27,9 +27,11 @@ public class InventoryPage : Page
 
 #region Private Functions
     private void EraseInventory() {
+        int _index = 0;
         foreach (Transform _t in slotParent) {
             if (_t == slotParent) continue;
             _t.GetComponent<InventorySlot>().EraseIcon();
+            _index++;
         }
     }
 
@@ -46,6 +48,7 @@ public class InventoryPage : Page
             _index++;
         }
 
+        _index = 0;
         foreach (IItem _item in m_PlayerData.inventory) {
             if (_item.def.slotLoc == -1) {
                 for (int i = 0; i < slotParent.transform.childCount; i++) {
@@ -58,10 +61,12 @@ public class InventoryPage : Page
                         break;
                     }
                 }
+                _index++;
                 continue;
             }
             InventorySlot _slot = slotParent.transform.GetChild(_item.def.slotLoc).GetComponent<InventorySlot>();
             _slot.AssignIcon(_item);
+            _index++;
         }
     }
 #endregion
@@ -72,6 +77,13 @@ public class InventoryPage : Page
         if (!session.network) return;
         NetworkInventoryUpdate _data = new NetworkInventoryUpdate(_item.def.slotID, _item.def.slotLoc);
         session.network.SaveInventory(_data);
+    }
+
+    public void EquipItem(IItem _item) {
+        if (!session) return;
+        if (!session.network) return;
+        NetworkEquipData _data = new NetworkEquipData(_item.def.id, _item.def.slotLoc);
+        session.network.Equip(_data);
     }
 
     public void Redraw() {
@@ -88,7 +100,7 @@ public class InventoryPage : Page
         if (!instance) {
             instance = this;
         }
-
+        
         m_PlayerData = session.playerData;
         Redraw();
     }
