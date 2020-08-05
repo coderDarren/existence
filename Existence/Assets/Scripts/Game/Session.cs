@@ -100,6 +100,7 @@ public class Session : GameSystem
     private void Awake() {
         if (!instance) {
             instance = this;
+            InitItemDB();
         }
     }
 
@@ -173,7 +174,6 @@ public class Session : GameSystem
 
 #region Private Functions
     private void OnServerConnect() {
-        m_Player.ConnectWithData(playerData);
         network.SendHandshake(new NetworkHandshake(m_NetworkPlayer.clientData, account, playerData.sessionData.ID));
         TryRunAction(OnPlayerConnected);
     }
@@ -247,21 +247,21 @@ public class Session : GameSystem
     private void InitItemDB() {
         m_EquipmentItems = new Hashtable();
         foreach (EquipmentData.ListingObject _obj in equipmentItemData.data) {
-            if (m_EquipmentItems.ContainsKey(_obj.item)) {
-                List<EquipmentData.Props> _props = (List<EquipmentData.Props>)m_EquipmentItems[_obj.item];
-                _props.Add(_obj.props);
-                m_EquipmentItems[_obj.item] = _props;
+            if (m_EquipmentItems.ContainsKey((int)_obj.item)) {
+                //List<EquipmentData.Props> _props = (List<EquipmentData.Props>)m_EquipmentItems[_obj.item];
+                //_props.Add(_obj.props);
+                //m_EquipmentItems[(int)_obj.item] = _props;
             } else {
                 List<EquipmentData.Props> _props = new List<EquipmentData.Props>();
                 _props.Add(_obj.props);
-                m_EquipmentItems.Add(_obj.item, _props);
+                m_EquipmentItems.Add((int)_obj.item, _props);
+                Log("Adding DB item: "+((int)_obj.item)+"-"+_obj.props.location);
             }
         }
     }
 
     private void InitSystems() {
         Chatbox.instance.ConfigurePlayerEvents();
-        InitItemDB();
     }
 
     private void TryRunAction(BasicAction _action) {

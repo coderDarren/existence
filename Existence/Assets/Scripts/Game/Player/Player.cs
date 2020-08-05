@@ -26,6 +26,7 @@ public class Player : GameSystem
     private int healDelta = 5;
     private float healDeltaTimer = 0;
     private float healDeltaSeconds = 1;
+    private EquipmentController m_EquipmentController;
 
     public PlayerData data {
         get {
@@ -76,6 +77,15 @@ public class Player : GameSystem
                 m_EquipmentWindow = EquipmentPage.instance;
             }
             return m_EquipmentWindow;
+        }
+    }
+
+    private EquipmentController equipmentController {
+        get {
+            if (!m_EquipmentController) {
+                m_EquipmentController = GetComponent<EquipmentController>();
+            }
+            return m_EquipmentController;
         }
     }
 
@@ -163,14 +173,42 @@ public class Player : GameSystem
         }
     }
 
+    public void NetworkEquip(IItem _item) {
+        if (!session.network) return;
+        // check if stats are good enough
+        if (GetAggregatedStats().Compare(_item.def.requirements) == -1) {
+            Chatbox.instance.EmitMessageLocal("You cannot equip this item. Requirements not met.");
+            return;
+        } else {
+            Chatbox.instance.EmitMessageLocal("Equipping...");
+        }
+
+        NetworkEquipData _data = new NetworkEquipData(_item.def.id, _item.def.slotLoc);
+        session.network.Equip(_data);
+    }
+
+    public void NetworkUnequip(IItem _item) {
+        if (!session.network) return;
+        NetworkEquipData _data = new NetworkEquipData(_item.def.id, -1);
+        session.network.Unequip(_data);
+    }
+
     public void EquipItem(int _id, int _loc) {
         for (int i = m_Data.inventory.Count - 1; i >= 0; i--) {
-            if (m_Data.inventory[i].def.id == _id && m_Data.inventory[i].def.slotLoc == _loc) {
-                switch (m_Data.inventory[i].def.itemType) {
-                    case ItemType.WEAPON: m_Data.equipment.weapons.Add((WeaponItemData)m_Data.inventory[i]); break;
-                    case ItemType.ARMOR: m_Data.equipment.armor.Add((ArmorItemData)m_Data.inventory[i]); break;
+            IItem _item = m_Data.inventory[i];
+            if (_item.def.id == _id &&_item.def.slotLoc == _loc) {
+                switch (_item.def.itemType) {
+                    case ItemType.WEAPON: 
+                        m_Data.equipment.weapons.Add((WeaponItemData)_item);
+                        equipmentController.Equip((WeaponItemData)_item);
+                        break;
+                    case ItemType.ARMOR: 
+                        m_Data.equipment.armor.Add((ArmorItemData)_item); 
+                        equipmentController.Equip((ArmorItemData)_item);
+                        break;
                     default: break;
                 }
+                m_GearStats = m_GearStats.Combine(_item.def.effects);
                 m_Data.inventory.RemoveAt(i);
                 break;
             }
@@ -232,8 +270,16 @@ public class Player : GameSystem
             IItem _item = ItemData.CreateItem(_itemJson);
 
             switch (_item.def.itemType) {
-                case ItemType.WEAPON: m_Data.equipment.weapons.Add((WeaponItemData)_item); break;
-                case ItemType.ARMOR: m_Data.equipment.armor.Add((ArmorItemData)_item); break;
+                case ItemType.WEAPON: 
+                    m_Data.equipment.weapons.Add((WeaponItemData)_item); 
+                    equipmentController.Equip((WeaponItemData)_item);
+                    m_GearStats = m_GearStats.Combine(_item.def.effects);
+                    break;
+                case ItemType.ARMOR: 
+                    m_Data.equipment.armor.Add((ArmorItemData)_item); 
+                    equipmentController.Equip((ArmorItemData)_item);
+                    m_GearStats = m_GearStats.Combine(_item.def.effects);
+                    break;
                 default: break;
             }
         }
@@ -298,11 +344,19 @@ public class Player : GameSystem
 
     private void TryUnequipItem<T>(int _id, int _inventoryID, ref List<T> _arr) where T : IItem {
         for (int i = _arr.Count - 1; i >= 0; i--) {
-            if (_arr[i].def.id == _id) {
-                _arr[i].def.slotLoc = -1;
-                _arr[i].def.slotID = _inventoryID;
-                m_Data.inventory.Add(_arr[i]);
-                //session.network.AddInventory(_arr[i].def);
+            IItem _item = _arr[i];
+            if (_item.def.id == _id) {
+                _item.def.slotLoc = -1;
+                _item.def.slotID = _inventoryID;
+                m_Data.inventory.Add(_item);
+                m_GearStats = m_GearStats.Reduce(_item.def.effects);
+
+                if (typeof(T) == typeof(WeaponItemData)) {
+                    equipmentController.Unequip((GearType)((WeaponItemData)_item).slotType);
+                } else if (typeof(T) == typeof(ArmorItemData)) {
+                    equipmentController.Unequip((GearType)((ArmorItemData)_item).slotType);
+                }
+
                 _arr.RemoveAt(i);
                 break;
             }

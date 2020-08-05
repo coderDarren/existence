@@ -25,7 +25,8 @@ public enum GearType {
     R_SLEEVE=10,
     L_HAND=11,
     R_HAND=12,
-    LR_HAND=13
+    LR_HAND=13,
+    PROSTHETIC_L_ARM=14
 }
 
 public class ItemData : NetworkModel
@@ -50,6 +51,7 @@ public class ItemData : NetworkModel
     public ItemData() {}
     public ItemData(int _id) {
         id = _id;
+        level = 1;
     }
 
     /*

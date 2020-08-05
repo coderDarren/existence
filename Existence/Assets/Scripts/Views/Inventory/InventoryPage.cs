@@ -81,9 +81,7 @@ public class InventoryPage : Page
 
     public void EquipItem(IItem _item) {
         if (!session) return;
-        if (!session.network) return;
-        NetworkEquipData _data = new NetworkEquipData(_item.def.id, _item.def.slotLoc);
-        session.network.Equip(_data);
+        session.player.NetworkEquip(_item);
     }
 
     public void Redraw() {

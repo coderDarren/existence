@@ -187,6 +187,35 @@ public class StatData : NetworkModel
         return _out;
     }
 
+    public StatData Reduce(StatData _in) {
+        StatData _out = StatData.Copy(this);
+        _out.ID = _in.ID;
+        _out.strength -= _in.strength;
+        _out.dexterity -= _in.dexterity;
+        _out.intelligence -= _in.intelligence;
+        _out.fortitude -= _in.fortitude;
+        _out.nanoPool -= _in.nanoPool;
+        _out.nanoResist -= _in.nanoResist;
+        _out.treatment -= _in.treatment;
+        _out.firstAid -= _in.firstAid;
+        _out.oneHandEdged -= _in.oneHandEdged;
+        _out.twoHandEdged -= _in.twoHandEdged;
+        _out.pistol -= _in.pistol;
+        _out.shotgun -= _in.shotgun;
+        _out.evades -= _in.evades;
+        _out.crit -= _in.crit;
+        _out.attackSpeed -= _in.attackSpeed;
+        _out.hacking -= _in.hacking;
+        _out.engineering -= _in.engineering;
+        _out.programming -= _in.programming;
+        _out.quantumMechanics -= _in.quantumMechanics;
+        _out.symbiotics -= _in.symbiotics;
+        _out.processing -= _in.processing;
+        _out.runSpeed -= _in.runSpeed;
+        _out.melee -= _in.melee;
+        return _out;
+    }
+
     public Hashtable ToHashtable() {
         Hashtable _out = new Hashtable();
         _out["ID"] = this.ID;
@@ -214,5 +243,39 @@ public class StatData : NetworkModel
         _out["runSpeed"] = this.runSpeed;
         _out["melee"] = this.melee;
         return _out;
+    }
+
+    /*
+     * Compare is a good function to use to see if requirements are met for..
+     * ..gear, buffs, etc..
+     *
+     * Returns 1 if requirements are met, -1 if requirements are not met
+     *
+     */
+    public int Compare(StatData _other) {
+        if (this.strength < _other.strength) return -1;
+        else if (this.dexterity < _other.dexterity) return -1;
+        else if (this.intelligence < _other.intelligence) return -1;
+        else if (this.fortitude < _other.fortitude) return -1;
+        else if (this.nanoPool < _other.nanoPool) return -1;
+        else if (this.nanoResist < _other.nanoResist) return -1;
+        else if (this.treatment < _other.treatment) return -1;
+        else if (this.firstAid < _other.firstAid) return -1;
+        else if (this.oneHandEdged < _other.oneHandEdged) return -1;
+        else if (this.twoHandEdged < _other.twoHandEdged) return -1;
+        else if (this.pistol < _other.pistol) return -1;
+        else if (this.shotgun < _other.shotgun) return -1;
+        else if (this.evades < _other.evades) return -1;
+        else if (this.crit < _other.crit) return -1;
+        else if (this.attackSpeed < _other.attackSpeed) return -1;
+        else if (this.hacking < _other.hacking) return -1;
+        else if (this.engineering < _other.engineering) return -1;
+        else if (this.programming < _other.programming) return -1;
+        else if (this.quantumMechanics < _other.quantumMechanics) return -1;
+        else if (this.symbiotics < _other.symbiotics) return -1;
+        else if (this.processing < _other.processing) return -1;
+        else if (this.runSpeed < _other.runSpeed) return -1;
+        else if (this.melee < _other.melee) return -1;
+        else return 1;
     }
 }

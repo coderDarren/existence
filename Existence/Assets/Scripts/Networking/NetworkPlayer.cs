@@ -28,6 +28,7 @@ public class NetworkPlayer : Selectable
     private NetworkPlayerData m_LastFrameData;
     private PlayerController m_PlayerController;
     private PlayerCombatController m_PlayerCombat;
+    private EquipmentController m_EquipmentController;
     private Player m_Player;
     private Animator m_Animator;
     private float m_InitialRunning;
@@ -70,6 +71,18 @@ public class NetworkPlayer : Selectable
                 LogWarning("Trying to get network but no instance of NetworkController was found.");
             }
             return m_Network;
+        }
+    }
+
+    private EquipmentController equipmentController {
+        get {
+            if (!m_EquipmentController) {
+                m_EquipmentController = GetComponent<EquipmentController>();
+            }
+            if (!m_EquipmentController) {
+                LogWarning("Trying to get equipment but no instance of EquipmentController was found.");
+            }
+            return m_EquipmentController;
         }
     }
 
