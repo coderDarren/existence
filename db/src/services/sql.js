@@ -306,13 +306,13 @@ class SQLController {
                 }
             }
 
-            return {
-                data: {
-                    player: _player,
-                    sessionData: _sessionData,
-                    stats: _stats
-                }
-            }
+            // add default inventory
+            await this._inventorySlot.create({playerID: _player.id, itemID: 15, lvl: 1, loc: -1});
+            await this._inventorySlot.create({playerID: _player.id, itemID: 16, lvl: 1, loc: -1});
+
+            const _playerData = await this.getPlayer(_params.name);
+
+            return _playerData;
         } catch (_err) {
             return {
                 error: _err

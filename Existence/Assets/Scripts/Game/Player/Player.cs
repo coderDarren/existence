@@ -249,6 +249,7 @@ public class Player : GameSystem
     /// </summary>
     private void InitializeInventory() {
         m_Data.inventory = new List<IItem>();
+        if (m_Data.inventoryData == null) return;
         foreach(string _itemJson in m_Data.inventoryData) {
             IItem _item = ItemData.CreateItem(_itemJson);
             m_Data.inventory.Add(_item);
@@ -265,6 +266,7 @@ public class Player : GameSystem
             return;
         }
 
+        if (m_Data.equipmentData == null) return;
         foreach(string _itemJson in m_Data.equipmentData) {
 
             IItem _item = ItemData.CreateItem(_itemJson);
