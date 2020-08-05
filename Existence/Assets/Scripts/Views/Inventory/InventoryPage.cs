@@ -85,6 +85,7 @@ public class InventoryPage : Page
     }
 
     public void Redraw() {
+        m_PlayerData = session.playerData;
         EraseInventory();
         DrawInventory();
     }
@@ -99,7 +100,6 @@ public class InventoryPage : Page
             instance = this;
         }
         
-        m_PlayerData = session.playerData;
         Redraw();
     }
 

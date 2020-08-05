@@ -180,7 +180,7 @@ public class Player : GameSystem
             Chatbox.instance.EmitMessageLocal("You cannot equip this item. Requirements not met.");
             return;
         } else {
-            Chatbox.instance.EmitMessageLocal("Equipping...");
+            Chatbox.instance.EmitMessageLocal("Equipping "+_item.def.id+"-"+_item.def.slotLoc);
         }
 
         NetworkEquipData _data = new NetworkEquipData(_item.def.id, _item.def.slotLoc);
