@@ -58,7 +58,8 @@ public class InventorySlot : InspectableItem
 
     public void AssignIcon(IItem _item) {
         m_Item = _item;
-        m_Item.def.slotLoc = id;
+        m_Id = _item.def.slotID;
+        //m_Item.def.slotLoc = id;
         Sprite _sprite = Utilities.LoadStreamingAssetsSprite(m_Item.def.icon);
         if (_sprite == null) return;
 
