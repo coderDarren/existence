@@ -130,6 +130,14 @@ public class Chatbox : GameSystem
         TryRunAction(OnChatEnded);
         StartCoroutine(CloseChatAtEndOfFrame());
     }
+
+    // Emits message only for this client
+    // Probably used by a service that needs to notify the player about something..
+    // ..like gear not being compatible
+    // !! TODO This should be coming from the server ultimately
+    public void EmitMessageLocal(string _msg) {
+        OnChat(_msg);
+    }
 #endregion
 
 #region Private Functions
@@ -302,24 +310,18 @@ public class Chatbox : GameSystem
     private void OnPlayerEquipSuccess(NetworkEquipSuccessData _data) {
         if (!session) return;
         if (session.player.data.player.ID == _data.playerID) {
-            // equip for this player
-            // NetworkEntityHandler will equip for other players
-            session.player.EquipItem(_data.itemID, _data.inventoryLoc);
             chatBox.text += "\nYou equipped item "+_data.itemID+".";
         } else {
-            chatBox.text += "\nPlayer "+_data.playerID+" equipped item "+_data.itemID+".";
+            chatBox.text += "\n"+_data.playerName+" equipped item "+_data.itemID+".";
         }
     }
 
     private void OnPlayerUnequipSuccess(NetworkEquipSuccessData _data) {
         if (!session) return;
         if (session.player.data.player.ID == _data.playerID) {
-            // equip for this player
-            // NetworkEntityHandler will unequip for other players
-            session.player.UnequipItem(_data.itemID, _data.inventorySlot);
             chatBox.text += "\nYou unequipped item "+_data.itemID+".";
         } else {
-            chatBox.text += "\nPlayer "+_data.playerID+" unequipped item "+_data.itemID+".";
+            chatBox.text += "\n"+_data.playerName+" unequipped item "+_data.itemID+".";
         }
     }
 

@@ -12,10 +12,10 @@ public class EquipmentPage : Page
 {
     public static EquipmentPage instance;
     
+    public CanvasGroup[] menuButtons;
     public EquipmentWindow[] windows;
 
     private Session m_Session;
-    private PlayerData m_PlayerData;
     private int m_ActiveWindow;
 
     // get Session with integrity
@@ -33,17 +33,27 @@ public class EquipmentPage : Page
 
 #region Public Functions
     public void Redraw() {
-        m_PlayerData = session.playerData;
-        windows[m_ActiveWindow].InitWindow(this, m_PlayerData);
-        windows[m_ActiveWindow].EraseWindow();
-        windows[m_ActiveWindow].DrawWindow();
+        OpenPage(m_ActiveWindow);
     }
 
     public void UnequipItem(IItem _item) {
         if (!session) return;
-        if (!session.network) return;
-        NetworkEquipData _data = new NetworkEquipData(_item.def.id, -1);
-        session.network.Unequip(_data);
+        session.player.NetworkUnequip(_item);
+    }
+
+    public void OpenPage(int _index) {
+        if (windows[m_ActiveWindow].gameObject.activeSelf) {
+            windows[m_ActiveWindow].EraseWindow();
+            windows[m_ActiveWindow].gameObject.SetActive(false);
+            menuButtons[m_ActiveWindow].alpha = 0.5f;
+        }
+
+        m_ActiveWindow = _index;
+        windows[m_ActiveWindow].gameObject.SetActive(true);
+        windows[m_ActiveWindow].InitWindow(this, session.playerData);
+        windows[m_ActiveWindow].EraseWindow();
+        windows[m_ActiveWindow].DrawWindow();
+        menuButtons[m_ActiveWindow].alpha = 1.0f;
     }
 #endregion
     

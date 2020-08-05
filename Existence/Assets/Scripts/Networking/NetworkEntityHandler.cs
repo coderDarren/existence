@@ -94,6 +94,8 @@ public class NetworkEntityHandler : GameSystem
         network.OnPlayerSpawn += OnPlayerSpawn;
         network.OnPlayerExit += OnPlayerExit;
         network.OnPlayerHit += OnPlayerHit;
+        network.OnPlayerEquipSuccess += OnPlayerEquipSuccess;
+        network.OnPlayerUnequipSuccess += OnPlayerUnequipSuccess;
         network.OnMobSpawn += OnMobSpawn;
         network.OnMobExit += OnMobExit;
         network.OnMobAttackRangeStateChange += OnMobAttackRangeStateChange;
@@ -111,6 +113,8 @@ public class NetworkEntityHandler : GameSystem
         network.OnPlayerSpawn -= OnPlayerSpawn;
         network.OnPlayerExit -= OnPlayerExit;
         network.OnPlayerHit -= OnPlayerHit;
+        network.OnPlayerEquipSuccess -= OnPlayerEquipSuccess;
+        network.OnPlayerUnequipSuccess -= OnPlayerUnequipSuccess;
         network.OnMobSpawn -= OnMobSpawn;
         network.OnMobExit -= OnMobExit;
         network.OnMobAttackRangeStateChange -= OnMobAttackRangeStateChange;
@@ -141,6 +145,16 @@ public class NetworkEntityHandler : GameSystem
         }
     }
 
+    private void OnInstanceUpdated(NetworkInstanceData _instance) {
+        foreach(NetworkPlayerData _player in _instance.players) {
+            MovePlayer(_player);
+        }
+
+        foreach(NetworkMobData _mob in _instance.mobs) {
+            MoveMob(_mob);
+        }
+    }
+
     private void OnPlayerSpawn(NetworkPlayerData _player) {
         SpawnPlayer(_player);
     }
@@ -161,6 +175,65 @@ public class NetworkEntityHandler : GameSystem
         if (session.player.data.player.name == _data.playerName) {
             session.player.data.player.health = _data.health;
         }
+    }
+
+    private void OnPlayerEquipSuccess(NetworkEquipSuccessData _data) {
+        string _name = _data.playerName;
+
+        if (_name == session.playerData.player.name) {
+            session.player.EquipItem(_data.itemID, _data.inventoryLoc);
+        } else {
+            if (!m_PlayersHash.ContainsKey(_name)) return; // could not find player
+            NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_name];
+            EquipmentController _equipment = _player.GetComponent<EquipmentController>();
+            _equipment.Equip(_data.itemID);
+        }
+    }
+
+    private void OnPlayerUnequipSuccess(NetworkEquipSuccessData _data) {
+        string _name = _data.playerName;
+
+        if (_name == session.playerData.player.name) {
+            session.player.UnequipItem(_data.itemID, _data.inventorySlot);
+        } else {
+            if (!m_PlayersHash.ContainsKey(_name)) return; // could not find player
+            NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_name];
+            EquipmentController _equipment = _player.GetComponent<EquipmentController>();
+            _equipment.Unequip(_data.itemID);
+        }
+    }
+
+    private void SpawnPlayer(NetworkPlayerData _data) {
+        string _name = _data.name;
+        if (_name == null) return;
+        if (_name == session.playerData.player.name) return; //this is you..
+        if (m_PlayersHash.ContainsKey(_name)) return; // player already exists
+        GameObject _obj = Instantiate(networkPlayerObject);
+        NetworkPlayer _player = _obj.GetComponent<NetworkPlayer>();
+        _player.Init(_data);
+        _player.UpdateServerPlayer(_data);
+        m_PlayersHash.Add(_name, _player);
+        m_Players.Add(_player);
+        NameplateController.instance.TrackSelectable((Selectable)_player);
+    }
+
+    private void MovePlayer(NetworkPlayerData _data) {
+        string _name = _data.name;
+
+        if (_name == session.playerData.player.name) return; //this is you..
+        if (!m_PlayersHash.ContainsKey(_name)) return; // could not find player
+        NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_name];
+        _player.UpdateServerPlayer(_data);
+    }
+
+    private void RemovePlayer(NetworkPlayer _data) {
+        string _playerName = _data.name;
+        if (_playerName == session.playerData.player.name) return; //this is you..
+        if (!m_PlayersHash.ContainsKey(_playerName)) return;
+        m_PlayersHash.Remove(_playerName);
+        m_PlayerUpdateState.Remove(_playerName);
+        Destroy(_data.gameObject);
+        NameplateController.instance.ForgetSelectable((Selectable)_data);
     }
 
     private void OnMobSpawn(NetworkMobData _mob) {
@@ -184,71 +257,16 @@ public class NetworkEntityHandler : GameSystem
         TryAction(OnMobDidDie, _mob);
     }
 
-    private void OnInstanceUpdated(NetworkInstanceData _instance) {
-        foreach(NetworkPlayerData _player in _instance.players) {
-            MovePlayer(_player);
-        }
-
-        foreach(NetworkMobData _mob in _instance.mobs) {
-            MoveMob(_mob);
-        }
-    }
-
-    private void SpawnPlayer(NetworkPlayerData _data) {
-        try {
-            string _name = _data.name;
-            if (_name == null) return;
-            if (_name == session.playerData.player.name) return; //this is you..
-            if (m_PlayersHash.ContainsKey(_name)) return; // player already exists
-            GameObject _obj = Instantiate(networkPlayerObject);
-            NetworkPlayer _player = _obj.GetComponent<NetworkPlayer>();
-            _player.Init(_data);
-            _player.UpdateServerPlayer(_data);
-            m_PlayersHash.Add(_name, _player);
-            m_Players.Add(_player);
-            NameplateController.instance.TrackSelectable((Selectable)_player);
-        } catch(System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void MovePlayer(NetworkPlayerData _data) {
-        string _name = _data.name;
-
-        if (_name == session.playerData.player.name) return; //this is you..
-        if (!m_PlayersHash.ContainsKey(_name)) return; // could not find player
-        NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_name];
-        _player.UpdateServerPlayer(_data);
-    }
-
-    private void RemovePlayer(NetworkPlayer _data) {
-        try {
-            string _playerName = _data.name;
-            if (_playerName == session.playerData.player.name) return; //this is you..
-            if (!m_PlayersHash.ContainsKey(_playerName)) return;
-            m_PlayersHash.Remove(_playerName);
-            m_PlayerUpdateState.Remove(_playerName);
-            Destroy(_data.gameObject);
-            NameplateController.instance.ForgetSelectable((Selectable)_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
     private void SpawnMob(NetworkMobData _data) {
-        try {
-            string _name = _data.id;
-            if (_name == null) return;
-            if (m_MobsHash.ContainsKey(_name)) return; // mob already exists
-            GameObject _obj = Instantiate(networkDummyObject);
-            Mob _mob = _obj.GetComponent<Mob>();
-            _mob.Init(_data);
-            m_MobsHash.Add(_name, _mob);
-            m_Mobs.Add(_mob);
-            NameplateController.instance.TrackSelectable((Selectable)_mob);
-        } catch(System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
+        string _name = _data.id;
+        if (_name == null) return;
+        if (m_MobsHash.ContainsKey(_name)) return; // mob already exists
+        GameObject _obj = Instantiate(networkDummyObject);
+        Mob _mob = _obj.GetComponent<Mob>();
+        _mob.Init(_data);
+        m_MobsHash.Add(_name, _mob);
+        m_Mobs.Add(_mob);
+        NameplateController.instance.TrackSelectable((Selectable)_mob);
     }
 
     private void MoveMob(NetworkMobData _data) {

@@ -9,6 +9,7 @@ public class NetworkEquipData : NetworkModel {
 }
 
 public class NetworkEquipSuccessData : NetworkModel {
+    public string playerName;
     public int playerID;
     public int itemID;
     public int inventoryLoc;
