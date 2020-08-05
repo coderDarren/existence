@@ -131,6 +131,14 @@ public class NetworkPlayer : Selectable
         m_TargetPos = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
         m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
         transform.position = m_TargetPos;
+
+        foreach (ArmorItemData _item in _data.equipment.armor) {
+            equipmentController.Equip(_item);
+        }
+
+        foreach (WeaponItemData _item in _data.equipment.weapons) {
+            equipmentController.Equip(_item);
+        }
     }
 
     public void Init(PlayerData _data) {
@@ -218,6 +226,7 @@ public class NetworkPlayer : Selectable
         m_ClientData.maxHealth = m_Player.MaxHealth();
         m_ClientData.health = m_Player.data.player.health;
         m_ClientData.lvl = m_Player.data.player.level;
+        m_ClientData.equipment = m_Player.data.equipment;
 
         UpdateNameplate(m_ClientData.name, m_ClientData.health, m_ClientData.maxHealth, m_ClientData.lvl);
       
