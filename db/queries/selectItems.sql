@@ -10,11 +10,6 @@
     speed int not null default 1,
     foreign key (itemID) references items(ID)
 );*/
-#alter table weaponItems add column speed int not null default 1;
-#alter table items add column itemType int not null default 0;
-#delete from items where ID >= 13;
-#delete from stats where ID >= 124;
-#delete from armorItems where ID >= 0;
 select * from weaponItems;
 select * from armorItems;
 select * from items

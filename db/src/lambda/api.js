@@ -16,6 +16,8 @@ const modifyItem = require('./modifyItem.js');
 const getMobLoot = require('./getMobLoot.js');
 const getItem = require('./getItem.js');
 const modifyElement = require('./modifyElement.js');
+const equip = require('./equip.js');
+const unequip = require('./unequip.js');
 
 const versionCode = '0.1';
 const api = async function(_event, _context) {
@@ -84,6 +86,12 @@ const handleRoute = async function(_req) {
             break;
         case "/api/modifyElement": // POST
             _resp = await modifyElement(_req.body);
+            break;
+        case "/api/equip": // POST
+            _resp = await equip(_req.body);
+            break;
+        case "/api/unequip": // POST
+            _resp = await unequip(_req.body);
             break;
     }
 

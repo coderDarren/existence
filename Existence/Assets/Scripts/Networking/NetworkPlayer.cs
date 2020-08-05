@@ -28,6 +28,7 @@ public class NetworkPlayer : Selectable
     private NetworkPlayerData m_LastFrameData;
     private PlayerController m_PlayerController;
     private PlayerCombatController m_PlayerCombat;
+    private EquipmentController m_EquipmentController;
     private Player m_Player;
     private Animator m_Animator;
     private float m_InitialRunning;
@@ -70,6 +71,18 @@ public class NetworkPlayer : Selectable
                 LogWarning("Trying to get network but no instance of NetworkController was found.");
             }
             return m_Network;
+        }
+    }
+
+    private EquipmentController equipmentController {
+        get {
+            if (!m_EquipmentController) {
+                m_EquipmentController = GetComponent<EquipmentController>();
+            }
+            if (!m_EquipmentController) {
+                LogWarning("Trying to get equipment but no instance of EquipmentController was found.");
+            }
+            return m_EquipmentController;
         }
     }
 
@@ -118,6 +131,14 @@ public class NetworkPlayer : Selectable
         m_TargetPos = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
         m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
         transform.position = m_TargetPos;
+
+        foreach (ArmorItemData _item in _data.equipment.armor) {
+            equipmentController.Equip(_item);
+        }
+
+        foreach (WeaponItemData _item in _data.equipment.weapons) {
+            equipmentController.Equip(_item);
+        }
     }
 
     public void Init(PlayerData _data) {
@@ -205,6 +226,7 @@ public class NetworkPlayer : Selectable
         m_ClientData.maxHealth = m_Player.MaxHealth();
         m_ClientData.health = m_Player.data.player.health;
         m_ClientData.lvl = m_Player.data.player.level;
+        m_ClientData.equipment = m_Player.data.equipment;
 
         UpdateNameplate(m_ClientData.name, m_ClientData.health, m_ClientData.maxHealth, m_ClientData.lvl);
       

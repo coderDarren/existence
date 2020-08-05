@@ -16,7 +16,8 @@
             CharacterCreation,
             Inventory,
             LootPreview,
-            Attacks
+            Attacks,
+            Equipment
         }
     }
 }

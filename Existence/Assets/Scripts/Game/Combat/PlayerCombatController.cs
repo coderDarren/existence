@@ -112,7 +112,8 @@ public class PlayerCombatController : GameSystem
 #region Public Functions
     public void AttackEnd(){        
         if(!m_Target) return;
-        m_Weapon.GetComponent<AudioSource>().Play();
+        if (m_Weapon.GetComponent<AudioSource>())
+            m_Weapon.GetComponent<AudioSource>().Play();
         m_Target.Hit(50);         
     }
 
@@ -142,7 +143,8 @@ public class PlayerCombatController : GameSystem
             m_SpecialInput = true;            
             StartAutoAttack();
             m_Animator.SetBool(_special, true);
-            m_Weapon.GetComponent<AudioSource>().Play();
+            if (m_Weapon.GetComponent<AudioSource>())
+                m_Weapon.GetComponent<AudioSource>().Play();
             try{
                 for(int i = 0; i < m_Effect.Length; i++){
                     ParticleSystem m_currentSystem = m_Effect[i];
@@ -214,7 +216,7 @@ public class PlayerCombatController : GameSystem
     }
 
     private void ChargeEffects(){
-        
+        if (m_Glow == null || m_Charge == null) return;
         if(m_Glow[0].gameObject != null){
             for(int i = 0; i < m_Glow.Length; i++){                
                 ParticleSystem m_currentSystem = m_Glow[i];

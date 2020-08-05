@@ -22,9 +22,11 @@ public class Player : GameSystem
     private StatData m_TrickleStats;
     private Session m_Session;
     private InventoryPage m_InventoryWindow;
+    private EquipmentPage m_EquipmentWindow;
     private int healDelta = 5;
     private float healDeltaTimer = 0;
     private float healDeltaSeconds = 1;
+    private EquipmentController m_EquipmentController;
 
     public PlayerData data {
         get {
@@ -69,6 +71,24 @@ public class Player : GameSystem
         }
     }
 
+    private EquipmentPage equipmentWindow {
+        get {
+            if (!m_EquipmentWindow) {
+                m_EquipmentWindow = EquipmentPage.instance;
+            }
+            return m_EquipmentWindow;
+        }
+    }
+
+    private EquipmentController equipmentController {
+        get {
+            if (!m_EquipmentController) {
+                m_EquipmentController = GetComponent<EquipmentController>();
+            }
+            return m_EquipmentController;
+        }
+    }
+
 #region Unity Functions
     private void Update() {
         HandleHealDelta();
@@ -85,8 +105,8 @@ public class Player : GameSystem
         m_Data.player.health = MaxHealth();
         InitializeStats();
         InitializeInventory();
-        //InitializeEquipment();
-        InitializeTestEquipment();
+        InitializeEquipment();
+        //InitializeTestEquipment();
 
         if (session && session.network) {
             session.network.OnMobDeath += OnMobDeath;
@@ -152,6 +172,73 @@ public class Player : GameSystem
             inventoryWindow.Redraw();
         }
     }
+
+    public void NetworkEquip(IItem _item) {
+        if (!session.network) return;
+        // check if stats are good enough
+        if (GetAggregatedStats().Compare(_item.def.requirements) == -1) {
+            Chatbox.instance.EmitMessageLocal("You cannot equip this item. Requirements not met.");
+            return;
+        } else {
+            Chatbox.instance.EmitMessageLocal("Equipping...");
+        }
+
+        NetworkEquipData _data = new NetworkEquipData(_item.def.id, _item.def.slotLoc);
+        session.network.Equip(_data);
+    }
+
+    public void NetworkUnequip(IItem _item) {
+        if (!session.network) return;
+        NetworkEquipData _data = new NetworkEquipData(_item.def.id, -1);
+        session.network.Unequip(_data);
+    }
+
+    public void EquipItem(int _id, int _loc) {
+        for (int i = m_Data.inventory.Count - 1; i >= 0; i--) {
+            IItem _item = m_Data.inventory[i];
+            if (_item.def.id == _id &&_item.def.slotLoc == _loc) {
+                switch (_item.def.itemType) {
+                    case ItemType.WEAPON: 
+                        m_Data.equipment.weapons.Add((WeaponItemData)_item);
+                        equipmentController.Equip((WeaponItemData)_item);
+                        break;
+                    case ItemType.ARMOR: 
+                        m_Data.equipment.armor.Add((ArmorItemData)_item); 
+                        equipmentController.Equip((ArmorItemData)_item);
+                        break;
+                    default: break;
+                }
+                m_GearStats = m_GearStats.Combine(_item.def.effects);
+                m_Data.inventory.RemoveAt(i);
+                break;
+            }
+        }
+
+        // redraw inventory if the window is open
+        if (inventoryWindow) {
+            inventoryWindow.Redraw();
+        }
+
+        // redraw equipment if the window is open
+        if (equipmentWindow) {
+            equipmentWindow.Redraw();
+        }
+    }
+
+    public void UnequipItem(int _id, int _inventoryID) {
+        TryUnequipItem(_id, _inventoryID, ref m_Data.equipment.armor);
+        TryUnequipItem(_id, _inventoryID, ref m_Data.equipment.weapons);
+
+        // redraw inventory if the window is open
+        if (inventoryWindow) {
+            inventoryWindow.Redraw();
+        }
+
+        // redraw equipment if the window is open
+        if (equipmentWindow) {
+            equipmentWindow.Redraw();
+        }
+    }
 #endregion
 
 #region Private Functions
@@ -162,6 +249,7 @@ public class Player : GameSystem
     /// </summary>
     private void InitializeInventory() {
         m_Data.inventory = new List<IItem>();
+        if (m_Data.inventoryData == null) return;
         foreach(string _itemJson in m_Data.inventoryData) {
             IItem _item = ItemData.CreateItem(_itemJson);
             m_Data.inventory.Add(_item);
@@ -173,11 +261,27 @@ public class Player : GameSystem
         m_Data.equipment.armor = new List<ArmorItemData>();
         m_Data.equipment.weapons = new List<WeaponItemData>();
 
+        if (m_Data.equipmentData == null) {
+            InitializeTestEquipment();
+            return;
+        }
+
+        if (m_Data.equipmentData == null) return;
         foreach(string _itemJson in m_Data.equipmentData) {
+
             IItem _item = ItemData.CreateItem(_itemJson);
+
             switch (_item.def.itemType) {
-                case ItemType.WEAPON: m_Data.equipment.weapons.Add((WeaponItemData)_item); break;
-                case ItemType.ARMOR: m_Data.equipment.armor.Add((ArmorItemData)_item); break;
+                case ItemType.WEAPON: 
+                    m_Data.equipment.weapons.Add((WeaponItemData)_item); 
+                    equipmentController.Equip((WeaponItemData)_item);
+                    m_GearStats = m_GearStats.Combine(_item.def.effects);
+                    break;
+                case ItemType.ARMOR: 
+                    m_Data.equipment.armor.Add((ArmorItemData)_item); 
+                    equipmentController.Equip((ArmorItemData)_item);
+                    m_GearStats = m_GearStats.Combine(_item.def.effects);
+                    break;
                 default: break;
             }
         }
@@ -190,11 +294,11 @@ public class Player : GameSystem
 
         // add your weapons to test here
         // id is kind of irrelevant in test mode
-        m_Data.equipment.weapons.Add(new WeaponItemData(123, WeaponType.R_HAND));
+        m_Data.equipment.weapons.Add(new WeaponItemData(123, GearType.R_HAND, "/db/icons/low-amp-phaser.png"));
 
         // access the weapon type and id
         Log("Weapon id: "+m_Data.equipment.weapons[0].def.id);
-        Log("Weapon type: "+m_Data.equipment.weapons[0].weaponType);
+        Log("Weapon type: "+m_Data.equipment.weapons[0].slotType);
 
         // accessing this from the session...
         // session.player.data.equipment.weapons[0].def.id
@@ -235,6 +339,27 @@ public class Player : GameSystem
         foreach (NetworkMobXpAllottment _mxa in _data.xpAllottment) {
             if (m_Data.player.name == _mxa.playerName) {
                 AddXp(_mxa.xp);
+                break;
+            }
+        }
+    }
+
+    private void TryUnequipItem<T>(int _id, int _inventoryID, ref List<T> _arr) where T : IItem {
+        for (int i = _arr.Count - 1; i >= 0; i--) {
+            IItem _item = _arr[i];
+            if (_item.def.id == _id) {
+                _item.def.slotLoc = -1;
+                _item.def.slotID = _inventoryID;
+                m_Data.inventory.Add(_item);
+                m_GearStats = m_GearStats.Reduce(_item.def.effects);
+
+                if (typeof(T) == typeof(WeaponItemData)) {
+                    equipmentController.Unequip((GearType)((WeaponItemData)_item).slotType);
+                } else if (typeof(T) == typeof(ArmorItemData)) {
+                    equipmentController.Unequip((GearType)((ArmorItemData)_item).slotType);
+                }
+
+                _arr.RemoveAt(i);
                 break;
             }
         }

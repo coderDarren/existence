@@ -9,7 +9,7 @@ const validateParams = function(_body)
     const _account = _body.id;
     const _apiKey = _body.apiKey;
     const _lvl = _body.lvl;
-    if (!_account || !_apiKey || _itemID == undefined || !_playerID || !_lvl) return -1;
+    if (!_account || !_apiKey || _itemID == undefined || _playerID == undefined || _lvl == undefined) return -1;
     return {
         itemID: _itemID,
         playerID: _playerID,
@@ -20,9 +20,9 @@ const validateParams = function(_body)
 }
 
 const addInventory = async function(_body) {
-    console.log(`body: ${JSON.stringify(_body)}`);
+    //console.log(`body: ${JSON.stringify(_body)}`);
     const _params = validateParams(_body);
-    console.log(_params);
+    //console.log(_params);
     if (_params == -1) {
         return {
             error: "Invalid request body."
