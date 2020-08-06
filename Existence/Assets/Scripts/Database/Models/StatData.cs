@@ -28,6 +28,38 @@ public class StatData : NetworkModel
     public int runSpeed;
     public int melee;
 
+    /*
+     * Using this constructor, we can initialize some id-less StatData..
+     * ..which may be useful when determining skill point maximums based on level
+     */
+    public StatData(int _scalar) {
+        strength = _scalar;
+        dexterity = _scalar;
+        intelligence = _scalar;
+        fortitude = _scalar;
+        nanoPool = _scalar;
+        nanoResist = _scalar;
+        treatment = _scalar;
+        firstAid = _scalar;
+        oneHandEdged = _scalar;
+        twoHandEdged = _scalar;
+        pistol = _scalar;
+        shotgun = _scalar;
+        evades = _scalar;
+        crit = _scalar;
+        attackSpeed = _scalar;
+        hacking = _scalar;
+        engineering = _scalar;
+        programming = _scalar;
+        quantumMechanics = _scalar;
+        symbiotics = _scalar;
+        processing = _scalar;
+        runSpeed = _scalar;
+        melee = _scalar;
+    }
+
+    public StatData() {}
+
     public static StatData Copy(StatData _in) {
         StatData _out = new StatData();
         _out.ID = _in.ID;
@@ -159,90 +191,50 @@ public class StatData : NetworkModel
     }
 
     public StatData Combine(StatData _in) {
-        StatData _out = StatData.Copy(this);
-        _out.ID = _in.ID;
-        _out.strength += _in.strength;
-        _out.dexterity += _in.dexterity;
-        _out.intelligence += _in.intelligence;
-        _out.fortitude += _in.fortitude;
-        _out.nanoPool += _in.nanoPool;
-        _out.nanoResist += _in.nanoResist;
-        _out.treatment += _in.treatment;
-        _out.firstAid += _in.firstAid;
-        _out.oneHandEdged += _in.oneHandEdged;
-        _out.twoHandEdged += _in.twoHandEdged;
-        _out.pistol += _in.pistol;
-        _out.shotgun += _in.shotgun;
-        _out.evades += _in.evades;
-        _out.crit += _in.crit;
-        _out.attackSpeed += _in.attackSpeed;
-        _out.hacking += _in.hacking;
-        _out.engineering += _in.engineering;
-        _out.programming += _in.programming;
-        _out.quantumMechanics += _in.quantumMechanics;
-        _out.symbiotics += _in.symbiotics;
-        _out.processing += _in.processing;
-        _out.runSpeed += _in.runSpeed;
-        _out.melee += _in.melee;
-        return _out;
+        return OperateStats(_in, "+");
     }
 
     public StatData Reduce(StatData _in) {
+        return OperateStats(_in, "-");
+    }
+
+    private StatData OperateStats(StatData _in, string _op) {
         StatData _out = StatData.Copy(this);
         _out.ID = _in.ID;
-        _out.strength -= _in.strength;
-        _out.dexterity -= _in.dexterity;
-        _out.intelligence -= _in.intelligence;
-        _out.fortitude -= _in.fortitude;
-        _out.nanoPool -= _in.nanoPool;
-        _out.nanoResist -= _in.nanoResist;
-        _out.treatment -= _in.treatment;
-        _out.firstAid -= _in.firstAid;
-        _out.oneHandEdged -= _in.oneHandEdged;
-        _out.twoHandEdged -= _in.twoHandEdged;
-        _out.pistol -= _in.pistol;
-        _out.shotgun -= _in.shotgun;
-        _out.evades -= _in.evades;
-        _out.crit -= _in.crit;
-        _out.attackSpeed -= _in.attackSpeed;
-        _out.hacking -= _in.hacking;
-        _out.engineering -= _in.engineering;
-        _out.programming -= _in.programming;
-        _out.quantumMechanics -= _in.quantumMechanics;
-        _out.symbiotics -= _in.symbiotics;
-        _out.processing -= _in.processing;
-        _out.runSpeed -= _in.runSpeed;
-        _out.melee -= _in.melee;
+        _out.strength = OperateValues(_out.strength, _in.strength, _op);
+        _out.dexterity = OperateValues(_out.dexterity, _in.dexterity, _op);
+        _out.intelligence = OperateValues(_out.intelligence, _in.intelligence, _op);
+        _out.fortitude = OperateValues(_out.fortitude, _in.fortitude, _op);
+        _out.nanoPool = OperateValues(_out.nanoPool, _in.nanoPool, _op);
+        _out.nanoResist = OperateValues(_out.nanoResist, _in.nanoResist, _op);
+        _out.treatment = OperateValues(_out.treatment, _in.treatment, _op);
+        _out.firstAid = OperateValues(_out.firstAid, _in.firstAid, _op);
+        _out.oneHandEdged = OperateValues(_out.oneHandEdged, _in.oneHandEdged, _op);
+        _out.twoHandEdged = OperateValues(_out.twoHandEdged, _in.twoHandEdged, _op);
+        _out.pistol = OperateValues(_out.pistol, _in.pistol, _op);
+        _out.shotgun = OperateValues(_out.shotgun, _in.shotgun, _op);
+        _out.evades = OperateValues(_out.evades, _in.evades, _op);
+        _out.crit = OperateValues(_out.crit, _in.crit, _op);
+        _out.attackSpeed = OperateValues(_out.attackSpeed, _in.attackSpeed, _op);
+        _out.hacking = OperateValues(_out.hacking, _in.hacking, _op);
+        _out.engineering = OperateValues(_out.engineering, _in.engineering, _op);
+        _out.programming = OperateValues(_out.programming, _in.programming, _op);
+        _out.quantumMechanics = OperateValues(_out.quantumMechanics, _in.quantumMechanics, _op);
+        _out.symbiotics = OperateValues(_out.symbiotics, _in.symbiotics, _op);
+        _out.processing = OperateValues(_out.processing, _in.processing, _op);
+        _out.runSpeed = OperateValues(_out.runSpeed, _in.runSpeed, _op);
+        _out.melee = OperateValues(_out.melee, _in.melee, _op);
         return _out;
     }
 
-    public Hashtable ToHashtable() {
-        Hashtable _out = new Hashtable();
-        _out["ID"] = this.ID;
-        _out["strength"] = this.strength;
-        _out["dexterity"] = this.dexterity;
-        _out["intelligence"] = this.intelligence;
-        _out["fortitude"] = this.fortitude;
-        _out["nanoPool"] = this.nanoPool;
-        _out["nanoResist"] = this.nanoResist;
-        _out["treatment"] = this.treatment;
-        _out["firstAid"] = this.firstAid;
-        _out["oneHandEdged"] = this.oneHandEdged;
-        _out["twoHandEdged"] = this.twoHandEdged;
-        _out["pistol"] = this.pistol;
-        _out["shotgun"] = this.shotgun;
-        _out["evades"] = this.evades;
-        _out["crit"] = this.crit;
-        _out["attackSpeed"] = this.attackSpeed;
-        _out["hacking"] = this.hacking;
-        _out["engineering"] = this.engineering;
-        _out["programming"] = this.programming;
-        _out["quantumMechanics"] = this.quantumMechanics;
-        _out["symbiotics"] = this.symbiotics;
-        _out["processing"] = this.processing;
-        _out["runSpeed"] = this.runSpeed;
-        _out["melee"] = this.melee;
-        return _out;
+    private int OperateValues(int _val1, int _val2, string _op) {
+        switch (_op) {
+            case "+": return _val1 + _val2;
+            case "-": return _val1 - _val2;
+            case "*": return _val1 * _val2;
+            case "/": return _val1 / _val2;
+            default: return 0;
+        }
     }
 
     /*
@@ -277,5 +269,34 @@ public class StatData : NetworkModel
         else if (this.runSpeed < _other.runSpeed) return -1;
         else if (this.melee < _other.melee) return -1;
         else return 1;
+    }
+
+    public Hashtable ToHashtable() {
+        Hashtable _out = new Hashtable();
+        _out["ID"] = this.ID;
+        _out["strength"] = this.strength;
+        _out["dexterity"] = this.dexterity;
+        _out["intelligence"] = this.intelligence;
+        _out["fortitude"] = this.fortitude;
+        _out["nanoPool"] = this.nanoPool;
+        _out["nanoResist"] = this.nanoResist;
+        _out["treatment"] = this.treatment;
+        _out["firstAid"] = this.firstAid;
+        _out["oneHandEdged"] = this.oneHandEdged;
+        _out["twoHandEdged"] = this.twoHandEdged;
+        _out["pistol"] = this.pistol;
+        _out["shotgun"] = this.shotgun;
+        _out["evades"] = this.evades;
+        _out["crit"] = this.crit;
+        _out["attackSpeed"] = this.attackSpeed;
+        _out["hacking"] = this.hacking;
+        _out["engineering"] = this.engineering;
+        _out["programming"] = this.programming;
+        _out["quantumMechanics"] = this.quantumMechanics;
+        _out["symbiotics"] = this.symbiotics;
+        _out["processing"] = this.processing;
+        _out["runSpeed"] = this.runSpeed;
+        _out["melee"] = this.melee;
+        return _out;
     }
 }
