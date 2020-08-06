@@ -24,7 +24,8 @@ public class Player : GameSystem
     private EquipmentPage m_EquipmentWindow;
     private int healDelta = 5;
     private float healDeltaTimer = 0;
-    private float healDeltaSeconds = 1;
+    private float healDeltaSeconds = 5;
+    private int lastFrameHealth = 0;
     private EquipmentController m_EquipmentController;
 
     public PlayerData data {
@@ -345,6 +346,11 @@ public class Player : GameSystem
     }
 
     private void HandleHealDelta() {
+        if (lastFrameHealth > m_Data.player.health) {
+            healDeltaTimer = 0;
+        }
+        lastFrameHealth = m_Data.player.health;
+
         healDeltaTimer += Time.deltaTime;
         if (healDeltaTimer >= healDeltaSeconds) {
             m_Data.player.health += healDelta;
