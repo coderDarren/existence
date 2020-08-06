@@ -81,7 +81,12 @@ class SQLController {
 
         var _subItem = null;
         switch (_item.itemType) {
-            case ItemType.WEAPON: _subItem = await this._weaponItem.findOne({where: {itemID: _item.ID}}); break;
+            case ItemType.WEAPON: 
+                _subItem = await this._weaponItem.findOne({where: {itemID: _item.ID}});
+                _subItem.dataValues.damageMin *= _ql;
+                _subItem.dataValues.damageMax *= _ql;
+                _item.description = `Damage: ${_subItem.dataValues.damageMin} - ${_subItem.dataValues.damageMax}`;
+                break;
             case ItemType.ARMOR: _subItem = await this._armorItem.findOne({where: {itemID: _item.ID}}); break;
             default: break;
         }
@@ -979,6 +984,7 @@ class SQLController {
             twoHandEdged: DataTypes.INTEGER,
             pistol: DataTypes.INTEGER,
             evades: DataTypes.INTEGER,
+            shotgun: DataTypes.INTEGER,
             crit: DataTypes.INTEGER,
             attackSpeed: DataTypes.INTEGER,
             hacking: DataTypes.INTEGER,
