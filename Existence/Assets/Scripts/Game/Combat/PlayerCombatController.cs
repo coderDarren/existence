@@ -102,8 +102,9 @@ public class PlayerCombatController : GameSystem
         if (instance != this) return;
         specialRecharge += Time.deltaTime;
         m_Weapon = GameObject.FindGameObjectWithTag("Weapon");
-        m_WepData = m_Player.data.equipment.weapons[0];
-        
+
+        if (m_Player.data.equipment.weapons.Count > 0)
+            m_WepData = m_Player.data.equipment.weapons[0];
 
         GetInput();     
         Attack();

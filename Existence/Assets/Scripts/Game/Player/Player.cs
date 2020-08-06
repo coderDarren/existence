@@ -51,6 +51,9 @@ public class Player : GameSystem
 
     public Weapon weapon {
         get {
+            if (m_Data.equipment.weapons == null || m_Data.equipment.weapons.Count == 0) {
+                return Weapon.oneHandMelee;
+            }
             WeaponItemData _wep = m_Data.equipment.weapons[0];
             if (_wep == null) return Weapon.oneHandMelee;
             switch (_wep.def.id) {
@@ -154,6 +157,16 @@ public class Player : GameSystem
         StatData _out = m_Data.stats.Combine(m_GearStats).Combine(m_BuffStats);
         m_TrickleStats = StatData.TrickleFrom(_out);
         return _out.Combine(m_TrickleStats);
+    }
+
+    /// <summary>
+    /// Returns a StatData object representing stat value..
+    /// ..limitations on a per skill basis for the player's level
+    ///
+    /// Breed and profession may be taken into account..
+    /// <summary>
+    public StatData GetStatMaximums() {
+        return new StatData(m_Data.player.level * 4);
     }
 
     public async void AddXp(int _xp) {
