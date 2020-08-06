@@ -13,7 +13,6 @@ public class Player : GameSystem
     public event IntAction OnXpAdded;   
 
     public enum Weapon {oneHandRanged, oneHandMelee, twoHandRanged, twoHandMelee, fist};
-    public Weapon weapon;
     public float range;
     
     private PlayerData m_Data;
@@ -46,6 +45,25 @@ public class Player : GameSystem
     public StatData buffStats {
         get {
             return m_BuffStats;
+        }
+    }
+
+    public Weapon weapon {
+        get {
+            WeaponItemData _wep = m_Data.equipment.weapons[0];
+            if (_wep == null) return Weapon.oneHandMelee;
+            switch (_wep.def.id) {
+                case 15:
+                case 19:
+                    return Weapon.oneHandMelee;
+                case 16:
+                case 18:
+                    return Weapon.twoHandRanged;
+                break;
+                default:
+                    return Weapon.oneHandMelee;
+                    break;
+            }
         }
     }
 
