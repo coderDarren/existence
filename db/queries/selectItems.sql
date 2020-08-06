@@ -10,6 +10,7 @@
     speed int not null default 1,
     foreign key (itemID) references items(ID)
 );*/
+
 select * from weaponItems;
 select * from armorItems;
 select * from items

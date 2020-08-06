@@ -92,6 +92,7 @@ public class WeaponItemData : NetworkModel, IItem
     public int damageMin;
     public int damageMax;
     public int speed;
+    public int attackRange;
 
     public WeaponItemData(int _id, GearType _type, string _icon) {
         def = new ItemData(_id);

@@ -20,7 +20,7 @@ public class Attack : StateMachineBehaviour
 
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         m_PlayerCombat = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCombatController>();
-        range = m_Player.range;
+        range = m_Player.attackRange;
         safetySpeed = 0;
     }
     

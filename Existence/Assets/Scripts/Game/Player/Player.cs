@@ -13,7 +13,6 @@ public class Player : GameSystem
     public event IntAction OnXpAdded;   
 
     public enum Weapon {oneHandRanged, oneHandMelee, twoHandRanged, twoHandMelee, fist};
-    public float range;
     
     private PlayerData m_Data;
     private StatData m_GearStats;
@@ -68,6 +67,16 @@ public class Player : GameSystem
                     return Weapon.oneHandMelee;
                     break;
             }
+        }
+    }
+
+    public float attackRange {
+        get {
+            if (m_Data.equipment.weapons == null || m_Data.equipment.weapons.Count == 0) {
+                return 1;
+            }
+            WeaponItemData _wep = m_Data.equipment.weapons[0];
+            return _wep.attackRange;
         }
     }
 

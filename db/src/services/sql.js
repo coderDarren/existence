@@ -308,7 +308,6 @@ class SQLController {
 
             // add default inventory
             await this._inventorySlot.create({playerID: _player.id, itemID: 15, lvl: 1, loc: -1});
-            await this._inventorySlot.create({playerID: _player.id, itemID: 16, lvl: 1, loc: -1});
 
             const _playerData = await this.getPlayer(_params.name);
 
@@ -1010,7 +1009,8 @@ class SQLController {
             slotType: DataTypes.INTEGER,
             damageMin: DataTypes.INTEGER,
             damageMax: DataTypes.INTEGER,
-            speed: DataTypes.INTEGER
+            speed: DataTypes.INTEGER,
+            attackRange: DataTypes.INTEGER
         }, {
             timestamps: false
         });
