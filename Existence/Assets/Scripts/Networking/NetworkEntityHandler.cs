@@ -262,6 +262,10 @@ public class NetworkEntityHandler : GameSystem
         if (_name == null) return;
         if (m_MobsHash.ContainsKey(_name)) return; // mob already exists
         GameObject _obj = Instantiate(networkDummyObject);
+        if (_data.name.Contains("Enraged")) {
+            _obj.transform.localScale *= 2;
+            _obj.transform.GetChild(2).localScale /= 2;
+        }
         Mob _mob = _obj.GetComponent<Mob>();
         _mob.Init(_data);
         m_MobsHash.Add(_name, _mob);

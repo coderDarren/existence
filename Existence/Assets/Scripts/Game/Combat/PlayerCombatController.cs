@@ -16,6 +16,7 @@ public class PlayerCombatController : GameSystem
     private Player m_Player;
     private Animator m_Animator;
     private GameObject m_Weapon;
+    private WeaponItemData m_WepData;
     private ParticleSystem[] m_Glow;
     private ParticleSystem[] m_Effect;
     private ParticleSystem[] m_Charge;
@@ -101,6 +102,8 @@ public class PlayerCombatController : GameSystem
         if (instance != this) return;
         specialRecharge += Time.deltaTime;
         m_Weapon = GameObject.FindGameObjectWithTag("Weapon");
+        m_WepData = m_Player.data.equipment.weapons[0];
+        
 
         GetInput();     
         Attack();
@@ -114,7 +117,15 @@ public class PlayerCombatController : GameSystem
         if(!m_Target) return;
         if (m_Weapon.GetComponent<AudioSource>())
             m_Weapon.GetComponent<AudioSource>().Play();
-        m_Target.Hit(50);         
+        
+        // get damage
+        if (m_WepData == null) {
+            LogWarning("Unable to get weapon data for player.");
+            return;
+        }
+        int _dmg = UnityEngine.Random.Range(m_WepData.damageMin, m_WepData.damageMax);
+
+        m_Target.Hit(_dmg);         
     }
 
     public void SelectTarget(Selectable _s, bool _primary) {
@@ -159,7 +170,15 @@ public class PlayerCombatController : GameSystem
                 }
             } catch (System.Exception _e){
             }
-            m_Target.Hit(25);
+
+            // get damage
+            if (m_WepData == null) {
+                LogWarning("Unable to get weapon data for player.");
+                return;
+            }
+            int _dmg = UnityEngine.Random.Range(m_WepData.damageMin, m_WepData.damageMax)/2;
+
+            m_Target.Hit(_dmg);
             ChargeEffects();
             m_SpecialInput = false; 
             
