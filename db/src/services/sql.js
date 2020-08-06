@@ -280,7 +280,7 @@ class SQLController {
                 }
             }
 
-            const _statsInit = await this._stat.create({});
+            const _statsInit = await this._stat.create({strength:4});
             const _stats = await this._stat.findByPk(_statsInit.dataValues.id);
             if (_stats.id == null) {
                 return {
