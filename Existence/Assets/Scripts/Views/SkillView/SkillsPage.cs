@@ -41,7 +41,7 @@ public class SkillsPage : Page
         }
         set {
             m_StatPoints = value;
-            statPointLabel.text = "SP: "+m_StatPoints;
+            statPointLabel.text = "SP : "+m_StatPoints;
         }
     }
 
