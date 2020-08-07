@@ -56,6 +56,9 @@ public class Player : GameSystem
             WeaponItemData _wep = m_Data.equipment.weapons[0];
             if (_wep == null) return Weapon.oneHandMelee;
             switch (_wep.def.id) {
+                case 11:
+                case 5:
+                    return Weapon.oneHandRanged;
                 case 15:
                 case 19:
                     return Weapon.oneHandMelee;
