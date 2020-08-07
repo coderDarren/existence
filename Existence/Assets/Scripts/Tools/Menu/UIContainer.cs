@@ -48,6 +48,12 @@ public class UIContainer : GameSystem
     private bool m_Minimized;
     private float m_LastHeight;
 
+    // set these first thing
+    private string DATA_POS_X;
+    private string DATA_POS_Y;
+    private string DATA_SIZE_X;
+    private string DATA_SIZE_Y;
+
     public RectTransform rect {
         get {
             if (!m_Rect) {
@@ -68,6 +74,19 @@ public class UIContainer : GameSystem
 
 #region Unity Functions
     private void Awake() {
+        DATA_POS_X = uniqueId+"-pos-x";
+        DATA_POS_Y = uniqueId+"-pos-y";
+        DATA_SIZE_X = uniqueId+"-size-x";
+        DATA_SIZE_Y = uniqueId+"-size-y";
+
+        if (PlayerPrefs.GetFloat(DATA_POS_X, 0) != 0) {
+            SetPos(PlayerPrefs.GetFloat(DATA_POS_X), PlayerPrefs.GetFloat(DATA_POS_Y));
+        }
+
+        if (PlayerPrefs.GetFloat(DATA_SIZE_X, 0) != 0) {
+            SetSize(PlayerPrefs.GetFloat(DATA_SIZE_X), PlayerPrefs.GetFloat(DATA_SIZE_Y));
+        }
+
         // Configure handles
         ConfigureHandle(dragger, UIHandle.HandleLoc.IRRELEVANT, uniqueId);
         ConfigureHandle(topLeftResizer, UIHandle.HandleLoc.TOP_LEFT, uniqueId);
@@ -97,6 +116,9 @@ public class UIContainer : GameSystem
         if (_pos.y > _maxHeight - _rectHeight) _pos.y = _maxHeight - _rectHeight;
         
         rect.transform.position = _pos;
+
+        PlayerPrefs.SetFloat(DATA_POS_X, rect.transform.position.x);
+        PlayerPrefs.SetFloat(DATA_POS_Y, rect.transform.position.y);
     }
 
     public void Resize(Vector2 _pos, UIHandle.HandleLoc _loc) {
@@ -112,6 +134,9 @@ public class UIContainer : GameSystem
             case UIHandle.HandleLoc.BOTTOM: ResizeBottom(_pos); break;
             case UIHandle.HandleLoc.RIGHT: ResizeRight(_pos); break;
         }
+
+        PlayerPrefs.SetFloat(DATA_SIZE_X, rect.sizeDelta.x);
+        PlayerPrefs.SetFloat(DATA_SIZE_Y, rect.sizeDelta.y);
     }
 
     public void ToggleMinimize() {
