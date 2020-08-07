@@ -45,6 +45,8 @@ public class UIContainer : GameSystem
 
     private Canvas m_Canvas;
     private RectTransform m_Rect;
+    private bool m_Minimized;
+    private float m_LastHeight;
 
     public RectTransform rect {
         get {
@@ -99,6 +101,7 @@ public class UIContainer : GameSystem
 
     public void Resize(Vector2 _pos, UIHandle.HandleLoc _loc) {
         if (!resizable) return;
+        if (m_Minimized) return;
         switch (_loc) {
             case UIHandle.HandleLoc.TOP_LEFT: ResizeTopLeft(_pos); break;
             case UIHandle.HandleLoc.TOP_RIGHT: ResizeTopRight(_pos); break;
@@ -108,6 +111,23 @@ public class UIContainer : GameSystem
             case UIHandle.HandleLoc.LEFT: ResizeLeft(_pos); break;
             case UIHandle.HandleLoc.BOTTOM: ResizeBottom(_pos); break;
             case UIHandle.HandleLoc.RIGHT: ResizeRight(_pos); break;
+        }
+    }
+
+    public void ToggleMinimize() {
+        if (!m_Minimized) {
+            // minimize
+            m_LastHeight = rect.sizeDelta.y;
+            SetSize(rect.sizeDelta.x, 35);
+            SetPos(rect.transform.position.x, rect.transform.position.y + m_LastHeight - 50);
+            m_Minimized = true;
+        } else {
+            if (m_LastHeight == 0) {
+                m_LastHeight = constraints.height.min;
+            }
+            SetSize(rect.sizeDelta.x, m_LastHeight);
+            SetPos(rect.transform.position.x, rect.transform.position.y - m_LastHeight + 50);
+            m_Minimized = false;
         }
     }
 #endregion

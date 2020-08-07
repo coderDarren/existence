@@ -28,7 +28,11 @@ public class LootManager : GameSystem
 #endregion
 
 #region Public Functions
-
+    public void CloseLootPreview() {
+        return;
+        // no-op
+        pageManager.TurnPageOff(PageType.LootPreview);
+    }
 #endregion
 
 #region Private Functions
