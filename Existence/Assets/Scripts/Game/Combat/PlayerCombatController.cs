@@ -7,7 +7,6 @@ public class PlayerCombatController : GameSystem
 {
     public static PlayerCombatController instance;
 
-    public float radius;
     public KeyCode attack;
     public float specialTimer;
     public float projectileSpeed;
@@ -102,8 +101,9 @@ public class PlayerCombatController : GameSystem
         if (instance != this) return;
         specialRecharge += Time.deltaTime;
         m_Weapon = GameObject.FindGameObjectWithTag("Weapon");
-        m_WepData = m_Player.data.equipment.weapons[0];
-        
+
+        if (m_Player.data.equipment.weapons.Count > 0)
+            m_WepData = m_Player.data.equipment.weapons[0];
 
         GetInput();     
         Attack();
@@ -144,7 +144,7 @@ public class PlayerCombatController : GameSystem
         special = _special;
         Debug.Log("Attempting to use special");
         
-        if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.range){// Weapon range is now a variable on the player
+        if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.attackRange){
             Debug.Log("Too far away");
             return;
         }

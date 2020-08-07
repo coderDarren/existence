@@ -61,6 +61,8 @@ public class HUDPage : Page
         } else if (otherTarget.gameObject.activeSelf) {
             otherTarget.gameObject.SetActive(false);
         }
+
+        UpdateShadowedText(infoLabel, "LV. " + session.player.data.player.level + " Soldier");
     }
 #endregion
 

@@ -21,6 +21,7 @@ public class SkillsPage : Page
     private Hashtable m_OtherStats;
     private Hashtable m_Pages;
     private int m_StatPoints;
+    private StatData m_StatMaximums;
 
     public Hashtable stats {
         get {
@@ -40,7 +41,13 @@ public class SkillsPage : Page
         }
         set {
             m_StatPoints = value;
-            statPointLabel.text = "SP: "+m_StatPoints;
+            statPointLabel.text = "SP : "+m_StatPoints;
+        }
+    }
+
+    public StatData statMaximums {
+        get {
+            return m_StatMaximums;
         }
     }
     
@@ -109,8 +116,9 @@ public class SkillsPage : Page
         m_Pages.Add(SkillSection.TRADE, tradeSection);
         m_Pages.Add(SkillSection.EXPLORING, exploringSection);
 
+        m_StatMaximums = session.player.GetStatMaximums();
         statPoints = session.player.data.player.statPoints;
-        m_Stats = session.playerData.stats.ToHashtable();
+        m_Stats = session.player.data.stats.ToHashtable();
         m_OtherStats = session.player.buffStats.Combine(session.player.gearStats).ToHashtable();
         OpenSection(SkillSection.CORE);
 
