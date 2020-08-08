@@ -283,7 +283,8 @@ public class Chatbox : GameSystem
         if (!session) return;
         if (session.player.data.player.name != _info.playerName) return;
         
-        CreateMessage("<color=#ccc>"+_info.mobName+" hit you for "+_info.dmg+" points of damage.</color>");
+        string _msg = _info.dmg > 0 ? _info.mobName+" hit you for "+_info.dmg+" points of damage." : _info.mobName+" tried to hit you, but missed!";
+        CreateMessage("<color=#ccc>"+_msg+"</color>");
     }
 
     private void OnMobAttackStart(NetworkMobAttackData _data) {
