@@ -273,10 +273,10 @@ public class NetworkEntityHandler : GameSystem
             _obj.transform.GetChild(2).localScale *= 2;
         } else if (_data.name.Contains("Zix")) {
             _obj = Instantiate(networkZix);
-        } else if (_data.name.Contains("Enraged Droid")) {
-            _obj = Instantiate(networkBot);
-        } else if (_data.name.Contains("Droid")) {
+        } else if (_data.name.Contains("Sentient")) {
             _obj = Instantiate(networkBotBoss);
+        } else if (_data.name.Contains("Droid")) {
+            _obj = Instantiate(networkBot);
         }
 
         if (_obj == null) {
