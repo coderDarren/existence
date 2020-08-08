@@ -265,6 +265,9 @@ public class NetworkEntityHandler : GameSystem
         if (_data.name.Contains("Enraged")) {
             _obj.transform.localScale *= 2;
             _obj.transform.GetChild(2).localScale /= 2;
+        } else if (_data.name.Contains("Toxic")) {
+            _obj.transform.localScale /= 2;
+            _obj.transform.GetChild(2).localScale *= 2;
         }
         Mob _mob = _obj.GetComponent<Mob>();
         _mob.Init(_data);

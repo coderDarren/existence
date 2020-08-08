@@ -27,6 +27,7 @@ public class StatData : NetworkModel
     public int processing;
     public int runSpeed;
     public int melee;
+    public int hot; // heal-over-time
 
     /*
      * Using this constructor, we can initialize some id-less StatData..
@@ -56,6 +57,7 @@ public class StatData : NetworkModel
         processing = _scalar;
         runSpeed = _scalar;
         melee = _scalar;
+        hot = _scalar;
     }
 
     public StatData() {}
@@ -86,6 +88,7 @@ public class StatData : NetworkModel
         _out.processing = _in.processing;
         _out.runSpeed = _in.runSpeed;
         _out.melee = _in.melee;
+        _out.hot = _in.hot;
         return _out;
     }
 
@@ -115,6 +118,7 @@ public class StatData : NetworkModel
         _out.processing = (int)_hash["processing"];
         _out.runSpeed = (int)_hash["runSpeed"];
         _out.melee = (int)_hash["melee"];
+        _out.hot = (int)_hash["hot"];
         return _out;
     }
 
@@ -224,6 +228,7 @@ public class StatData : NetworkModel
         _out.processing = OperateValues(_out.processing, _in.processing, _op);
         _out.runSpeed = OperateValues(_out.runSpeed, _in.runSpeed, _op);
         _out.melee = OperateValues(_out.melee, _in.melee, _op);
+        _out.hot = OperateValues(_out.hot, _in.hot, _op);
         return _out;
     }
 
@@ -268,6 +273,7 @@ public class StatData : NetworkModel
         else if (this.processing < _other.processing) return -1;
         else if (this.runSpeed < _other.runSpeed) return -1;
         else if (this.melee < _other.melee) return -1;
+        else if (this.hot < _other.hot) return -1;
         else return 1;
     }
 
@@ -297,6 +303,7 @@ public class StatData : NetworkModel
         _out["processing"] = this.processing;
         _out["runSpeed"] = this.runSpeed;
         _out["melee"] = this.melee;
+        _out["hot"] = this.hot;
         return _out;
     }
 }
