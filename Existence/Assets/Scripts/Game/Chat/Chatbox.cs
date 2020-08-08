@@ -297,7 +297,7 @@ public class Chatbox : GameSystem
         if (!session) return;
         if (session.player.data.player.name != _data.playerName) return;
 
-        CreateMessage("<color=#fff>You hit "+_data.mobName+" for "+_data.dmg+" points of damage.</color>");
+        CreateMessage("<color=#fff>You hit "+_data.mobName+" for "+_data.dmg+" points of damage."+(_data.crit ? " Critical hit!" : "")+"</color>");
     }
 
     private void OnMobDeath(NetworkMobDeathData _data) {        

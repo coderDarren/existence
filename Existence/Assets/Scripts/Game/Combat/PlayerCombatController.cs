@@ -126,8 +126,12 @@ public class PlayerCombatController : GameSystem
             return;
         }
         int _dmg = UnityEngine.Random.Range(m_WepData.damageMin, m_WepData.damageMax);
+        bool _crit = m_Player.RollCrit();
+        if (_crit) {
+            _dmg = (int)((float)m_WepData.damageMax * 1.5f);
+        }
 
-        m_Target.Hit(_dmg);         
+        m_Target.Hit(_dmg, _crit);         
     }
 
     public void SelectTarget(Selectable _s, bool _primary) {
@@ -190,7 +194,7 @@ public class PlayerCombatController : GameSystem
             }
             int _dmg = UnityEngine.Random.Range(m_WepData.damageMin, m_WepData.damageMax)/2;
 
-            m_Target.Hit(_dmg);
+            m_Target.Hit(_dmg, false);
             ChargeEffects();
             m_SpecialInput = false; 
             

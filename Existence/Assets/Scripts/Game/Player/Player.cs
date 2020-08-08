@@ -224,6 +224,13 @@ public class Player : GameSystem
         }
     }
 
+    public bool RollCrit() {
+        int _maxCrit = GetStatMaximums().crit;
+        int _crit = GetAggregatedStats().crit;
+        float _chance = (_crit / (float)_maxCrit) * 0.1f; // max crit is 10% from skills
+        return Random.value <= _chance;
+    }
+
     public float XpProgress() {
         return m_Data.player.xp / MaxXp();
     }
@@ -405,8 +412,7 @@ public class Player : GameSystem
     /// Increase stat point allotment every 10 levels
     /// </summary>
     private int StatPointReward() {
-        int _factor = (m_Data.player.level / 10) + 1;
-        return _factor * 30;
+        return 30;
     }
 
     private void HandleHealDelta() {
