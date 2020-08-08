@@ -1311,8 +1311,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 1
-  weapon: 1
-  range: 5
+  qsPrefab: {fileID: 1663817074251622649, guid: af1e4cc3c595a4c47bc9fbd7df564c4c,
+    type: 3}
+  csPrefab: {fileID: 7646057594018171979, guid: f94b5e5413d227c45b13933d3b2f6f02,
+    type: 3}
 --- !u!114 &6591656521640595287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1373,7 +1375,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 1
-  radius: 25
   attack: 113
   specialTimer: 10
   projectileSpeed: 1
@@ -4722,7 +4723,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7425937907356221109
 Transform:
   m_ObjectHideFlags: 0

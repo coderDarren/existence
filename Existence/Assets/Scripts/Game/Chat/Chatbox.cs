@@ -141,7 +141,7 @@ public class Chatbox : GameSystem
     // ..like gear not being compatible
     // !! TODO This should be coming from the server ultimately
     public void EmitMessageLocal(string _msg) {
-        OnChat(_msg);
+        CreateMessage("<color=#ffa957>"+_msg+"</color>");
     }
 #endregion
 

@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 5186497568357838892}
   - component: {fileID: 5048188129438541938}
   - component: {fileID: 6938816609681299652}
-  - component: {fileID: 6754947778305397322}
   - component: {fileID: 3405975677724224897}
   m_Layer: 0
   m_Name: FirstShotgun
@@ -115,24 +114,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &6754947778305397322
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9066796086036067765}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 777cc5346dc68ba47ae097ce5d0ba913, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemIcon: {fileID: 2800000, guid: 3fb8b57dcab65d14faa7b3e274a2e72c, type: 3}
-  specialIcon: []
-  specials: 
-  skillSlot: {fileID: 0}
-  qsPrefab: {fileID: 0}
-  csPrefab: {fileID: 0}
 --- !u!82 &3405975677724224897
 AudioSource:
   m_ObjectHideFlags: 0

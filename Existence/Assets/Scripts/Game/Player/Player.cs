@@ -13,7 +13,13 @@ public class Player : GameSystem
     public event IntAction OnXpAdded;   
 
     public enum Weapon {oneHandRanged, oneHandMelee, twoHandRanged, twoHandMelee, fist};
-    
+
+#region Temporary Vars
+    public GameObject qsPrefab;
+    public GameObject csPrefab;
+    private GameObject m_SpecialSlot;
+#endregion
+
     private PlayerData m_Data;
     private StatData m_GearStats;
     private StatData m_BuffStats;
@@ -68,6 +74,26 @@ public class Player : GameSystem
                 break;
                 default:
                     return Weapon.oneHandMelee;
+                    break;
+            }
+        }
+    }
+
+    public string specialAttack {
+        get {
+            if (m_Data.equipment.weapons == null || m_Data.equipment.weapons.Count == 0) {
+                return string.Empty;
+            }
+            WeaponItemData _wep = m_Data.equipment.weapons[0];
+            if (_wep == null) return string.Empty;
+            switch (_wep.def.id) {
+                case 19:
+                    return "quickSlice";
+                case 18:
+                    return "chargeShot";
+                break;
+                default:
+                    return string.Empty;
                     break;
             }
         }
@@ -267,6 +293,9 @@ public class Player : GameSystem
         if (equipmentWindow) {
             equipmentWindow.Redraw();
         }
+
+        // redraw attack bar
+        RedrawAttackbar();
     }
 
     public void UnequipItem(int _id, int _inventoryID) {
@@ -282,6 +311,9 @@ public class Player : GameSystem
         if (equipmentWindow) {
             equipmentWindow.Redraw();
         }
+
+        // redraw attack bar
+        RedrawAttackbar();
     }
 #endregion
 
@@ -329,6 +361,8 @@ public class Player : GameSystem
                 default: break;
             }
         }
+
+        RedrawAttackbar();
     }
 
     private void InitializeTestEquipment() {
@@ -411,6 +445,24 @@ public class Player : GameSystem
                 _arr.RemoveAt(i);
                 break;
             }
+        }
+    }
+
+    /*
+     * !! TODO
+     * This function needs a new home..
+     * ..maybe during combat system restructure
+     */
+    private void RedrawAttackbar() {
+        m_SpecialSlot = GameObject.Find("slotOne");
+        switch (specialAttack) {
+            case "quickSlice": Instantiate(qsPrefab, m_SpecialSlot.transform); break;
+            case "chargeShot": Instantiate(csPrefab, m_SpecialSlot.transform); break;
+            default: 
+                if (m_SpecialSlot.transform.childCount > 0) {
+                    Destroy(m_SpecialSlot.transform.GetChild(0).gameObject);
+                }
+            break;
         }
     }
 
