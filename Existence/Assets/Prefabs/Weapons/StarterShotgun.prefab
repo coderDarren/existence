@@ -9768,7 +9768,6 @@ GameObject:
   - component: {fileID: 6333274700353606101}
   - component: {fileID: 1323155165685857515}
   - component: {fileID: 8283573045349382883}
-  - component: {fileID: 7883699317202646947}
   - component: {fileID: 5055239340062449304}
   m_Layer: 0
   m_Name: StarterShotgun
@@ -9844,28 +9843,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &7883699317202646947
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4865476741067868573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 777cc5346dc68ba47ae097ce5d0ba913, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemIcon: {fileID: 2800000, guid: c4ecb2403e62eae4cb14a4bdae0b8633, type: 3}
-  specialIcon:
-  - {fileID: 2800000, guid: 65512aa664157c94ca0308e059d9a8f8, type: 3}
-  specials: 01000000
-  skillSlot: {fileID: 3237636815734445197, guid: 0d0ad0d03712d2948b508fb2d9d1d05f,
-    type: 3}
-  qsPrefab: {fileID: 1663817074251622649, guid: af1e4cc3c595a4c47bc9fbd7df564c4c,
-    type: 3}
-  csPrefab: {fileID: 7646057594018171979, guid: f94b5e5413d227c45b13933d3b2f6f02,
-    type: 3}
 --- !u!82 &5055239340062449304
 AudioSource:
   m_ObjectHideFlags: 0

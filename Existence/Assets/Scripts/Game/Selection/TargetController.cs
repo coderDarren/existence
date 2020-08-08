@@ -138,11 +138,24 @@ public class TargetController : GameSystem
                 if (((Mob)_s).data.dead) {
                     return;
                 }
-                if (m_PrimaryTarget != null) {
-                    TryAction(OnTargetDeselected, m_PrimaryTarget, true);
+
+                if (playerCombat.attacking) {
+                    if (m_SecondaryTarget != null) {
+                        TryAction(OnTargetDeselected, m_SecondaryTarget, false);
+                        playerCombat.DeselectTarget(m_SecondaryTarget, false);
+                    }
+                    m_SecondaryTarget = _s;
+                    TryAction(OnTargetSelected, m_SecondaryTarget, false);
+                    playerCombat.SelectTarget(m_SecondaryTarget, false);
+                } else {
+                    if (m_PrimaryTarget != null) {
+                        TryAction(OnTargetDeselected, m_PrimaryTarget, true);
+                        playerCombat.DeselectTarget(m_PrimaryTarget, true);
+                    }
+                    m_PrimaryTarget = _s;
+                    TryAction(OnTargetSelected, m_PrimaryTarget, true);
+                    playerCombat.SelectTarget(m_PrimaryTarget, true);
                 }
-                m_PrimaryTarget = _s;
-                TryAction(OnTargetSelected, m_PrimaryTarget, true);
             }
             // for now, other targets are considered anything other than mobs - such as players
             // this way, combat isn't interrupted when clicking other selectables 

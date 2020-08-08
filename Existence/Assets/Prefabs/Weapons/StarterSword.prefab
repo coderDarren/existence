@@ -4860,7 +4860,6 @@ GameObject:
   - component: {fileID: 2793072694354938236}
   - component: {fileID: 7168175369994413122}
   - component: {fileID: 275734229979619914}
-  - component: {fileID: 1781953536720138264}
   m_Layer: 0
   m_Name: StarterSword
   m_TagString: Weapon
@@ -4933,28 +4932,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &1781953536720138264
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3648784624128332084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 777cc5346dc68ba47ae097ce5d0ba913, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemIcon: {fileID: 2800000, guid: b5f8dd202650a0d4b8a356ea9184cbfe, type: 3}
-  specialIcon:
-  - {fileID: 2800000, guid: d646c5ebd9518a047aad8956660d50b3, type: 3}
-  specials: 00000000
-  skillSlot: {fileID: 3237636815734445197, guid: 0d0ad0d03712d2948b508fb2d9d1d05f,
-    type: 3}
-  qsPrefab: {fileID: 1663817074251622649, guid: af1e4cc3c595a4c47bc9fbd7df564c4c,
-    type: 3}
-  csPrefab: {fileID: 7646057594018171979, guid: f94b5e5413d227c45b13933d3b2f6f02,
-    type: 3}
 --- !u!1 &4699547804567102185
 GameObject:
   m_ObjectHideFlags: 0

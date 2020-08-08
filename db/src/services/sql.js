@@ -504,7 +504,10 @@ class SQLController {
                 
                 if (Math.random() < _item.dropRate) {
                     // get the item 
-                    const _lvl = _params.lvl - Math.round(_item.lvlRange / 2) + Math.round(Math.random()*_item.lvlRange);
+                    var _lvl = _params.lvl - Math.round(_item.lvlRange / 2) + Math.round((Math.random()+1)*_item.lvlRange);
+                    if (_lvl == 0) {
+                        _lvl = 1;
+                    }
                     const _itemData = await this.getItem({id: _item.itemID, ql: _lvl});
                     if (_itemData.error) {
                         return _itemData;
