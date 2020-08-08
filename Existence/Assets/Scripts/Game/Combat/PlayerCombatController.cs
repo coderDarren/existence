@@ -125,10 +125,10 @@ public class PlayerCombatController : GameSystem
             LogWarning("Unable to get weapon data for player.");
             return;
         }
-        int _dmg = UnityEngine.Random.Range(m_WepData.damageMin, m_WepData.damageMax);
+        int _dmg = UnityEngine.Random.Range(m_WepData.damageMin, m_WepData.damageMax+1) + m_Player.attackRatingBoost;
         bool _crit = m_Player.RollCrit();
         if (_crit) {
-            _dmg = (int)((float)m_WepData.damageMax * 1.5f);
+            _dmg = (int)((float)m_WepData.damageMax * 1.5f) + m_Player.attackRatingBoost;
         }
 
         m_Target.Hit(_dmg, _crit);         

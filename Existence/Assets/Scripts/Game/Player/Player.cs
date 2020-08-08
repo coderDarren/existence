@@ -99,6 +99,31 @@ public class Player : GameSystem
         }
     }
 
+    public int attackRatingBoost {
+        get {
+            if (m_Data.equipment.weapons == null || m_Data.equipment.weapons.Count == 0) {
+                return 0;
+            }
+            WeaponItemData _wep = m_Data.equipment.weapons[0];
+            if (_wep == null) return 0;
+            switch (_wep.def.id) {
+                case 11:
+                case 5:
+                    return GetAggregatedStats().pistol / 8;
+                case 15:
+                case 19:
+                    return GetAggregatedStats().oneHandEdged / 8;
+                case 16:
+                case 18:
+                    return GetAggregatedStats().shotgun / 8;
+                break;
+                default:
+                    return 0;
+                    break;
+            }
+        }
+    }
+
     public float attackRange {
         get {
             if (m_Data.equipment.weapons == null || m_Data.equipment.weapons.Count == 0) {
