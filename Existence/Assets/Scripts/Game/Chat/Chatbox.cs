@@ -140,8 +140,8 @@ public class Chatbox : GameSystem
     // Probably used by a service that needs to notify the player about something..
     // ..like gear not being compatible
     // !! TODO This should be coming from the server ultimately
-    public void EmitMessageLocal(string _msg) {
-        CreateMessage("<color=#ffa957>"+_msg+"</color>");
+    public void EmitMessageLocal(string _msg, string _colorCode = "#ffa957") {
+        CreateMessage("<color="+_colorCode+">"+_msg+"</color>");
     }
 #endregion
 

@@ -440,6 +440,7 @@ public class Player : GameSystem
     }
 
     private void HandleHealDelta() {
+        if (m_Data.player.health >= MaxHealth()) return;
         if (lastFrameHealth > m_Data.player.health) {
             healDeltaTimer = 0;
         }
@@ -447,6 +448,8 @@ public class Player : GameSystem
 
         healDeltaTimer += Time.deltaTime;
         if (healDeltaTimer >= healDeltaSeconds) {
+            int _dt = GetAggregatedStats().hot;
+            Chatbox.instance.EmitMessageLocal("You were healed for "+_dt+".", "#655fff");
             m_Data.player.health += GetAggregatedStats().hot;
             m_Data.player.health = Mathf.Clamp(m_Data.player.health, 0, MaxHealth());
             healDeltaTimer = 0;
