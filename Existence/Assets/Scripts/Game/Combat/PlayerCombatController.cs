@@ -286,7 +286,6 @@ public class PlayerCombatController : GameSystem
                         m_currentSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                     }
                     m_CurrentParticle[j].position = Vector3.MoveTowards(m_CurrentParticle[j].position, m_Target.transform.position, projectileSpeed * Time.deltaTime);
-                    Debug.Log(m_CurrentParticle[j].position);                 
                 }
                 m_currentSystem.SetParticles(m_CurrentParticle, m_ParticleNum);
                

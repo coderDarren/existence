@@ -285,7 +285,7 @@ class SQLController {
                 }
             }
 
-            const _statsInit = await this._stat.create({oneHandEdged:4});
+            const _statsInit = await this._stat.create({oneHandEdged:4, hot:5});
             const _stats = await this._stat.findByPk(_statsInit.dataValues.id);
             if (_stats.id == null) {
                 return {
@@ -997,7 +997,8 @@ class SQLController {
             symbiotics: DataTypes.INTEGER,
             processing: DataTypes.INTEGER,
             runSpeed: DataTypes.INTEGER,
-            melee: DataTypes.INTEGER
+            melee: DataTypes.INTEGER,
+            hot: DataTypes.INTEGER
         }, {
             timestamps: false
         }); 

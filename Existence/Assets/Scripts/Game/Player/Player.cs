@@ -27,7 +27,6 @@ public class Player : GameSystem
     private Session m_Session;
     private InventoryPage m_InventoryWindow;
     private EquipmentPage m_EquipmentWindow;
-    private int healDelta = 5;
     private float healDeltaTimer = 0;
     private float healDeltaSeconds = 5;
     private int lastFrameHealth = 0;
@@ -448,7 +447,7 @@ public class Player : GameSystem
 
         healDeltaTimer += Time.deltaTime;
         if (healDeltaTimer >= healDeltaSeconds) {
-            m_Data.player.health += healDelta;
+            m_Data.player.health += GetAggregatedStats().hot;
             m_Data.player.health = Mathf.Clamp(m_Data.player.health, 0, MaxHealth());
             healDeltaTimer = 0;
         }

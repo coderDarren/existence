@@ -67,6 +67,7 @@ public class InspectableItemView : MonoBehaviour
         AddRequirementDescription("Processing", _stat.processing, ref _ret, ref _count, _showSign, _statColor);
         AddRequirementDescription("Run Speed", _stat.runSpeed, ref _ret, ref _count, _showSign, _statColor);
         AddRequirementDescription("Melee", _stat.melee, ref _ret, ref _count, _showSign, _statColor);
+        AddRequirementDescription("Heal Delta", _stat.hot, ref _ret, ref _count, _showSign, _statColor);
         _ret += "<color=#777>...</color>";
         return _ret;
     }
