@@ -19,7 +19,10 @@ public class NetworkEntityHandler : GameSystem
 
     public static NetworkEntityHandler instance;
 
-    public GameObject networkDummyObject;
+    public GameObject networkZix;
+    public GameObject networkZixBoss;
+    public GameObject networkBot;
+    public GameObject networkBotBoss;
     public GameObject networkPlayerObject;
 
     private Session m_Session;
@@ -261,14 +264,26 @@ public class NetworkEntityHandler : GameSystem
         string _name = _data.id;
         if (_name == null) return;
         if (m_MobsHash.ContainsKey(_name)) return; // mob already exists
-        GameObject _obj = Instantiate(networkDummyObject);
+        GameObject _obj = null;
         if (_data.name.Contains("Enraged")) {
-            _obj.transform.localScale *= 2;
-            _obj.transform.GetChild(2).localScale /= 2;
+            _obj = Instantiate(networkZixBoss);
         } else if (_data.name.Contains("Toxic")) {
+            _obj = Instantiate(networkZix);
             _obj.transform.localScale /= 2;
             _obj.transform.GetChild(2).localScale *= 2;
+        } else if (_data.name.Contains("Zix")) {
+            _obj = Instantiate(networkZix);
+        } else if (_data.name.Contains("Enraged Droid")) {
+            _obj = Instantiate(networkBot);
+        } else if (_data.name.Contains("Droid")) {
+            _obj = Instantiate(networkBotBoss);
         }
+
+        if (_obj == null) {
+            LogWarning("Unrecognized mob! "+_data.name);
+            return;
+        }
+
         Mob _mob = _obj.GetComponent<Mob>();
         _mob.Init(_data);
         m_MobsHash.Add(_name, _mob);
