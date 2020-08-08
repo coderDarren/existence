@@ -13,7 +13,13 @@ public class Player : GameSystem
     public event IntAction OnXpAdded;   
 
     public enum Weapon {oneHandRanged, oneHandMelee, twoHandRanged, twoHandMelee, fist};
-    
+
+#region Temporary Vars
+    public GameObject qsPrefab;
+    public GameObject csPrefab;
+    private GameObject m_SpecialSlot;
+#endregion
+
     private PlayerData m_Data;
     private StatData m_GearStats;
     private StatData m_BuffStats;
@@ -21,7 +27,6 @@ public class Player : GameSystem
     private Session m_Session;
     private InventoryPage m_InventoryWindow;
     private EquipmentPage m_EquipmentWindow;
-    private int healDelta = 5;
     private float healDeltaTimer = 0;
     private float healDeltaSeconds = 5;
     private int lastFrameHealth = 0;
@@ -56,6 +61,9 @@ public class Player : GameSystem
             WeaponItemData _wep = m_Data.equipment.weapons[0];
             if (_wep == null) return Weapon.oneHandMelee;
             switch (_wep.def.id) {
+                case 11:
+                case 5:
+                    return Weapon.oneHandRanged;
                 case 15:
                 case 19:
                     return Weapon.oneHandMelee;
@@ -65,6 +73,51 @@ public class Player : GameSystem
                 break;
                 default:
                     return Weapon.oneHandMelee;
+                    break;
+            }
+        }
+    }
+
+    public string specialAttack {
+        get {
+            if (m_Data.equipment.weapons == null || m_Data.equipment.weapons.Count == 0) {
+                return string.Empty;
+            }
+            WeaponItemData _wep = m_Data.equipment.weapons[0];
+            if (_wep == null) return string.Empty;
+            switch (_wep.def.id) {
+                case 19:
+                    return "quickSlice";
+                case 18:
+                    return "chargeShot";
+                break;
+                default:
+                    return string.Empty;
+                    break;
+            }
+        }
+    }
+
+    public int attackRatingBoost {
+        get {
+            if (m_Data.equipment.weapons == null || m_Data.equipment.weapons.Count == 0) {
+                return 0;
+            }
+            WeaponItemData _wep = m_Data.equipment.weapons[0];
+            if (_wep == null) return 0;
+            switch (_wep.def.id) {
+                case 11:
+                case 5:
+                    return GetAggregatedStats().pistol / 8;
+                case 15:
+                case 19:
+                    return GetAggregatedStats().oneHandEdged / 8;
+                case 16:
+                case 18:
+                    return GetAggregatedStats().shotgun / 8;
+                break;
+                default:
+                    return 0;
                     break;
             }
         }
@@ -121,6 +174,9 @@ public class Player : GameSystem
     }
 
 #region Unity Functions
+    private void Awake() {
+        InitializeStats();
+    }
     private void Update() {
         HandleHealDelta();
     }
@@ -134,7 +190,6 @@ public class Player : GameSystem
         Dispose();
         m_Data = _data;
         m_Data.player.health = MaxHealth();
-        InitializeStats();
         InitializeInventory();
         InitializeEquipment();
         //InitializeTestEquipment();
@@ -193,16 +248,26 @@ public class Player : GameSystem
         }
     }
 
+    public bool RollCrit() {
+        int _maxCrit = GetStatMaximums().crit;
+        int _crit = GetAggregatedStats().crit;
+        float _chance = (_crit / (float)_maxCrit) * 0.1f; // max crit is 10% from skills
+        return Random.value <= _chance;
+    }
+
     public float XpProgress() {
         return m_Data.player.xp / MaxXp();
     }
 
     public float HpProgress() {
+        if (m_Data.player.health > MaxHealth()) {
+            m_Data.player.health = MaxHealth();
+        }
         return m_Data.player.health / (float)MaxHealth();
     }
 
     public int MaxHealth() {
-        return m_Data.player.level * 25;
+        return m_Data.player.level * 25 + GetAggregatedStats().fortitude;
     }
 
     public void AddInventory(IItem _item) {
@@ -211,6 +276,15 @@ public class Player : GameSystem
         // redraw inventory if the window is open
         if (inventoryWindow) {
             inventoryWindow.Redraw();
+        }
+    }
+
+    public void TakeHit(NetworkPlayerHitInfo _hitData) {
+        m_Data.player.health = _hitData.health;
+        if (m_Data.player.health <= 0) {
+            GetComponent<PlayerController>().PauseUpdates(1000);
+            transform.position = new Vector3(619,40,-75);
+            m_Data.player.health = (int)(MaxHealth() * 0.25f); // respawn the player with 25% hp
         }
     }
 
@@ -264,6 +338,9 @@ public class Player : GameSystem
         if (equipmentWindow) {
             equipmentWindow.Redraw();
         }
+
+        // redraw attack bar
+        RedrawAttackbar();
     }
 
     public void UnequipItem(int _id, int _inventoryID) {
@@ -279,6 +356,9 @@ public class Player : GameSystem
         if (equipmentWindow) {
             equipmentWindow.Redraw();
         }
+
+        // redraw attack bar
+        RedrawAttackbar();
     }
 #endregion
 
@@ -326,6 +406,8 @@ public class Player : GameSystem
                 default: break;
             }
         }
+
+        RedrawAttackbar();
     }
 
     private void InitializeTestEquipment() {
@@ -363,11 +445,11 @@ public class Player : GameSystem
     /// Increase stat point allotment every 10 levels
     /// </summary>
     private int StatPointReward() {
-        int _factor = (m_Data.player.level / 10) + 1;
-        return _factor * 30;
+        return 30;
     }
 
     private void HandleHealDelta() {
+        if (m_Data.player.health >= MaxHealth()) return;
         if (lastFrameHealth > m_Data.player.health) {
             healDeltaTimer = 0;
         }
@@ -375,7 +457,9 @@ public class Player : GameSystem
 
         healDeltaTimer += Time.deltaTime;
         if (healDeltaTimer >= healDeltaSeconds) {
-            m_Data.player.health += healDelta;
+            int _dt = GetAggregatedStats().hot;
+            Chatbox.instance.EmitMessageLocal("You were healed for "+_dt+".", "#655fff");
+            m_Data.player.health += GetAggregatedStats().hot;
             m_Data.player.health = Mathf.Clamp(m_Data.player.health, 0, MaxHealth());
             healDeltaTimer = 0;
         }
@@ -408,6 +492,24 @@ public class Player : GameSystem
                 _arr.RemoveAt(i);
                 break;
             }
+        }
+    }
+
+    /*
+     * !! TODO
+     * This function needs a new home..
+     * ..maybe during combat system restructure
+     */
+    private void RedrawAttackbar() {
+        m_SpecialSlot = GameObject.Find("slotOne");
+        switch (specialAttack) {
+            case "quickSlice": Instantiate(qsPrefab, m_SpecialSlot.transform); break;
+            case "chargeShot": Instantiate(csPrefab, m_SpecialSlot.transform); break;
+            default: 
+                if (m_SpecialSlot.transform.childCount > 0) {
+                    Destroy(m_SpecialSlot.transform.GetChild(0).gameObject);
+                }
+            break;
         }
     }
 

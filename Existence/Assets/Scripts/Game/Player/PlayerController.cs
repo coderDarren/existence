@@ -1,5 +1,6 @@
 ﻿ 
 using UnityEngine;
+using UniRx.Async;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(Animator))]
@@ -57,6 +58,7 @@ public class PlayerController : GameSystem
     private bool m_InputIsFrozen;
     private float m_AnimationSpeed;   
     private float m_Gravity;
+    private bool m_Update=true;
 
     public float runAnimation { get {return m_ForwardInput;} }
     public float strafeAnimation { get {return m_StrafeAnimation;} }
@@ -72,6 +74,8 @@ public class PlayerController : GameSystem
 
     private void Update()
     {
+        if (!m_Update) return;
+
         GetInput();
         Move();
         Turn();
@@ -81,6 +85,12 @@ public class PlayerController : GameSystem
 #endregion
 
 #region Public Functions
+    public async void PauseUpdates(int _time) {
+        m_Update = false;
+        await UniTask.Delay(_time);
+        m_Update = true;
+    }
+
     public void FreezeInput() {
         m_InputIsFrozen = true;
     }

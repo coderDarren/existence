@@ -4,10 +4,12 @@ public class NetworkMobHitInfo : NetworkModel {
     public string mobName;
     public string playerName;
     public int dmg;
-    public NetworkMobHitInfo(string _id, string _mobName, int _dmg) {
+    public bool crit;
+    public NetworkMobHitInfo(string _id, string _mobName, int _dmg, bool _crit) {
         id = _id;
         mobName = _mobName;
         dmg = _dmg;
+        crit = _crit;
     }
 }
 

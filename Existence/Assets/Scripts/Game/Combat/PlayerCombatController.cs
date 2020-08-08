@@ -107,6 +107,8 @@ public class PlayerCombatController : GameSystem
 
         GetInput();     
         Attack();
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+            SpecialAttack();
         ProjectileMove();        
         CheckCombatIntegrity();
     }
@@ -123,9 +125,13 @@ public class PlayerCombatController : GameSystem
             LogWarning("Unable to get weapon data for player.");
             return;
         }
-        int _dmg = UnityEngine.Random.Range(m_WepData.damageMin, m_WepData.damageMax);
+        int _dmg = UnityEngine.Random.Range(m_WepData.damageMin, m_WepData.damageMax+1) + m_Player.attackRatingBoost;
+        bool _crit = m_Player.RollCrit();
+        if (_crit) {
+            _dmg = (int)((float)m_WepData.damageMax * 1.5f) + m_Player.attackRatingBoost;
+        }
 
-        m_Target.Hit(_dmg);         
+        m_Target.Hit(_dmg, _crit);         
     }
 
     public void SelectTarget(Selectable _s, bool _primary) {
@@ -140,12 +146,22 @@ public class PlayerCombatController : GameSystem
         }
     }
 
-    public void SpecialAttack(string _special) {
-        special = _special;
-        Debug.Log("Attempting to use special");
+    public void SpecialAttack() {
+        special = m_Player.specialAttack;
+        Log("Attempting to use special: "+special);
+
+        if (special == string.Empty) {
+            Chatbox.instance.EmitMessageLocal("No combat special available.");
+            return;
+        }
+
+        if (m_Target == null) {
+            Chatbox.instance.EmitMessageLocal("No target selected.");
+            return;
+        }
         
         if(Vector3.Distance(transform.position, m_Target.transform.position) >= m_Player.attackRange){
-            Debug.Log("Too far away");
+            Chatbox.instance.EmitMessageLocal("You are out of range.");
             return;
         }
         
@@ -153,7 +169,7 @@ public class PlayerCombatController : GameSystem
             specialRecharge = 0;
             m_SpecialInput = true;            
             StartAutoAttack();
-            m_Animator.SetBool(_special, true);
+            m_Animator.SetBool(special, true);
             if (m_Weapon.GetComponent<AudioSource>())
                 m_Weapon.GetComponent<AudioSource>().Play();
             try{
@@ -178,12 +194,12 @@ public class PlayerCombatController : GameSystem
             }
             int _dmg = UnityEngine.Random.Range(m_WepData.damageMin, m_WepData.damageMax)/2;
 
-            m_Target.Hit(_dmg);
+            m_Target.Hit(_dmg, false);
             ChargeEffects();
             m_SpecialInput = false; 
             
         }
-        else Debug.Log("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialTimer - specialRecharge) +" seconds");
+        else Chatbox.instance.EmitMessageLocal("Skill is not ready yet, on cooldown for another: " + Mathf.Round(specialTimer - specialRecharge) +" seconds");
     }
 #endregion
 
@@ -270,7 +286,6 @@ public class PlayerCombatController : GameSystem
                         m_currentSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                     }
                     m_CurrentParticle[j].position = Vector3.MoveTowards(m_CurrentParticle[j].position, m_Target.transform.position, projectileSpeed * Time.deltaTime);
-                    Debug.Log(m_CurrentParticle[j].position);                 
                 }
                 m_currentSystem.SetParticles(m_CurrentParticle, m_ParticleNum);
                

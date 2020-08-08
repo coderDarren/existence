@@ -134,10 +134,10 @@ public class Mob : Selectable
         m_Data.lootPreview = _data.lootPreview;
     }
 
-    public void Hit(int _dmg) {
+    public void Hit(int _dmg, bool _crit) {
         if (m_Data.dead) return;
         if (!network) return;
-        NetworkMobHitInfo _hitInfo = new NetworkMobHitInfo(m_Data.id, m_Data.name, _dmg);
+        NetworkMobHitInfo _hitInfo = new NetworkMobHitInfo(m_Data.id, m_Data.name, _dmg, _crit);
         network.HitMob(_hitInfo);
     }
 #endregion
