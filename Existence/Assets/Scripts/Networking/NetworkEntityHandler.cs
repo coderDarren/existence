@@ -173,7 +173,7 @@ public class NetworkEntityHandler : GameSystem
 
     private void OnPlayerHit(NetworkPlayerHitInfo _data) {
         if (session.player.data.player.name == _data.playerName) {
-            session.player.data.player.health = _data.health;
+            session.player.TakeHit(_data);
         }
     }
 

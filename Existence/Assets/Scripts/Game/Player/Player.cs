@@ -279,6 +279,15 @@ public class Player : GameSystem
         }
     }
 
+    public void TakeHit(NetworkPlayerHitInfo _hitData) {
+        m_Data.player.health = _hitData.health;
+        if (m_Data.player.health <= 0) {
+            GetComponent<PlayerController>().PauseUpdates(1000);
+            transform.position = new Vector3(619,40,-75);
+            m_Data.player.health = (int)(MaxHealth() * 0.25f); // respawn the player with 25% hp
+        }
+    }
+
     public void NetworkEquip(IItem _item) {
         if (!session.network) return;
         // check if stats are good enough
