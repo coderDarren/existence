@@ -947,6 +947,15 @@ namespace ProScripts {
 			private set;
 		}
 
+		public bool interactable {
+			get {
+				return m_enabled;
+			}
+			set {
+				m_enabled = value;
+			}
+		}
+
 		private bool m_initOnEnable = false;
 		private bool m_enabled = false;
 		private bool m_hovering = false;

@@ -2,12 +2,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityCore.Menu;
+using ProScripts;
 
 public class SkillsPage : Page
 {
     public Text statPointLabel;
     public Text playerLevel;
-    public Button saveButton;
+    public ProButton saveButton;
     public GameObject coreSection;
     public GameObject healthSection;
     public GameObject weaponsSection;
