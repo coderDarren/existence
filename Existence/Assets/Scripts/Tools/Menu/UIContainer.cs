@@ -53,6 +53,7 @@ public class UIContainer : GameSystem
     private string DATA_POS_Y;
     private string DATA_SIZE_X;
     private string DATA_SIZE_Y;
+    private string DATA_MINIMIZED;
 
     public RectTransform rect {
         get {
@@ -78,6 +79,14 @@ public class UIContainer : GameSystem
         DATA_POS_Y = uniqueId+"-pos-y";
         DATA_SIZE_X = uniqueId+"-size-x";
         DATA_SIZE_Y = uniqueId+"-size-y";
+        DATA_MINIMIZED = uniqueId+"-minimized";
+
+        if (PlayerPrefs.GetInt(DATA_MINIMIZED, -1) != -1) {
+            if (PlayerPrefs.GetInt(DATA_MINIMIZED) == 1) {
+                SetSize(rect.sizeDelta.x, 35);
+                m_Minimized = true;
+            }
+        }
 
         if (PlayerPrefs.GetFloat(DATA_POS_X, 0) != 0) {
             SetPos(PlayerPrefs.GetFloat(DATA_POS_X), PlayerPrefs.GetFloat(DATA_POS_Y));
@@ -134,9 +143,6 @@ public class UIContainer : GameSystem
             case UIHandle.HandleLoc.BOTTOM: ResizeBottom(_pos); break;
             case UIHandle.HandleLoc.RIGHT: ResizeRight(_pos); break;
         }
-
-        PlayerPrefs.SetFloat(DATA_SIZE_X, rect.sizeDelta.x);
-        PlayerPrefs.SetFloat(DATA_SIZE_Y, rect.sizeDelta.y);
     }
 
     public void ToggleMinimize() {
@@ -154,6 +160,8 @@ public class UIContainer : GameSystem
             SetPos(rect.transform.position.x, rect.transform.position.y - m_LastHeight + 50);
             m_Minimized = false;
         }
+
+        PlayerPrefs.SetInt(DATA_MINIMIZED, m_Minimized ? 1 : 0);
     }
 #endregion
 
@@ -279,6 +287,10 @@ public class UIContainer : GameSystem
         if (_y >= 0)
             _size.y = _y;
         rect.sizeDelta = _size;
+
+        PlayerPrefs.SetFloat(DATA_SIZE_X, rect.sizeDelta.x);
+        PlayerPrefs.SetFloat(DATA_SIZE_Y, rect.sizeDelta.y);
+
         TryAction(OnResize);
     }
 
@@ -287,6 +299,9 @@ public class UIContainer : GameSystem
         _pos.x = _x;
         _pos.y = _y;
         rect.transform.position = _pos;
+
+        PlayerPrefs.SetFloat(DATA_POS_X, rect.transform.position.x);
+        PlayerPrefs.SetFloat(DATA_POS_Y, rect.transform.position.y);
     }
 
     private bool FloatIsBetween(float _val, float _min, float _max) {

@@ -150,6 +150,9 @@ public class Player : GameSystem
     }
 
 #region Unity Functions
+    private void Awake() {
+        InitializeStats();
+    }
     private void Update() {
         HandleHealDelta();
     }
@@ -163,7 +166,6 @@ public class Player : GameSystem
         Dispose();
         m_Data = _data;
         m_Data.player.health = MaxHealth();
-        InitializeStats();
         InitializeInventory();
         InitializeEquipment();
         //InitializeTestEquipment();
@@ -227,11 +229,14 @@ public class Player : GameSystem
     }
 
     public float HpProgress() {
+        if (m_Data.player.health > MaxHealth()) {
+            m_Data.player.health = MaxHealth();
+        }
         return m_Data.player.health / (float)MaxHealth();
     }
 
     public int MaxHealth() {
-        return m_Data.player.level * 25;
+        return m_Data.player.level * 25 + GetAggregatedStats().fortitude;
     }
 
     public void AddInventory(IItem _item) {
