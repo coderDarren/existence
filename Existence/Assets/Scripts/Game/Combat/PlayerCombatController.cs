@@ -143,6 +143,7 @@ public class PlayerCombatController : GameSystem
     public void DeselectTarget(Selectable _s, bool _primary) {
         if (_primary) {
             m_Target = null;
+            StopAutoAttack();
         }
     }
 
@@ -238,7 +239,7 @@ public class PlayerCombatController : GameSystem
         m_Animator.SetBool(m_Player.weapon.ToString(), true);
     }
 
-    private void StopAutoAttack() {
+    public void StopAutoAttack() {
         m_Attacking = false;
         m_Animator.SetBool(m_Player.weapon.ToString(), false); 
     }
