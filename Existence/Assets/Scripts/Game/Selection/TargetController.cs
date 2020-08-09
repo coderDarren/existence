@@ -295,6 +295,7 @@ public class TargetController : GameSystem
         TryAction(OnTargetDeselected, m_SecondaryTarget, false);
         playerCombat.SelectTarget(m_PrimaryTarget, true);
         playerCombat.DeselectTarget(m_SecondaryTarget, false);
+        playerCombat.StopAutoAttack();
     }
 
     private void OnMobDidDie(Mob _m) {
