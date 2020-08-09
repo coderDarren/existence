@@ -131,6 +131,7 @@ public class InventorySlot : InspectableItem
         if (m_Item == null) return;
         if (controller == null) return;
         controller.EquipItem(m_Item);
+        OnPointerExit(null);
     }
 
     private void TryInventoryAction(InventoryAction _action) {

@@ -49,6 +49,7 @@ public class EquipmentSlot : InspectableItem
         if (m_Item == null) return;
         if (!EquipmentPage.instance) return;
         EquipmentPage.instance.UnequipItem(m_Item);
+        OnPointerExit(null);
     }
 #endregion
 }
