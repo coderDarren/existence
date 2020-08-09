@@ -14,7 +14,6 @@ public class GearWindow : EquipmentWindow
         m_Data = _data;
         m_SlotsHash = new Hashtable();
         foreach (EquipmentSlot _slot in slots) {
-            Log("initializing slot "+((int)_slot.type));
             m_SlotsHash.Add((int)_slot.type, _slot);
         }
     }
