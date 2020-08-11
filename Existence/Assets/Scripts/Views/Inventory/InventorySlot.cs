@@ -58,8 +58,7 @@ public class InventorySlot : InspectableItem
 
     public void AssignIcon(IItem _item) {
         m_Item = _item;
-        m_Id = _item.def.slotID;
-        //m_Item.def.slotLoc = id;
+        m_Item.def.slotLoc = id;
         Sprite _sprite = Utilities.LoadStreamingAssetsSprite(m_Item.def.icon);
         if (_sprite == null) return;
 
@@ -127,11 +126,12 @@ public class InventorySlot : InspectableItem
         m_GrabbedSlot = null;
     }
 
-    private void EquipItem() {
+    public void EquipItem() {
         if (!m_Hovering) return;
         if (m_Item == null) return;
         if (controller == null) return;
         controller.EquipItem(m_Item);
+        OnPointerExit(null);
     }
 
     private void TryInventoryAction(InventoryAction _action) {

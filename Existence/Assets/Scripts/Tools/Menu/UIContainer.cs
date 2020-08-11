@@ -47,6 +47,7 @@ public class UIContainer : GameSystem
     private RectTransform m_Rect;
     private bool m_Minimized;
     private float m_LastHeight;
+    private Vector2 m_ScreenSize;
 
     // set these first thing
     private string DATA_POS_X;
@@ -75,26 +76,8 @@ public class UIContainer : GameSystem
 
 #region Unity Functions
     private void Awake() {
-        DATA_POS_X = uniqueId+"-pos-x";
-        DATA_POS_Y = uniqueId+"-pos-y";
-        DATA_SIZE_X = uniqueId+"-size-x";
-        DATA_SIZE_Y = uniqueId+"-size-y";
-        DATA_MINIMIZED = uniqueId+"-minimized";
-
-        if (PlayerPrefs.GetInt(DATA_MINIMIZED, -1) != -1) {
-            if (PlayerPrefs.GetInt(DATA_MINIMIZED) == 1) {
-                SetSize(rect.sizeDelta.x, 35);
-                m_Minimized = true;
-            }
-        }
-
-        if (PlayerPrefs.GetFloat(DATA_POS_X, 0) != 0) {
-            SetPos(PlayerPrefs.GetFloat(DATA_POS_X), PlayerPrefs.GetFloat(DATA_POS_Y));
-        }
-
-        if (PlayerPrefs.GetFloat(DATA_SIZE_X, 0) != 0) {
-            SetSize(PlayerPrefs.GetFloat(DATA_SIZE_X), PlayerPrefs.GetFloat(DATA_SIZE_Y));
-        }
+        InitializePrefs();
+        DetectOffscreen();
 
         // Configure handles
         ConfigureHandle(dragger, UIHandle.HandleLoc.IRRELEVANT, uniqueId);
@@ -106,7 +89,16 @@ public class UIContainer : GameSystem
         ConfigureHandle(leftResizer, UIHandle.HandleLoc.LEFT, uniqueId);
         ConfigureHandle(bottomResizer, UIHandle.HandleLoc.BOTTOM, uniqueId);
         ConfigureHandle(rightResizer, UIHandle.HandleLoc.RIGHT, uniqueId);
-        FitToScreen();
+    }
+
+    private void Update() {
+        // Check if screen size changes
+        if (m_ScreenSize.x != Screen.width || m_ScreenSize.y != Screen.height) {
+            DetectOffscreen();
+            m_ScreenSize.x = Screen.width;
+            m_ScreenSize.y = Screen.height;
+            Debug.Log("Screen size changed");
+        }
     }
 #endregion
 
@@ -166,18 +158,57 @@ public class UIContainer : GameSystem
 #endregion
 
 #region Private Functions
-    private void FitToScreen() {
-        float _width = rect.sizeDelta.x;
-        float _height = rect.sizeDelta.y;
+    private void InitializePrefs() {
+        DATA_POS_X = uniqueId+"-pos-x";
+        DATA_POS_Y = uniqueId+"-pos-y";
+        DATA_SIZE_X = uniqueId+"-size-x";
+        DATA_SIZE_Y = uniqueId+"-size-y";
+        DATA_MINIMIZED = uniqueId+"-minimized";
+
+        if (PlayerPrefs.GetInt(DATA_MINIMIZED, -1) != -1) {
+            if (PlayerPrefs.GetInt(DATA_MINIMIZED) == 1) {
+                SetSize(rect.sizeDelta.x, 35);
+                m_Minimized = true;
+            }
+        }
+
+        if (PlayerPrefs.GetFloat(DATA_POS_X, 0) != 0) {
+            SetPos(PlayerPrefs.GetFloat(DATA_POS_X), PlayerPrefs.GetFloat(DATA_POS_Y));
+        }
+
+        if (PlayerPrefs.GetFloat(DATA_SIZE_X, 0) != 0) {
+            SetSize(PlayerPrefs.GetFloat(DATA_SIZE_X), PlayerPrefs.GetFloat(DATA_SIZE_Y));
+        }
+
+        m_ScreenSize = new Vector2(Screen.width, Screen.height);
+    }
+
+    private void DetectOffscreen() {
+        float _scale = canvas.scaleFactor;
+        float _maxWidth = Screen.width;
+        float _maxHeight = Screen.height;
+        float _rectWidth = rect.sizeDelta.x * _scale;
+        float _rectHeight = rect.sizeDelta.y * _scale;
         Vector2 _bottomLeft = rect.transform.position;
-        Vector2 _topRight = new Vector2(_bottomLeft.x + _width, _bottomLeft.y + _height);
-        float _scaledRightRef = (_bottomLeft.x/canvas.scaleFactor+_width);
-        // !! TODO
-        /*if (_scaledRightRef > Screen.width/canvas.scaleFactor) {
-            Vector3 _pos = rect.transform.position;
-            _pos.x = (Screen.width/canvas.scaleFactor) - _width;
-            rect.transform.position = _pos;
-        }*/
+        Vector2 _topRight = new Vector2(_bottomLeft.x + _rectWidth, _bottomLeft.y + _rectHeight);
+
+        float _x = rect.transform.position.x;
+        float _y = rect.transform.position.y;
+
+        if (_bottomLeft.y < 0) {
+            _y = 0;
+        }
+        if (_bottomLeft.x < 0) {
+            _x = 0;
+        }
+        if (_topRight.y > Screen.height) {
+            _y = Screen.height - _rectHeight;
+        }
+        if (_topRight.x > Screen.width) {
+            _x = Screen.width - _rectWidth;
+        }
+
+        rect.transform.position = new Vector2(_x,_y);
     }
 
     private void ResizeTopLeft(Vector2 _pos) {

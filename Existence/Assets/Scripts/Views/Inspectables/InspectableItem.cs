@@ -48,18 +48,18 @@ public class InspectableItem : GameSystem, IPointerEnterHandler, IPointerExitHan
 
 #region Interface Functions
     public void OnPointerEnter(PointerEventData _ped) {
+        m_Hovering = true;
         if (!displayOnHover) return;
         if (m_Item == null) return;
         if (!cursor) return;
         cursor.OpenHoverItem(m_Item);
-        m_Hovering = true;
     }
 
     public void OnPointerExit(PointerEventData _ped) {
+        m_Hovering = false;
         if (!displayOnHover) return;
         if (m_Item == null) return;
         cursor.CloseHoverItem();
-        m_Hovering = false;
     }
 #endregion
 }
