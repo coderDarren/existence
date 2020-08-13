@@ -220,7 +220,8 @@ public class NetworkPlayer : Selectable
         m_ClientData.input.attacking = m_PlayerCombat.attacking;
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
         m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");
-        m_ClientData.input.special = m_Animator.GetBool(m_PlayerCombat.special);
+        if (m_PlayerCombat.special != "")
+            m_ClientData.input.special = m_Animator.GetBool(m_PlayerCombat.special);
         m_ClientData.specialName = m_PlayerCombat.special; 
         m_ClientData.weaponName = m_Player.weapon.ToString();
         m_ClientData.maxHealth = m_Player.MaxHealth();
