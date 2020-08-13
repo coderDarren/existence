@@ -1,40 +1,64 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class DoorSlideOpen : MonoBehaviour
 {
-    private Collider[] hit;
     public LayerMask mask;
-    private GameObject botDoor;
-    private GameObject topDoor;
-    private Vector3 botClosed;
-    private Vector3 topClosed;
-    
-    void Update()
-    {
-       hit = Physics.OverlapSphere(transform.position, 4, mask);    
-        botDoor = transform.GetChild(1).gameObject;
-        topDoor = transform.GetChild(2).gameObject;        
 
-        if(hit.Length > 0){
+    private GameObject m_Player;
+    private float m_Distance;
+    private Vector3 m_ClosedPos;
+    private Vector3 m_OpenPos;
+    private Vector3 m_CrackedPos;
+    private Vector3 m_WorldPos;
+    private bool m_Open;
+    private bool m_Activated;
+        
+    
+    private void Start(){
+        m_ClosedPos = transform.localPosition;
+        m_CrackedPos = new Vector3(m_ClosedPos.x, m_ClosedPos.y, m_ClosedPos.z + 0.3f);
+        m_OpenPos = new Vector3(m_ClosedPos.x, m_ClosedPos.y, m_ClosedPos.z + 3.5f);
+        m_Open = false;
+        Debug.Log("ClosedPos:" + m_ClosedPos);
+        Debug.Log("CrackedPos:" + m_CrackedPos);
+        Debug.Log("OpenPos:" + m_OpenPos);
+    }
+
+    private void Update()
+    {
+        m_Player = GameObject.FindGameObjectWithTag("Player");
+        m_Distance = Vector3.Distance(transform.position, m_Player.transform.position);
+        Debug.Log(m_Distance);
+        
+        if(m_Distance <= 6.0f && m_Open == false){         
+            transform.localPosition = Vector3.Lerp(transform.localPosition, m_OpenPos, 1f * Time.deltaTime);
+
+            if(!m_Activated)
+                SlideOpen();
+        
+        }
+        else if(m_Distance > 8.0f && m_Open == true){
+            transform.localPosition = Vector3.Lerp(transform.localPosition, m_ClosedPos, 1f * Time.deltaTime);
             
-            if(topDoor.transform.localPosition.y <= 4.7f){
-                topDoor.transform.Translate(Vector3.up * Time.deltaTime * 7, Space.World);                
-            }
-            if(botDoor.transform.localPosition.y >= -1.8f){
-                botDoor.transform.Translate(Vector3.down * Time.deltaTime * 7, Space.World);                
-            }
-        }
-        else{
-            if(topDoor.transform.localPosition.y >= 2.4f){
-                topDoor.transform.Translate(Vector3.down * Time.deltaTime * 2.5f, Space.World);
-            }
-            if(botDoor.transform.localPosition.y <= 0.5f){
-                botDoor.transform.Translate(Vector3.up * Time.deltaTime * 2.5f, Space.World);
-            }
-        }
-        
-        
+            if(!m_Activated)
+                SlideClosed();
+        }       
+    }
+
+    private async void SlideOpen(){
+        m_Activated = true;
+        await Task.Delay(3000);
+        m_Open = true;
+        m_Activated = false;
+    }
+    
+    private async void SlideClosed(){
+        m_Activated = true;
+        await Task.Delay(3000);
+        m_Open = false;
+        m_Activated = false;
     }
 }
