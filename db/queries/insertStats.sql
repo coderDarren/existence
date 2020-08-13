@@ -41,8 +41,9 @@ values (
     0, #programming
     0, #quantumMechanics
     0, #symbiotics
-    0 #processing
+    0, #processing
+    0, #melee
+    0 #hot
 );*/
 
-#delete from stats where id != 26;
 select * from stats;

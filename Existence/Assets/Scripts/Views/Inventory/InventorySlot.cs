@@ -35,9 +35,11 @@ public class InventorySlot : InspectableItem
     }
 
 #region Unity Functions
-    private void OnDisable() {
-        InventorySlot.OnGrab -= OnSomeSlotGrab;
-        InventorySlot.OnDrop -= OnSomeSlotDrop;
+    private void Update() {
+        // check input for equip attempts
+        if (Input.GetMouseButtonUp(1)) {
+            EquipItem();
+        }
     }
 #endregion
 
@@ -54,10 +56,10 @@ public class InventorySlot : InspectableItem
         m_Item = null;
     }
 
-    public void AssignIcon(ItemData _item) {
+    public void AssignIcon(IItem _item) {
         m_Item = _item;
-        m_Item.slotLoc = id;
-        Sprite _sprite = Utilities.LoadStreamingAssetsSprite(m_Item.icon);
+        m_Item.def.slotLoc = id;
+        Sprite _sprite = Utilities.LoadStreamingAssetsSprite(m_Item.def.icon);
         if (_sprite == null) return;
 
         UpdateAlpha(1);
@@ -124,12 +126,28 @@ public class InventorySlot : InspectableItem
         m_GrabbedSlot = null;
     }
 
+    public void EquipItem() {
+        if (!m_Hovering) return;
+        if (m_Item == null) return;
+        if (controller == null) return;
+        controller.EquipItem(m_Item);
+        OnPointerExit(null);
+    }
+
     private void TryInventoryAction(InventoryAction _action) {
         try {
             _action(this);
         } catch (System.Exception _e) {
             Debug.LogWarning(_e);
         }
+    }
+#endregion
+
+#region Override Functions
+    protected override void Dispose() {
+        base.Dispose();
+        InventorySlot.OnGrab -= OnSomeSlotGrab;
+        InventorySlot.OnDrop -= OnSomeSlotDrop;
     }
 #endregion
 

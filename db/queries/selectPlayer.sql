@@ -1,1 +1,2 @@
-select * from players
+select * from players;
+select * from equipmentSlots;

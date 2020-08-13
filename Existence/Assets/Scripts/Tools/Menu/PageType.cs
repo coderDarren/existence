@@ -14,7 +14,10 @@
             LoginLoad,
             AccountCreation,
             CharacterCreation,
-            Inventory
+            Inventory,
+            LootPreview,
+            Attacks,
+            Equipment
         }
     }
 }

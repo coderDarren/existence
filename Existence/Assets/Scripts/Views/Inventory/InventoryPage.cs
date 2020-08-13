@@ -27,14 +27,16 @@ public class InventoryPage : Page
 
 #region Private Functions
     private void EraseInventory() {
+        int _index = 0;
         foreach (Transform _t in slotParent) {
             if (_t == slotParent) continue;
             _t.GetComponent<InventorySlot>().EraseIcon();
+            _index++;
         }
     }
 
     private void DrawInventory() {
-        if (m_PlayerData.inventory == null || m_PlayerData.inventory.Length == 0) 
+        if (m_PlayerData.inventory == null || m_PlayerData.inventory.Count == 0) 
             return;
 
         // !! TODO 
@@ -46,35 +48,44 @@ public class InventoryPage : Page
             _index++;
         }
 
-        foreach (ItemData _item in m_PlayerData.inventory) {
-            if (_item.slotLoc == -1) {
+        _index = 0;
+        foreach (IItem _item in m_PlayerData.inventory) {
+            if (_item.def.slotLoc == -1) {
                 for (int i = 0; i < slotParent.transform.childCount; i++) {
                     InventorySlot _check = slotParent.transform.GetChild(i).GetComponent<InventorySlot>();
                     if (_check.item == null) {
                         // this is an available slot
-                        _item.slotLoc = i;
+                        _item.def.slotLoc = i;
                         SaveInventory(_item);
                         _check.AssignIcon(_item);
                         break;
                     }
                 }
+                _index++;
                 continue;
             }
-            InventorySlot _slot = slotParent.transform.GetChild(_item.slotLoc).GetComponent<InventorySlot>();
+            InventorySlot _slot = slotParent.transform.GetChild(_item.def.slotLoc).GetComponent<InventorySlot>();
             _slot.AssignIcon(_item);
+            _index++;
         }
     }
 #endregion
 
 #region Public Functions
-    public void SaveInventory(ItemData _item) {
+    public void SaveInventory(IItem _item) {
         if (!session) return;
         if (!session.network) return;
-        NetworkInventoryUpdate _data = new NetworkInventoryUpdate(_item.slotID, _item.slotLoc);
+        NetworkInventoryUpdate _data = new NetworkInventoryUpdate(_item.def.slotID, _item.def.slotLoc);
         session.network.SaveInventory(_data);
     }
 
+    public void EquipItem(IItem _item) {
+        if (!session) return;
+        session.player.NetworkEquip(_item);
+    }
+
     public void Redraw() {
+        m_PlayerData = session.playerData;
         EraseInventory();
         DrawInventory();
     }
@@ -88,8 +99,7 @@ public class InventoryPage : Page
         if (!instance) {
             instance = this;
         }
-
-        m_PlayerData = session.playerData;
+        
         Redraw();
     }
 

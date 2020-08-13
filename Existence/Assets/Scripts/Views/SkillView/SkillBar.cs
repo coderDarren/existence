@@ -13,7 +13,6 @@ public class SkillBar : GameSystem
 
     private Session m_Session;
     private SkillSection m_Section;
-    private int m_SkillMax=100000;
 
     // get Session with integrity
     private Session session {
@@ -42,16 +41,33 @@ public class SkillBar : GameSystem
 #region Private Functions
     private void UpdateView(string _label, string _hash, int _added) {
         int _curr = (int)page.stats[_hash];
+        int _max = (int)page.statMaximums.ToHashtable()[_hash];
+
         // don't allow reductions beyond the start of the allocation session
         if (_curr + _added < (int)session.player.data.stats.ToHashtable()[_hash]) return;
+        // don't allow allocations beyond the maximum
+        if (_curr + _added > _max) return;
 
-        page.stats[_hash] = _curr + _added;
+        page.stats[(_hash)] = _curr + _added;
+
         StatData _aggregated = StatData.FromHashtable(page.stats).Combine(StatData.FromHashtable(page.otherStats));
-        int _total = (int)StatData.TrickleFrom(_aggregated).Combine(_aggregated).ToHashtable()[_hash];
-        int _max = m_SkillMax;
+        int _totalAggregate = (int)StatData.TrickleFrom(_aggregated).Combine(_aggregated).ToHashtable()[_hash]; // stats (gear, buffs, base, trickle)
+        int _totalBuffed = (int)_aggregated.ToHashtable()[_hash]; // stats (gear, buffs, base)
+        int _totalBase = (int)page.stats[_hash]; // stats (base)
+
         skillLabel.text = _label;
-        valLabel.text = _total.ToString();
-        bar.fillAmount = _total / (float)_max;
+
+        // color the value green if the stat is otherwise buffed
+        if (_totalBuffed > _totalBase) {
+            valLabel.text = "<color=#0f0>"+_totalAggregate+"</color>";
+        } else {
+            valLabel.text = _totalAggregate.ToString();
+        }
+
+        // aggregate stats should not fill the stat bar..
+        // ..only base stats should fill the stat bar.
+        // Otherwise, buffs would prevent you from being able to level skills up
+        bar.fillAmount = _totalBase / (float)_max;
 
         page.statPoints -= _added;
     }

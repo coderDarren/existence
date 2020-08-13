@@ -27,7 +27,8 @@ public class NetworkPlayer : Selectable
     private NetworkPlayerData m_ClientData;
     private NetworkPlayerData m_LastFrameData;
     private PlayerController m_PlayerController;
-    private Targeting m_Targeting;
+    private PlayerCombatController m_PlayerCombat;
+    private EquipmentController m_EquipmentController;
     private Player m_Player;
     private Animator m_Animator;
     private float m_InitialRunning;
@@ -73,6 +74,18 @@ public class NetworkPlayer : Selectable
         }
     }
 
+    private EquipmentController equipmentController {
+        get {
+            if (!m_EquipmentController) {
+                m_EquipmentController = GetComponent<EquipmentController>();
+            }
+            if (!m_EquipmentController) {
+                LogWarning("Trying to get equipment but no instance of EquipmentController was found.");
+            }
+            return m_EquipmentController;
+        }
+    }
+
     public NetworkPlayerData clientData {
         get {
             return m_ClientData;
@@ -93,10 +106,10 @@ public class NetworkPlayer : Selectable
         m_Animator = GetComponent<Animator>();
         if (isClient) {
             m_PlayerController = GetComponent<PlayerController>();
-            m_Targeting = GetComponent<Targeting>();
+            m_PlayerCombat = GetComponent<PlayerCombatController>();
             m_Player = GetComponent<Player>();
-            m_Nameplate = new NameplateData();
-            m_Nameplate.name = m_Player.data.player.name;
+            m_NameplateData = new NameplateData();
+            m_NameplateData.name = m_Player.data.player.name;
             NameplateController.instance.TrackSelectable(this);
         }
     }
@@ -113,18 +126,26 @@ public class NetworkPlayer : Selectable
 #region Public Functions
     public void Init(NetworkPlayerData _data) {
         if (isClient) return;
-        m_Nameplate = new NameplateData();
-        m_Nameplate.name = _data.name;
+        m_NameplateData = new NameplateData();
+        m_NameplateData.name = _data.name;
         m_TargetPos = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
         m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
         transform.position = m_TargetPos;
+
+        foreach (ArmorItemData _item in _data.equipment.armor) {
+            equipmentController.Equip(_item);
+        }
+
+        foreach (WeaponItemData _item in _data.equipment.weapons) {
+            equipmentController.Equip(_item);
+        }
     }
 
     public void Init(PlayerData _data) {
         m_ClientData = new NetworkPlayerData();
         m_ClientData.id = _data.player.ID;
         m_ClientData.name = _data.player.name;
-        m_ClientData.weaponName = Player.Weapon.oneHandRanged.ToString();
+        m_ClientData.weaponName = Player.Weapon.oneHandRanged.ToString(); // ???
     }
 
     public void Dispose() {
@@ -164,10 +185,14 @@ public class NetworkPlayer : Selectable
         
         m_UpdateTimer = 0;
 
-        UpdateNameplate(_data.name, _data.health, _data.maxHealth);
+        UpdateNameplate(_data.name, _data.health, _data.maxHealth, _data.lvl);
         
         m_LastFrameData = _data;
-        
+    }
+
+    public void UpdatePlayerHealth(NetworkPlayerHitInfo _data) {
+        if (!isClient) return;
+        m_Player.data.player.health = _data.health;
     }
 #endregion
 
@@ -175,7 +200,6 @@ public class NetworkPlayer : Selectable
     // Player controlled by this client
     private void UpdateClient() {
         if (!network) return;
-                
 
         if (ClientHasNotChanged()) {
             m_IdleTimer += Time.deltaTime;
@@ -193,15 +217,18 @@ public class NetworkPlayer : Selectable
         m_ClientData.input.running = m_PlayerController.runAnimation;
         m_ClientData.input.strafing = m_PlayerController.strafeAnimation;
         m_ClientData.input.grounded = m_PlayerController.grounded;
-        m_ClientData.input.attacking = m_Targeting.attacking;
+        m_ClientData.input.attacking = m_PlayerCombat.attacking;
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
         m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");
-        m_ClientData.input.special = m_Animator.GetBool(m_Targeting.m_Special.ToString());
-        m_ClientData.specialName = m_Targeting.m_Special.ToString(); 
+        m_ClientData.input.special = m_Animator.GetBool(m_PlayerCombat.special);
+        m_ClientData.specialName = m_PlayerCombat.special; 
         m_ClientData.weaponName = m_Player.weapon.ToString();
         m_ClientData.maxHealth = m_Player.MaxHealth();
+        m_ClientData.health = m_Player.data.player.health;
+        m_ClientData.lvl = m_Player.data.player.level;
+        m_ClientData.equipment = m_Player.data.equipment;
 
-        UpdateNameplate(m_ClientData.name, m_ClientData.health, m_ClientData.maxHealth);
+        UpdateNameplate(m_ClientData.name, m_ClientData.health, m_ClientData.maxHealth, m_ClientData.lvl);
       
         m_UpdateTimer += Time.deltaTime;
         if (m_UpdateTimer >= sendRate && m_IdleTimer < idleDetectionSeconds) {
@@ -250,11 +277,6 @@ public class NetworkPlayer : Selectable
         Log("Network Delta: "+_diff);
         m_Smooth = _diff / 1000.0f;
     }
-
-    
-
-    
-
     
 #endregion
 

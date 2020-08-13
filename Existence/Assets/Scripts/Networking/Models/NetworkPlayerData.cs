@@ -4,6 +4,7 @@ public class NetworkPlayerHitInfo : NetworkModel {
     public string mobName; 
     public string playerName;
     public int dmg;
+    public int health;
 }
 
 /// <summary>
@@ -27,6 +28,8 @@ public class NetworkPlayerData : NetworkModel
     public int maxHealth;
     public int energy;
     public int maxEnergy;
+    public int lvl;
+    public PlayerEquipmentData equipment;
 
     public NetworkPlayerData() {
         input = new NetworkPlayerInput();

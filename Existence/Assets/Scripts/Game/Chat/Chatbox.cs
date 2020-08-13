@@ -12,12 +12,15 @@ public class Chatbox : GameSystem
     public static Chatbox instance;
 
     public InputField chat;
-    public Text chatBox;
+    public RectTransform chatBox;
+    public GameObject textPrefab;
+    public int maxMessages=50;
 
     private Session m_Session;
     private ChatCommandParser m_CommandParser;
     private NetworkController m_Network;
     private bool m_Active;
+    private List<GameObject> m_Messages;
 
     // get Session with integrity
     private Session session {
@@ -52,7 +55,10 @@ public class Chatbox : GameSystem
     }
 
     private void Start() {
+        if (instance != this) return;
         m_CommandParser = new ChatCommandParser();
+        m_Messages = new List<GameObject>();
+        Mob.OnMobInit += OnMobInit;
 
         if (network) {
             network.OnConnect += OnServerConnect;
@@ -66,6 +72,9 @@ public class Chatbox : GameSystem
             network.OnPlayerHit += OnPlayerHit;
             network.OnMobAttackStart += OnMobAttackStart;
             network.OnMobHit += OnMobHit;
+            network.OnMobDeath += OnMobDeath;
+            network.OnPlayerEquipSuccess += OnPlayerEquipSuccess;
+            network.OnPlayerUnequipSuccess += OnPlayerUnequipSuccess;
         }
     }
 
@@ -82,6 +91,8 @@ public class Chatbox : GameSystem
     }
 
     private void OnDisable() {
+        Mob.OnMobInit -= OnMobInit;
+
         if (network) {
             network.OnConnect -= OnServerConnect;
             network.OnDisconnect -= OnServerDisconnect;
@@ -94,6 +105,9 @@ public class Chatbox : GameSystem
             network.OnPlayerHit -= OnPlayerHit;
             network.OnMobAttackStart -= OnMobAttackStart;
             network.OnMobHit -= OnMobHit;
+            network.OnMobDeath -= OnMobDeath;
+            network.OnPlayerEquipSuccess -= OnPlayerEquipSuccess;
+            network.OnPlayerUnequipSuccess -= OnPlayerUnequipSuccess;
         }
 
         if (session) {
@@ -120,6 +134,14 @@ public class Chatbox : GameSystem
         session.FreePlayerInput();
         TryRunAction(OnChatEnded);
         StartCoroutine(CloseChatAtEndOfFrame());
+    }
+
+    // Emits message only for this client
+    // Probably used by a service that needs to notify the player about something..
+    // ..like gear not being compatible
+    // !! TODO This should be coming from the server ultimately
+    public void EmitMessageLocal(string _msg, string _colorCode = "#ffa957") {
+        CreateMessage("<color="+_colorCode+">"+_msg+"</color>");
     }
 #endregion
 
@@ -151,53 +173,53 @@ public class Chatbox : GameSystem
         switch (_cmd) {
             case ChatCommand.LOGIN:
                 if (_args.Count != 2) {
-                    chatBox.text += "\nCommand arguments were not understood.";
+                    CreateMessage("Command arguments were not understood.");
                     return;
                 }
                 Login(_args[1]);
                 break;
             case ChatCommand.LOGOUT:
-                chatBox.text += "\nCommand arguments were not understood.";
+                CreateMessage("Command arguments were not understood.");
                 session.LogoutToCharSelection();
                 break;
             case ChatCommand.XP:
                 if (_args.Count != 2) {
-                    chatBox.text += "\nCommand arguments were not understood.";
+                    CreateMessage("Command arguments were not understood.");
                     return;
                 }
                 session.player.AddXp(int.Parse(_args[1]));
                 break;
             case ChatCommand.INVENTORY:
                 if (_args.Count < 2) {
-                    chatBox.text += "\nCommand arguments were not understood.";
+                    CreateMessage("Command arguments were not understood.");
                     return;
                 }
                 if (_args[1] == "add") {
                     if (_args.Count < 3) {
-                        chatBox.text += "\nExpected format [/inventory add <id>].";
+                        CreateMessage("Expected format [/inventory add <id>].");
                         return;
                     }
                     int _id;
                     if (System.Int32.TryParse(_args[2], out _id)) {
                         session.network.AddInventory(new ItemData(_id));
                     } else {
-                        chatBox.text += "\nThe add parameter must be a number.";
+                        CreateMessage("The add parameter must be a number.");
                         return;
                     }
                 } else {
-                    chatBox.text += "\nCommand arguments were not understood.";
+                    CreateMessage("Command arguments were not understood.");
                     return;
                 }
                 break;
             case ChatCommand.UNKNOWN:
-                chatBox.text += "\nCommand not recognized.";
+                CreateMessage("Command not recognized.");
                 break;
         }
     }
 
     private async void Login(string _playerName) {
         Log("[Login]: Sending request...");
-        chatBox.text += "\nLogging in as "+_playerName+"..";
+        CreateMessage("Logging in as "+_playerName+"..");
         long _start = NetworkTimestamp.NowMilliseconds();
         PlayerData _data = await DatabaseService.GetService(true).GetPlayer(_playerName);
         Log("[Login]: ["+(NetworkTimestamp.NowMilliseconds()-_start)+"ms]: "+_data);
@@ -205,7 +227,7 @@ public class Chatbox : GameSystem
         if (_data != null) {
             session.StartGame(_data);
         } else {
-            chatBox.text += "\nNo account for "+_playerName+" exists. Create one first.";
+            CreateMessage("No account for "+_playerName+" exists. Create one first.");
         }
     }
 
@@ -218,54 +240,118 @@ public class Chatbox : GameSystem
     }
 
     private void OnServerHandshake(NetworkInstanceData _instance) {
-        chatBox.text += "\n<color=#0f0>Welcome to the Server.</color>";
+        CreateMessage("<color=#0f0>Welcome to the Server.</color>");
     }
 
     private void OnPlayerJoined(NetworkPlayerData _player) {
-        chatBox.text += "\n<color=#0f0>"+_player.name+" joined.</color>";
+        CreateMessage("<color=#0f0>"+_player.name+" joined.</color>");
     }
     
     private void OnPlayerLeft(NetworkPlayerData _player) {
-        chatBox.text += "\n<color=#f00>"+_player.name+" left.</color>";
+        CreateMessage("<color=#f00>"+_player.name+" left.</color>");
     }
 
     private void OnChat(string _msg) {
-        chatBox.text += "\n"+_msg;
+        CreateMessage("<color=#0f0>"+_msg+"</color>");
     }
 
     private void OnPlayerXpAdded(int _xp) {
-        chatBox.text += "\n<color=#fc0>You earned "+_xp+"xp.</color>";
+        CreateMessage("<color=#fc0>You earned "+_xp+"xp.</color>");
     }
 
-    private void OnInventoryAdded(ItemData _item) {
+    private void OnInventoryAdded(string _itemStr) {
         if (!session) return;
-        chatBox.text += "\nItem "+_item.name+" was added to your inventory.";
+
+        IItem _item = ItemData.CreateItem(_itemStr);
+        
+        CreateMessage("Item "+_item.def.name+" was added to your inventory. "+_item.def.itemType.ToString());
+        
+        switch (_item.def.itemType) {
+            case ItemType.WEAPON: CreateMessage("Weapon type: "+(((WeaponItemData)_item).slotType.ToString())); break;
+            case ItemType.ARMOR: CreateMessage("Armor type: "+(((ArmorItemData)_item).slotType.ToString())); break;
+            default: break;
+        }
+
         session.player.AddInventory(_item);
     }
 
     private void OnAddInventoryFail(string _msg) {
-        chatBox.text += "\n<color=#f00>"+_msg+"</color>";
+        CreateMessage("<color=#f00>"+_msg+"</color>");
     }
 
     private void OnPlayerHit(NetworkPlayerHitInfo _info) {
         if (!session) return;
         if (session.player.data.player.name != _info.playerName) return;
         
-        chatBox.text += "\n<color=#ccc>"+_info.mobName+" hit you for "+_info.dmg+" points of damage.</color>";
+        string _msg = _info.dmg > 0 ? _info.mobName+" hit you for "+_info.dmg+" points of damage." : _info.mobName+" tried to hit you, but missed!";
+        CreateMessage("<color=#ccc>"+_msg+"</color>");
     }
 
     private void OnMobAttackStart(NetworkMobAttackData _data) {
         if (!session) return;
         if (session.player.data.player.name != _data.playerName) return;
 
-        chatBox.text += "\n<color=#f00>"+_data.mobName+" started attacking you.</color>";
+        CreateMessage("<color=#f00>"+_data.mobName+" started attacking you.</color>");
     }
 
     private void OnMobHit(NetworkMobHitInfo _data) {
         if (!session) return;
         if (session.player.data.player.name != _data.playerName) return;
 
-        chatBox.text += "\n<color=#fff>You hit "+_data.mobName+" for "+_data.dmg+" points of damage.</color>";
+        CreateMessage("<color=#fff>You hit "+_data.mobName+" for "+_data.dmg+" points of damage."+(_data.crit ? " Critical hit!" : "")+"</color>");
+    }
+
+    private void OnMobDeath(NetworkMobDeathData _data) {        
+        foreach (NetworkLootPreviewData _preview in _data.lootPreview) {
+            CreateMessage(_data.name+" dropped a LV. "+_preview.level+" "+_preview.name+".");
+        }
+    }
+
+    private void OnMobInit(Mob _mob) {
+        foreach (NetworkLootPreviewData _preview in _mob.data.lootPreview) {
+            CreateMessage("You are near a "+_mob.data.name+", which dropped a LV. "+_preview.level+" "+_preview.name+".");
+        }
+    }
+
+    private void OnPlayerEquipSuccess(NetworkEquipSuccessData _data) {
+        if (!session) return;
+        if (session.player.data.player.ID == _data.playerID) {
+            CreateMessage("You equipped item "+_data.itemID+".");
+        } else {
+            CreateMessage(_data.playerName+" equipped item "+_data.itemID+".");
+        }
+    }
+
+    private void OnPlayerUnequipSuccess(NetworkEquipSuccessData _data) {
+        if (!session) return;
+        if (session.player.data.player.ID == _data.playerID) {
+            CreateMessage("You unequipped item "+_data.itemID+".");
+        } else {
+            CreateMessage(_data.playerName+" unequipped item "+_data.itemID+".");
+        }
+    }
+
+    private void CreateMessage(string _msg) {
+        GameObject _obj = Instantiate(textPrefab);
+        Text _text = _obj.GetComponent<Text>();
+        RectTransform _rect = _obj.GetComponent<RectTransform>();
+        _rect.SetParent(chatBox);
+        _rect.localScale = Vector3.one;
+        _text.text = _msg;
+        m_Messages.Insert(0, _obj);
+        EnsureChatIntegrity();
+    }
+
+    /*
+     * Clear out old messages..
+     * ..to prevent mem overflow
+     */
+    private void EnsureChatIntegrity() {
+        if (m_Messages.Count > maxMessages) {
+            GameObject _obj = m_Messages[maxMessages];
+            m_Messages.RemoveAt(maxMessages);
+            Destroy(_obj);
+        }
     }
 
     private void TryRunAction(BasicAction _action) {

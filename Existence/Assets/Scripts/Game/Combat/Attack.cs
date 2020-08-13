@@ -7,7 +7,7 @@ public class Attack : StateMachineBehaviour
     
     private float range;
     private Player m_Player;
-    private Targeting m_Targeting;
+    private PlayerCombatController m_PlayerCombat;
     private GameObject child;
     private Mob target;
     private bool attacking;
@@ -19,22 +19,22 @@ public class Attack : StateMachineBehaviour
         pauseSpeed = animator.GetFloat("totalSpeed");
 
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        m_Targeting = GameObject.FindGameObjectWithTag("Player").GetComponent<Targeting>();
-        range = m_Player.range;
+        m_PlayerCombat = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCombatController>();
+        range = m_Player.attackRange;
         safetySpeed = 0;
     }
     
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
         
         attacking = animator.GetBool(m_Player.weapon.ToString());
-        target = m_Targeting.m_Target; 
+        target = m_PlayerCombat.target; 
 
         #region Cancel/Pause Animaton
         if(!attacking){//Cancel animation
             animator.SetFloat("totalSpeed", pauseSpeed);
             animator.SetBool("cycle", true);            
         }
-        if(m_Targeting.m_Target){            
+        if(m_PlayerCombat.target){            
             distance = Vector3.Distance(animator.gameObject.transform.position, target.transform.position);
 
             if (!target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){

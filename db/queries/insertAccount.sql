@@ -3,5 +3,5 @@
 #alter table accounts add column email varchar(255) unique;
 #SELECT * FROM existence.accounts;
 
-select items.*, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
+select items.*, inventorySlots.lvl as lvl, inventorySlots.ID as slotID, inventorySlots.loc as slotLoc from items
 inner join inventorySlots on inventorySlots.playerID = 18 and inventorySlots.itemID = items.ID

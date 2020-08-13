@@ -12,6 +12,9 @@ using UnityCore.Menu;
 [RequireComponent(typeof(RectTransform))]
 public class UIContainer : GameSystem
 {
+    public delegate void SizeDelegate(Vector2 _size);
+    public event SizeDelegate OnResize;
+
     [System.Serializable]
     public struct FloatThreshold {
         public float min;
@@ -42,6 +45,16 @@ public class UIContainer : GameSystem
 
     private Canvas m_Canvas;
     private RectTransform m_Rect;
+    private bool m_Minimized;
+    private float m_LastHeight;
+    private Vector2 m_ScreenSize;
+
+    // set these first thing
+    private string DATA_POS_X;
+    private string DATA_POS_Y;
+    private string DATA_SIZE_X;
+    private string DATA_SIZE_Y;
+    private string DATA_MINIMIZED;
 
     public RectTransform rect {
         get {
@@ -55,7 +68,7 @@ public class UIContainer : GameSystem
     private Canvas canvas {
         get {
             if (!m_Canvas) {
-                m_Canvas = GameObject.FindObjectOfType<Canvas>();
+                m_Canvas = GameObject.FindGameObjectWithTag("GameUI").GetComponent<Canvas>();
             }
             return m_Canvas;
         }
@@ -63,6 +76,9 @@ public class UIContainer : GameSystem
 
 #region Unity Functions
     private void Awake() {
+        InitializePrefs();
+        DetectOffscreen();
+
         // Configure handles
         ConfigureHandle(dragger, UIHandle.HandleLoc.IRRELEVANT, uniqueId);
         ConfigureHandle(topLeftResizer, UIHandle.HandleLoc.TOP_LEFT, uniqueId);
@@ -73,6 +89,16 @@ public class UIContainer : GameSystem
         ConfigureHandle(leftResizer, UIHandle.HandleLoc.LEFT, uniqueId);
         ConfigureHandle(bottomResizer, UIHandle.HandleLoc.BOTTOM, uniqueId);
         ConfigureHandle(rightResizer, UIHandle.HandleLoc.RIGHT, uniqueId);
+    }
+
+    private void Update() {
+        // Check if screen size changes
+        if (m_ScreenSize.x != Screen.width || m_ScreenSize.y != Screen.height) {
+            DetectOffscreen();
+            m_ScreenSize.x = Screen.width;
+            m_ScreenSize.y = Screen.height;
+            Debug.Log("Screen size changed");
+        }
     }
 #endregion
 
@@ -91,10 +117,14 @@ public class UIContainer : GameSystem
         if (_pos.y > _maxHeight - _rectHeight) _pos.y = _maxHeight - _rectHeight;
         
         rect.transform.position = _pos;
+
+        PlayerPrefs.SetFloat(DATA_POS_X, rect.transform.position.x);
+        PlayerPrefs.SetFloat(DATA_POS_Y, rect.transform.position.y);
     }
 
     public void Resize(Vector2 _pos, UIHandle.HandleLoc _loc) {
         if (!resizable) return;
+        if (m_Minimized) return;
         switch (_loc) {
             case UIHandle.HandleLoc.TOP_LEFT: ResizeTopLeft(_pos); break;
             case UIHandle.HandleLoc.TOP_RIGHT: ResizeTopRight(_pos); break;
@@ -106,9 +136,81 @@ public class UIContainer : GameSystem
             case UIHandle.HandleLoc.RIGHT: ResizeRight(_pos); break;
         }
     }
+
+    public void ToggleMinimize() {
+        if (!m_Minimized) {
+            // minimize
+            m_LastHeight = rect.sizeDelta.y;
+            SetSize(rect.sizeDelta.x, 35);
+            SetPos(rect.transform.position.x, rect.transform.position.y + m_LastHeight - 50);
+            m_Minimized = true;
+        } else {
+            if (m_LastHeight == 0) {
+                m_LastHeight = constraints.height.min;
+            }
+            SetSize(rect.sizeDelta.x, m_LastHeight);
+            SetPos(rect.transform.position.x, rect.transform.position.y - m_LastHeight + 50);
+            m_Minimized = false;
+        }
+
+        PlayerPrefs.SetInt(DATA_MINIMIZED, m_Minimized ? 1 : 0);
+    }
 #endregion
 
 #region Private Functions
+    private void InitializePrefs() {
+        DATA_POS_X = uniqueId+"-pos-x";
+        DATA_POS_Y = uniqueId+"-pos-y";
+        DATA_SIZE_X = uniqueId+"-size-x";
+        DATA_SIZE_Y = uniqueId+"-size-y";
+        DATA_MINIMIZED = uniqueId+"-minimized";
+
+        if (PlayerPrefs.GetInt(DATA_MINIMIZED, -1) != -1) {
+            if (PlayerPrefs.GetInt(DATA_MINIMIZED) == 1) {
+                SetSize(rect.sizeDelta.x, 35);
+                m_Minimized = true;
+            }
+        }
+
+        if (PlayerPrefs.GetFloat(DATA_POS_X, 0) != 0) {
+            SetPos(PlayerPrefs.GetFloat(DATA_POS_X), PlayerPrefs.GetFloat(DATA_POS_Y));
+        }
+
+        if (PlayerPrefs.GetFloat(DATA_SIZE_X, 0) != 0) {
+            SetSize(PlayerPrefs.GetFloat(DATA_SIZE_X), PlayerPrefs.GetFloat(DATA_SIZE_Y));
+        }
+
+        m_ScreenSize = new Vector2(Screen.width, Screen.height);
+    }
+
+    private void DetectOffscreen() {
+        float _scale = canvas.scaleFactor;
+        float _maxWidth = Screen.width;
+        float _maxHeight = Screen.height;
+        float _rectWidth = rect.sizeDelta.x * _scale;
+        float _rectHeight = rect.sizeDelta.y * _scale;
+        Vector2 _bottomLeft = rect.transform.position;
+        Vector2 _topRight = new Vector2(_bottomLeft.x + _rectWidth, _bottomLeft.y + _rectHeight);
+
+        float _x = rect.transform.position.x;
+        float _y = rect.transform.position.y;
+
+        if (_bottomLeft.y < 0) {
+            _y = 0;
+        }
+        if (_bottomLeft.x < 0) {
+            _x = 0;
+        }
+        if (_topRight.y > Screen.height) {
+            _y = Screen.height - _rectHeight;
+        }
+        if (_topRight.x > Screen.width) {
+            _x = Screen.width - _rectWidth;
+        }
+
+        rect.transform.position = new Vector2(_x,_y);
+    }
+
     private void ResizeTopLeft(Vector2 _pos) {
         ResizeTop(_pos);
         ResizeLeft(_pos);
@@ -216,6 +318,11 @@ public class UIContainer : GameSystem
         if (_y >= 0)
             _size.y = _y;
         rect.sizeDelta = _size;
+
+        PlayerPrefs.SetFloat(DATA_SIZE_X, rect.sizeDelta.x);
+        PlayerPrefs.SetFloat(DATA_SIZE_Y, rect.sizeDelta.y);
+
+        TryAction(OnResize);
     }
 
     private void SetPos(float _x, float _y) {
@@ -223,6 +330,9 @@ public class UIContainer : GameSystem
         _pos.x = _x;
         _pos.y = _y;
         rect.transform.position = _pos;
+
+        PlayerPrefs.SetFloat(DATA_POS_X, rect.transform.position.x);
+        PlayerPrefs.SetFloat(DATA_POS_Y, rect.transform.position.y);
     }
 
     private bool FloatIsBetween(float _val, float _min, float _max) {
@@ -233,6 +343,12 @@ public class UIContainer : GameSystem
         if (_handle) {
             _handle.Configure(this, _loc, _uniqueId);
         }
+    }
+
+    private void TryAction(SizeDelegate _action) {
+        try {
+            _action(m_Rect.sizeDelta);
+        } catch (System.Exception) {}
     }
 #endregion
 }
