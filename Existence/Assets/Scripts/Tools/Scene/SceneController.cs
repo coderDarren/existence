@@ -94,7 +94,7 @@ namespace UnityCore {
                 }
 
                 if (m_TargetScene == SceneType.Game){
-                    //m_AudioController.PlayAudio(UnityCore.Audio.AudioType.ST_01, true, 0.15f, 0.0f);
+                    //AudioController.instance.PlayAudio(UnityCore.Audio.AudioType.ST_01, true, 0.15f, 0.0f);
                 }
 
                 if (m_SceneLoadDelegate != null) {

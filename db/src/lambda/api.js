@@ -15,6 +15,7 @@ const getAccountPlayers = require('./getAccountPlayers.js');
 const modifyItem = require('./modifyItem.js');
 const getMobLoot = require('./getMobLoot.js');
 const getItem = require('./getItem.js');
+const getItems = require('./getItems.js');
 const modifyElement = require('./modifyElement.js');
 const equip = require('./equip.js');
 const unequip = require('./unequip.js');
@@ -92,6 +93,9 @@ const handleRoute = async function(_req) {
             break;
         case "/api/unequip": // POST
             _resp = await unequip(_req.body);
+            break;
+        case "/api/getItems":
+            _resp = await getItems(_req.query);
             break;
     }
 

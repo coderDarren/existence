@@ -802,6 +802,26 @@ class SQLController {
         }
     }
 
+    async getItems(_params) {
+        try {
+            var _items = await this._item.findAll();
+            for (var i in _items) {
+                _items[i] = JSON.parse(JSON.stringify(_items[i].dataValues));
+                _items[i].ID = _items[i].id;
+                _items[i] = await this.__construct_item__(_items[i], 1);
+            }
+
+            return {
+                data: _items
+            }
+        } catch (_err) {
+            console.log(_err);
+            return {
+                error: _err
+            }
+        }
+    }
+
     async updateStats(_stats) {
         try {
             const _resp = await this._stat.update(_stats, {where: {id: _stats.ID}})
