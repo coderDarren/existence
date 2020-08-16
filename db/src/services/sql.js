@@ -529,6 +529,21 @@ class SQLController {
         }
     }
 
+    async getMobs(_params) {
+        try {
+            var _items = await this._mob.findAll();
+
+            return {
+                data: _items
+            }
+        } catch (_err) {
+            console.log(_err);
+            return {
+                error: _err
+            }
+        }
+    }
+
     /* 
      * Determine the table to do operations on for generic requests
      * 1500 error code family
