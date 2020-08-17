@@ -3,9 +3,10 @@ const SQL = require('../services/sql.js');
 
 const validateParams = function(_query)
 {
-    if (!_query) return -1;
+    const _simple = _query['simple'];
 
     return {
+        simple: _simple
     };
 }
 
