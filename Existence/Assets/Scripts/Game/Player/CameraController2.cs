@@ -12,6 +12,8 @@ public class CameraController2 : GameSystem
     public float turnSpeed;
     public float autoFocusTime;
     public float snapFocusTime;
+    public float idleTurnAngleLimit;
+    public float strafeAngle;
 
     [Header("Offsetting")]
     public Vector3 targetOffset;        // offset of target's true position
@@ -55,6 +57,10 @@ public class CameraController2 : GameSystem
     private Quaternion m_TargetRotation;
     private Quaternion m_MouseRotation;
 
+    // Control
+    private float m_StrafeLockAngle;
+    private float m_StrafeAngle;
+
     private PlayerController2 player {
         get {
             if (!target) {
@@ -76,7 +82,7 @@ public class CameraController2 : GameSystem
         PollInput();
 
         if (m_VerticalRaw != 0 && (m_RightClick && m_HorizontalRaw != 0)) {
-            DrivePlayer();
+            StrafeDrivePlayer();
         } else if (m_VerticalRaw != 0) {
             DrivePlayer();
         } else if ((m_RightClick || m_HorizontalRaw != 0) && !m_LeftClick && m_VerticalRaw == 0) {
@@ -137,59 +143,51 @@ public class CameraController2 : GameSystem
             m_AutoFocus = false;
         }
 
-        if (!m_HorizontalStart && m_HorizontalRaw != 0) {
-            m_HorizontalStart = true;
-        }
-        
-        if (!m_VerticalStart && m_VerticalRaw != 0) {
-            m_VerticalStart = true;
-        }
-
-        if ((m_HorizontalStart || m_VerticalStart) && !m_AutoFocus) {
-            m_AutoFocus = true;
+        if (m_HorizontalRaw != 0 && !m_HorizontalStart) {
             m_AutoFocusStarted = false;
-            m_VerticalStart = false;
+            m_HorizontalStart = true;
+            m_AutoFocus = true;
+            m_Timer = 0;
+        } else if (m_HorizontalRaw == 0) {
             m_HorizontalStart = false;
         }
-
-        if (!m_AutoFocus) {
+        
+        if (m_VerticalRaw != 0 && !m_VerticalStart) {
             m_AutoFocusStarted = false;
+            m_VerticalStart = true;
+            m_AutoFocus = true;
+            m_Timer = 0;
+        } else if (m_VerticalRaw == 0) {
+            m_VerticalStart = false;
         }
     }
 
     /*
-     * Rotate the player toward the direction of the camera if the player is strafing
+     * Rotate the player toward the direction of the camera while the player is strafing
      */
     private void StrafeDrivePlayer() {
         Log("StrafeDrivePlayer");
 
-        float _angle = 45;
+        float _target = strafeAngle * m_HorizontalRaw;
+        m_StrafeAngle = Mathf.Lerp(m_StrafeAngle, _target, 10 * Time.deltaTime);
         
-        player.SetRotation(Quaternion.Euler(0, transform.eulerAngles.y + 45 * -m_HorizontalRaw, 0));
-        m_MouseRotationOffset.y = 45 * m_HorizontalRaw;
+        player.SetRotationImmediate(Quaternion.Euler(0, m_StrafeLockAngle + m_StrafeAngle, 0));
+        m_MouseRotationOffset.y = -m_StrafeAngle;
     }
 
     /*
-     * Rotate the player toward the direction of the camera
+     * Rotate the player toward the direction of the camera while the player is running
      */
     private void DrivePlayer() {
         Log("DrivePlayer");
+        m_StrafeLockAngle = transform.eulerAngles.y;
         
-        if (!m_AutoFocusStarted && m_MouseRotationOffset.y != 0) {
-            m_AutoFocusStarted = true;
-            m_CameraAngleStart = transform.eulerAngles.y;
-            m_PlayerAngleStart = Quaternion.Euler(0, target.eulerAngles.y, 0);
-            m_PlayerAngleGoal = Quaternion.Euler(0, transform.eulerAngles.y, 0);
-            m_Timer = 0;
-        } else if (m_AutoFocusStarted && Mathf.Abs(m_MouseRotationOffset.y) > 1.0f) {
-            m_Timer += Time.deltaTime;
-            player.SetRotation(Quaternion.Lerp(m_PlayerAngleStart, m_PlayerAngleGoal, m_Timer / snapFocusTime));
-            m_MouseRotationOffset.y = m_CameraAngleStart - target.eulerAngles.y;
+        if (m_MouseRotationOffset.y != 0) {
+            player.SetRotationImmediate(Quaternion.Euler(0, transform.eulerAngles.y, 0));
+            m_MouseRotationOffset.y = 0;
         } else {
             float _turnSpeed = m_HorizontalRaw != 0 ? m_HorizontalRaw * turnSpeed * Time.deltaTime :
                                m_RightClick ? m_MouseX * mouseClickTurnSpeed * Time.deltaTime : 0;
-            m_MouseRotationOffset.y = 0;
-            m_AutoFocusStarted = false;
             player.Rotate(_turnSpeed);
         }
     }
@@ -200,8 +198,7 @@ public class CameraController2 : GameSystem
      */
     private void RotateAroundTargetWithClick() {
         Log("RotateAroundTargetWithClick");
-        m_AutoFocusStarted = false;
-        m_AutoFocus = false;
+        m_StrafeLockAngle = transform.eulerAngles.y;
 
         m_MouseRotationOffset.x -= m_MouseY * mouseClickTurnSpeed * Time.deltaTime;
         m_MouseRotationOffset.y += m_MouseX * mouseClickTurnSpeed * Time.deltaTime;
@@ -212,39 +209,24 @@ public class CameraController2 : GameSystem
      * While camera is being turned, turn the target while target is not moving
      */
     private void TurnTargetWithCameraDirection() {
-        Log("TurnTargetWithCameraDirection");
+        Log("TurnTargetWithCameraDirection"); 
+        m_AutoFocusStarted = false;
+        m_StrafeLockAngle = transform.eulerAngles.y;
 
-        if (!m_AutoFocusStarted) {
-            m_AutoFocusStarted = true;
-            m_CameraAngleStart = transform.eulerAngles.y;
-            m_PlayerAngleStart = Quaternion.Euler(0, target.eulerAngles.y, 0);
-            m_PlayerAngleGoal = Quaternion.Euler(0, transform.eulerAngles.y, 0);
-            m_Timer = 0;
-        } else if (m_AutoFocusStarted && m_Timer < snapFocusTime) {
-            m_Timer += Time.deltaTime;
-            player.SetRotation(Quaternion.Lerp(m_PlayerAngleStart, m_PlayerAngleGoal, m_Timer / snapFocusTime));
-            m_MouseRotationOffset.y = m_CameraAngleStart - target.eulerAngles.y;
-        } else {
-            float _speed = m_HorizontalRaw != 0 ? m_HorizontalRaw * turnSpeed * Time.deltaTime :
-                           m_MouseX * mouseClickTurnSpeed * Time.deltaTime;
-            
-            if (Mathf.Abs(m_MouseRotationOffset.y) >= 70) {
-                player.Rotate(_speed);
-            }
+        float _turnSpeed = m_HorizontalRaw != 0 ? m_HorizontalRaw * turnSpeed * Time.deltaTime :
+                            m_RightClick ? m_MouseX * mouseClickTurnSpeed * Time.deltaTime : 0;
 
-            m_MouseRotationOffset.y += _speed;
-            m_MouseRotationOffset.y = Utilities.ClampAngle(m_MouseRotationOffset.y, -180, 180);
+        m_MouseRotationOffset.y += _turnSpeed;
+        m_MouseRotationOffset.y = Utilities.ClampAngle(m_MouseRotationOffset.y, -180, 180);
 
-            if (m_MouseRotationOffset.y <= -70) {
-                m_MouseRotationOffset.y = -70;
-            } else if (m_MouseRotationOffset.y >= 70) {
-                m_MouseRotationOffset.y = 70;
-            }
+        if (m_MouseRotationOffset.y <= -idleTurnAngleLimit) {
+            m_MouseRotationOffset.y = Utilities.ClampAngle(Mathf.Lerp(m_MouseRotationOffset.y, -idleTurnAngleLimit, 5 * Time.deltaTime), -180, 180);
+        } else if (m_MouseRotationOffset.y >= idleTurnAngleLimit) {
+            m_MouseRotationOffset.y = Utilities.ClampAngle(Mathf.Lerp(m_MouseRotationOffset.y, idleTurnAngleLimit, 5 * Time.deltaTime), -180, 180);
+        }
 
-            // reset auto focus vars without setting !m_AutoFocusStarted (we want to stay in this condition)
-            m_CameraAngleStart = transform.eulerAngles.y;
-            m_PlayerAngleStart = Quaternion.Euler(0, target.eulerAngles.y, 0);
-            m_PlayerAngleGoal = Quaternion.Euler(0, transform.eulerAngles.y, 0);
+        if (Mathf.Abs(m_MouseRotationOffset.y) >= idleTurnAngleLimit) {
+            player.Rotate(_turnSpeed);
         }
     }
 
@@ -253,6 +235,8 @@ public class CameraController2 : GameSystem
      */
     private void TurnTargetTowardCameraDirection() {
         Log("TurnTargetTowardCameraDirection");
+        m_StrafeLockAngle = transform.eulerAngles.y;
+
         if (!m_AutoFocusStarted) {
             m_AutoFocusStarted = true;
             m_CameraAngleStart = transform.eulerAngles.y;

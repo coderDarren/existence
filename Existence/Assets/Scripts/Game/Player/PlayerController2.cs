@@ -71,6 +71,11 @@ public class PlayerController2 : GameSystem
     public void SetRotation(Quaternion _rot) {
         m_TargetRotation = _rot;
     }
+
+    public void SetRotationImmediate(Quaternion _rot) {
+        transform.rotation = _rot;
+        m_TargetRotation = transform.rotation;
+    }
 #endregion
 
 #region Private Functions
