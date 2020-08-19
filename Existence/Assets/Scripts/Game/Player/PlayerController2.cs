@@ -22,6 +22,7 @@ public class PlayerController2 : GameSystem
     private CharacterController m_Character;
     private Vector3 m_MoveDirection;
     private Quaternion m_TargetRotation;
+    private Animator m_Animator;
 
     // Inputs
     private bool m_RightClick;
@@ -49,6 +50,7 @@ public class PlayerController2 : GameSystem
 #region Unity Functions
     private void Start() {
         m_TargetRotation = transform.rotation;
+        m_Animator = GetComponent<Animator>();
     }
 
     private void Update() {
@@ -57,6 +59,7 @@ public class PlayerController2 : GameSystem
         Jump();
         Move();
         Turn();
+        Animate();
     }
 #endregion
 
@@ -84,8 +87,9 @@ public class PlayerController2 : GameSystem
     private void Jump() {
         if (m_Grounded && m_Jump)
             m_MoveDirection.y = jumpForce;
-        else if (!m_Grounded) 
+        else if (!m_Grounded) {
             m_MoveDirection.y -= gravity;
+        }
     }
 
     private void Move() {
@@ -95,6 +99,11 @@ public class PlayerController2 : GameSystem
 
     private void Turn() {
         transform.rotation = Quaternion.Lerp(transform.rotation, m_TargetRotation, 25 * Time.deltaTime);
+    }
+
+    private void Animate() {
+        m_Animator.SetFloat("running", m_Vertical);
+        m_Animator.SetBool("grounded", m_Grounded);
     }
 
     private void CheckGrounded() {
