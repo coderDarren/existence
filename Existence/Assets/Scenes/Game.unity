@@ -17468,7 +17468,7 @@ PrefabInstance:
     - target: {fileID: 1091779884325386120, guid: 09dce4f534687d04c871a13c625f5a8e,
         type: 3}
       propertyPath: turnSpeed
-      value: 220
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 1091779884325386120, guid: 09dce4f534687d04c871a13c625f5a8e,
         type: 3}
@@ -17479,6 +17479,21 @@ PrefabInstance:
         type: 3}
       propertyPath: idleTurnAngleLimit
       value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 1091779884325386120, guid: 09dce4f534687d04c871a13c625f5a8e,
+        type: 3}
+      propertyPath: strafeAngle
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1091779884325386120, guid: 09dce4f534687d04c871a13c625f5a8e,
+        type: 3}
+      propertyPath: mouseClickTurnSpeed
+      value: 750
+      objectReference: {fileID: 0}
+    - target: {fileID: 1091779884325386120, guid: 09dce4f534687d04c871a13c625f5a8e,
+        type: 3}
+      propertyPath: verticalMouseTurnSpeed
+      value: 325
       objectReference: {fileID: 0}
     - target: {fileID: 1091779884325386121, guid: 09dce4f534687d04c871a13c625f5a8e,
         type: 3}
@@ -67518,6 +67533,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1447150052059052517, guid: 454e5dc1b0e3f3949963d5902659df5d,
+        type: 3}
+      propertyPath: walkSpeed
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1447150052059052522, guid: 454e5dc1b0e3f3949963d5902659df5d,
         type: 3}
       propertyPath: m_Name

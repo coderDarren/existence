@@ -11,7 +11,6 @@ public class CameraController2 : GameSystem
     public float lookSpeed;
     public float turnSpeed;
     public float autoFocusTime;
-    public float snapFocusTime;
     public float idleTurnAngleLimit;
     public float strafeAngle;
 
@@ -24,6 +23,7 @@ public class CameraController2 : GameSystem
     public float minimumInspectAngle=-25.0f;    // min X angle when left click inspecting
     public float maximumInspectAngle=70.0f;     // max X angle when left click inspecting
     public float mouseClickTurnSpeed;
+    public float verticalMouseTurnSpeed;
 
     // Components
     private PlayerController2 m_Player;
@@ -81,7 +81,7 @@ public class CameraController2 : GameSystem
     private void LateUpdate() {
         PollInput();
 
-        if (m_VerticalRaw != 0 && (m_RightClick && m_HorizontalRaw != 0)) {
+        if (m_RightClick && m_Horizontal != 0) {
             StrafeDrivePlayer();
         } else if (m_VerticalRaw != 0) {
             DrivePlayer();
@@ -94,7 +94,7 @@ public class CameraController2 : GameSystem
         }
 
         if (m_RightClick) {
-           m_MouseRotationOffset.x -= m_MouseY * mouseClickTurnSpeed * Time.deltaTime;
+           m_MouseRotationOffset.x -= m_MouseY * verticalMouseTurnSpeed * Time.deltaTime;
            m_MouseRotationOffset.x = Mathf.Clamp(m_MouseRotationOffset.x, minimumInspectAngle, maximumInspectAngle);
         }
 
@@ -167,9 +167,13 @@ public class CameraController2 : GameSystem
      */
     private void StrafeDrivePlayer() {
         Log("StrafeDrivePlayer");
-
-        float _target = strafeAngle * m_HorizontalRaw;
-        m_StrafeAngle = Mathf.Lerp(m_StrafeAngle, _target, 10 * Time.deltaTime);
+        
+        m_StrafeLockAngle += m_MouseX * mouseClickTurnSpeed * Time.deltaTime;
+        float _target = m_HorizontalRaw != 0 && m_VerticalRaw > 0 ? strafeAngle * m_HorizontalRaw :
+                        m_HorizontalRaw != 0 && m_VerticalRaw < 0 ? -strafeAngle * m_HorizontalRaw :
+                        m_HorizontalRaw > 0 && m_VerticalRaw == 0 ? 90 :
+                        m_HorizontalRaw < 0 && m_VerticalRaw == 0 ? -90 : 0;
+        m_StrafeAngle = Mathf.Lerp(m_StrafeAngle, _target, 5 * Time.deltaTime);
         
         player.SetRotationImmediate(Quaternion.Euler(0, m_StrafeLockAngle + m_StrafeAngle, 0));
         m_MouseRotationOffset.y = -m_StrafeAngle;
@@ -180,16 +184,19 @@ public class CameraController2 : GameSystem
      */
     private void DrivePlayer() {
         Log("DrivePlayer");
+
         m_StrafeLockAngle = transform.eulerAngles.y;
-        
-        if (m_MouseRotationOffset.y != 0) {
-            player.SetRotationImmediate(Quaternion.Euler(0, transform.eulerAngles.y, 0));
-            m_MouseRotationOffset.y = 0;
+        m_StrafeAngle = 0;
+
+        if (m_LeftClick) {
+            RotateAroundTargetWithClick();
         } else {
-            float _turnSpeed = m_HorizontalRaw != 0 ? m_HorizontalRaw * turnSpeed * Time.deltaTime :
-                               m_RightClick ? m_MouseX * mouseClickTurnSpeed * Time.deltaTime : 0;
-            player.Rotate(_turnSpeed);
+            m_MouseRotationOffset.y = Mathf.Lerp(m_MouseRotationOffset.y, 0, 2 * Time.deltaTime);
         }
+
+        float _turnSpeed = m_HorizontalRaw != 0 ? m_HorizontalRaw * turnSpeed * Time.deltaTime :
+                            m_RightClick ? m_MouseX * mouseClickTurnSpeed * Time.deltaTime : 0;
+        player.Rotate(_turnSpeed);
     }
 
     /*

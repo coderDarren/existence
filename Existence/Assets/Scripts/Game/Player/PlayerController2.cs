@@ -7,6 +7,7 @@ public class PlayerController2 : GameSystem
 
     [Header("Forces")]
     public float runSpeed;
+    public float walkSpeed;
     public float jumpForce;
     public float gravity;
 
@@ -98,7 +99,9 @@ public class PlayerController2 : GameSystem
     }
 
     private void Move() {
-        m_MoveDirection = transform.forward * m_VerticalRaw * runSpeed + Vector3.up * m_MoveDirection.y;
+        Vector3 _dir = m_RightClick && m_VerticalRaw == 0 && m_HorizontalRaw != 0 ? transform.forward : transform.forward * m_VerticalRaw;
+        float _speed = m_VerticalRaw < 0 ? walkSpeed : runSpeed;
+        m_MoveDirection = _dir * _speed + Vector3.up * m_MoveDirection.y;
         character.Move(m_MoveDirection * Time.deltaTime);
     }
 
@@ -107,7 +110,7 @@ public class PlayerController2 : GameSystem
     }
 
     private void Animate() {
-        m_Animator.SetFloat("running", m_Vertical);
+        m_Animator.SetFloat("running", m_RightClick && m_VerticalRaw == 0 && m_HorizontalRaw != 0 ? Mathf.Abs(m_Horizontal) : m_Vertical);
         m_Animator.SetBool("grounded", m_Grounded);
     }
 
