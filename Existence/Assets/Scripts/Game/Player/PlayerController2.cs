@@ -1,7 +1,8 @@
-﻿ 
+﻿using UniRx.Async;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(Player))]
 public class PlayerController2 : GameSystem
 {
 
@@ -20,14 +21,18 @@ public class PlayerController2 : GameSystem
     public LayerMask groundLayer;
 
     // Components
+    private Player m_Player;
     private CharacterController m_Character;
     private Vector3 m_MoveDirection;
     private Quaternion m_TargetRotation;
     private Animator m_Animator;
 
     // Inputs
+    private bool m_Update;
+    private bool m_InputIsFrozen;
     private bool m_RightClick;
     private bool m_Jump;
+    private bool m_Shift;
     private float m_HorizontalRaw;
     private float m_Horizontal;
     private float m_VerticalRaw;
@@ -38,6 +43,12 @@ public class PlayerController2 : GameSystem
     private float m_GroundBiasTimer;
     private float m_Gravity;
 
+    // Animation
+    private float m_RunAnimationSpeed;
+
+    // Player Data
+    private StatData m_PlayerStats;
+
     private CharacterController character {
         get {
             if (!m_Character) {
@@ -47,13 +58,22 @@ public class PlayerController2 : GameSystem
         }
     }
 
+    public float runInput { get {return m_Vertical;} }
+    public bool grounded { get { return m_Grounded; } }
+
 #region Unity Functions
     private void Start() {
-        m_TargetRotation = transform.rotation;
+        m_Player = GetComponent<Player>();
         m_Animator = GetComponent<Animator>();
+        m_TargetRotation = transform.rotation;
+        m_Update = true;
+        m_InputIsFrozen = false;
     }
 
     private void Update() {
+        if (!m_Update) return;
+        m_PlayerStats = m_Player.GetAggregatedStats();
+
         PollInput();
         CheckGrounded();
         Jump();
@@ -64,6 +84,20 @@ public class PlayerController2 : GameSystem
 #endregion
 
 #region Public Functions
+    public async void PauseUpdates(int _time) {
+        m_Update = false;
+        await UniTask.Delay(_time);
+        m_Update = true;
+    }
+
+    public void FreezeInput() {
+        m_InputIsFrozen = true;
+    }
+
+    public void FreeInput() {
+        m_InputIsFrozen = false;
+    }
+
     public void Rotate(float _angle) {
         m_TargetRotation *= Quaternion.Euler(0, _angle, 0);
     }
@@ -79,9 +113,23 @@ public class PlayerController2 : GameSystem
 #endregion
 
 #region Private Functions
+    private void DecayInput() {
+        m_Vertical = Mathf.Lerp(m_Vertical, 0, 5*Time.deltaTime);
+        m_VerticalRaw = Mathf.Lerp(m_VerticalRaw, 0, 5*Time.deltaTime);
+        m_Horizontal = Mathf.Lerp(m_Horizontal, 0, 5*Time.deltaTime);
+        m_HorizontalRaw = Mathf.Lerp(m_HorizontalRaw, 0, 5*Time.deltaTime);
+        m_Shift = false;
+    }
+
     private void PollInput() {
+        if (m_InputIsFrozen) {
+            DecayInput();
+            return;
+        }
+
         m_RightClick = Input.GetMouseButton(1);
         m_Jump = Input.GetButton("Jump");
+        m_Shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         m_HorizontalRaw = Input.GetAxisRaw("Horizontal");
         m_Horizontal = Input.GetAxis("Horizontal");
         m_VerticalRaw = Input.GetAxisRaw("Vertical");
@@ -90,7 +138,7 @@ public class PlayerController2 : GameSystem
 
     private void Jump() {
         if (m_Grounded && m_Jump) {
-            m_MoveDirection.y = jumpForce;
+            m_MoveDirection.y = jumpForce + 0.01f * m_PlayerStats.strength;
         } else if (!m_Grounded) {
             m_MoveDirection.y -= gravity;
         }
@@ -98,7 +146,7 @@ public class PlayerController2 : GameSystem
 
     private void Move() {
         Vector3 _dir = m_RightClick && m_VerticalRaw == 0 && m_HorizontalRaw != 0 ? transform.forward : transform.forward * m_VerticalRaw;
-        float _speed = m_VerticalRaw < 0 ? walkSpeed : runSpeed;
+        float _speed = m_VerticalRaw < 0 || m_Shift ? walkSpeed : (0.1F + runSpeed * m_PlayerStats.runSpeed);
         m_MoveDirection = _dir * _speed + Vector3.up * m_MoveDirection.y;
         character.Move(m_MoveDirection * Time.deltaTime);
     }
@@ -108,6 +156,9 @@ public class PlayerController2 : GameSystem
     }
 
     private void Animate() {
+        m_RunAnimationSpeed = m_Vertical <= 0 || m_Shift ? 1 : (0.75f + 0.00045f * m_PlayerStats.runSpeed);
+        m_RunAnimationSpeed = Mathf.Clamp(m_RunAnimationSpeed, 0.25f, 3);
+        
         float _running = 0;
         if (m_RightClick) { // a few different strafing cases to consider to ensure smooth animation.. 
             if (m_VerticalRaw > 0)
@@ -122,6 +173,7 @@ public class PlayerController2 : GameSystem
         }
         m_Animator.SetFloat("running", _running);
         m_Animator.SetBool("grounded", m_Grounded);
+        m_Animator.speed = m_RunAnimationSpeed;
     }
 
     private void CheckGrounded() {

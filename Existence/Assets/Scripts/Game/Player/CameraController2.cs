@@ -89,6 +89,7 @@ public class CameraController2 : GameSystem
 
 #region Unity Functions
     private void LateUpdate() {
+        if (!TargetHasIntegrity()) return;
         PollInput();
 
         if (m_RightClick && m_Horizontal != 0) {
@@ -136,6 +137,14 @@ public class CameraController2 : GameSystem
 
     private void OnUIHandleInteractionStop(int _id) {
         m_UIInteraction = false;
+    }
+
+    private bool TargetHasIntegrity() {
+        if (target == null) {
+            LogWarning("Could not find target. Please assign in the inspector..");
+            return false;
+        }
+        return true;
     }
     
     private void PollInput() {

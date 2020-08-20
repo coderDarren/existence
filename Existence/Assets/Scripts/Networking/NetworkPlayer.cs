@@ -214,8 +214,7 @@ public class NetworkPlayer : Selectable
         m_ClientData.rot.x = transform.eulerAngles.x;
         m_ClientData.rot.y = transform.eulerAngles.y;
         m_ClientData.rot.z = transform.eulerAngles.z;
-        m_ClientData.input.running = m_PlayerController.runAnimation;
-        m_ClientData.input.strafing = m_PlayerController.strafeAnimation;
+        m_ClientData.input.running = m_PlayerController.runInput;
         m_ClientData.input.grounded = m_PlayerController.grounded;
         m_ClientData.input.attacking = m_PlayerCombat.attacking;
         m_ClientData.input.cycle = m_Animator.GetBool("cycle");
