@@ -110,7 +110,19 @@ public class PlayerController2 : GameSystem
     }
 
     private void Animate() {
-        m_Animator.SetFloat("running", m_RightClick && m_VerticalRaw == 0 && m_HorizontalRaw != 0 ? Mathf.Abs(m_Horizontal) : m_Vertical);
+        float _running = 0;
+        if (m_RightClick) {
+            if (m_VerticalRaw > 0)
+                _running = Mathf.Abs(m_Horizontal) + Mathf.Abs(m_Vertical);
+            else if (m_VerticalRaw == 0) {
+                _running = Mathf.Abs(m_Horizontal);
+            } else if (m_VerticalRaw < 0) {
+                _running = m_Vertical;
+            }
+        } else {
+            _running = m_Vertical;
+        }
+        m_Animator.SetFloat("running", _running);
         m_Animator.SetBool("grounded", m_Grounded);
     }
 

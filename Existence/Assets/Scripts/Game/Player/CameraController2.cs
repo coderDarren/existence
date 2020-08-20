@@ -173,7 +173,12 @@ public class CameraController2 : GameSystem
                         m_HorizontalRaw != 0 && m_VerticalRaw < 0 ? -strafeAngle * m_HorizontalRaw :
                         m_HorizontalRaw > 0 && m_VerticalRaw == 0 ? 90 :
                         m_HorizontalRaw < 0 && m_VerticalRaw == 0 ? -90 : 0;
-        m_StrafeAngle = Mathf.Lerp(m_StrafeAngle, _target, 5 * Time.deltaTime);
+
+        if (m_VerticalRaw != 0) {
+            m_StrafeAngle = Mathf.Lerp(m_StrafeAngle, _target, 5 * Time.deltaTime);
+        } else {
+            m_StrafeAngle = _target;
+        }
         
         player.SetRotationImmediate(Quaternion.Euler(0, m_StrafeLockAngle + m_StrafeAngle, 0));
         m_MouseRotationOffset.y = -m_StrafeAngle;
@@ -190,8 +195,9 @@ public class CameraController2 : GameSystem
 
         if (m_LeftClick) {
             RotateAroundTargetWithClick();
-        } else {
-            m_MouseRotationOffset.y = Mathf.Lerp(m_MouseRotationOffset.y, 0, 2 * Time.deltaTime);
+        } else if (m_MouseRotationOffset.y != 0) {
+            m_MouseRotationOffset.y = 0;
+            player.SetRotationImmediate(Quaternion.Euler(0, m_StrafeLockAngle, 0));
         }
 
         float _turnSpeed = m_HorizontalRaw != 0 ? m_HorizontalRaw * turnSpeed * Time.deltaTime :
