@@ -27,7 +27,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1091779884325386117}
-  m_LocalRotation: {x: 0.16590825, y: -0, z: -0, w: 0.9861412}
+  m_LocalRotation: {x: 0.16590825, y: 0, z: 0, w: 0.9861412}
   m_LocalPosition: {x: 653.6416, y: 36.051, z: -68.226974}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -132,12 +132,21 @@ MonoBehaviour:
   target: {fileID: 0}
   followSpeed: 30
   lookSpeed: 50
-  turnSpeed: 250
-  autoFocusTime: 0.25
-  snapFocusTime: 0.1
-  targetOffset: {x: 0, y: 1, z: 0}
-  followOffset: {x: 0, y: 1.15, z: -2.15}
+  turnSpeed: 150
+  autoFocusTime: 0.5
+  idleTurnAngleLimit: 45
+  strafeAngle: 45
+  maxZoom: 4
+  targetOffset: {x: 0, y: 0.8, z: 0}
+  followOffset: {x: 0, y: 0.6, z: -2.15}
   rotationOffset: {x: 20, y: 0, z: 0}
+  collisionLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  collisionPadding: 1000
+  collisionBump: 0.25
   minimumInspectAngle: -90
   maximumInspectAngle: 45
-  mouseClickTurnSpeed: 1250
+  mouseClickTurnSpeed: 750
+  verticalMouseTurnSpeed: 325
+  zoomSpeed: 2

@@ -2157,13 +2157,13 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 2
+  m_Height: 2.05
   m_Radius: 0.31
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.97, z: 0}
+  m_Center: {x: 0, y: 0.98, z: 0}
 --- !u!95 &5021842108211485940
 Animator:
   serializedVersion: 3
@@ -2211,6 +2211,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 1
   runSpeed: 6
+  walkSpeed: 2
   jumpForce: 4
   gravity: 0.15
   groundCheckDensity: 12

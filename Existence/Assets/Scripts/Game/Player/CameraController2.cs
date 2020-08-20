@@ -7,26 +7,32 @@ public class CameraController2 : GameSystem
     public Transform target;
 
     [Header("Controls")]
-    public float followSpeed;
-    public float lookSpeed;
-    public float turnSpeed;
-    public float autoFocusTime;
-    public float idleTurnAngleLimit;
-    public float strafeAngle;
+    public float turnSpeed = 150.0F;
+    public float autoFocusTime = 0.5F;
+    public float idleTurnAngleLimit = 45.0F;
+    public float strafeAngle = 45.0F;
+    public float maxZoom = 4.0F;
 
     [Header("Offsetting")]
-    public Vector3 targetOffset;        // offset of target's true position
-    public Vector3 followOffset;      // where are we relative to target
-    public Vector3 rotationOffset;      // where do we look relative to the target
+    public Vector3 targetOffset = new Vector3(0,0.8F,0);         // offset of target's true position
+    public Vector3 followOffset = new Vector3(0,0.6F,-2.15F);    // where are we relative to target
+    public Vector3 rotationOffset = new Vector3(20.0F, 0, 0);    // where do we look relative to the target
+
+    [Header("Collision")]
+    public LayerMask collisionLayer;              // objects that collision respond to
+    public float collisionPadding = 1000.0F;      // how much padding around clip plane? (higher values for less clipping)
+    public float collisionBump = 0.25F;           // how much additional offsetting? (higher values for less clipping)
 
     [Header("Input")]
-    public float minimumInspectAngle=-25.0f;    // min X angle when left click inspecting
-    public float maximumInspectAngle=70.0f;     // max X angle when left click inspecting
-    public float mouseClickTurnSpeed;
-    public float verticalMouseTurnSpeed;
+    public float minimumInspectAngle = -90.0F;    // min X angle when left click inspecting
+    public float maximumInspectAngle = 45.0F;     // max X angle when left click inspecting
+    public float mouseClickTurnSpeed = 750.0F;
+    public float verticalMouseTurnSpeed = 325.0F;
+    public float zoomSpeed = 2.0F;
 
     // Components
     private PlayerController2 m_Player;
+    private Camera m_Camera;
 
     // Inputs
     private bool m_RightClick;
@@ -39,6 +45,7 @@ public class CameraController2 : GameSystem
     private float m_Vertical;
     private float m_MouseX;
     private float m_MouseY;
+    private float m_Scroll;
 
     // Interaction
     private bool m_UIInteraction;
@@ -53,6 +60,7 @@ public class CameraController2 : GameSystem
     // Vectors
     private Vector3 m_TargetPos;
     private Vector3 m_LookPos;
+    private Vector3 m_FollowOffset;
     private Vector2 m_MouseRotationOffset;
     private Quaternion m_TargetRotation;
     private Quaternion m_MouseRotation;
@@ -60,6 +68,8 @@ public class CameraController2 : GameSystem
     // Control
     private float m_StrafeLockAngle;
     private float m_StrafeAngle;
+    private float m_Zoom;
+    private float m_TargetZoom;
 
     private PlayerController2 player {
         get {
@@ -98,12 +108,17 @@ public class CameraController2 : GameSystem
            m_MouseRotationOffset.x = Mathf.Clamp(m_MouseRotationOffset.x, minimumInspectAngle, maximumInspectAngle);
         }
 
+        Zoom();
         ApplyCameraPosition();
         ApplyCameraRotation();
+        DetectCollision();
     }
 
     private void OnEnable() {
+        m_Camera = GetComponent<Camera>();
         m_AutoFocus = true;
+        m_TargetZoom = 1;
+        m_Zoom = m_TargetZoom;
         UIHandle.StartedUsing += OnUIHandleInteractionStart;
         UIHandle.StoppedUsing += OnUIHandleInteractionStop;
     }
@@ -112,10 +127,6 @@ public class CameraController2 : GameSystem
         UIHandle.StartedUsing -= OnUIHandleInteractionStart;
         UIHandle.StoppedUsing -= OnUIHandleInteractionStop;
     }
-#endregion
-
-#region Public Functions
-
 #endregion
 
 #region Private Functions
@@ -136,6 +147,7 @@ public class CameraController2 : GameSystem
         m_Vertical = Input.GetAxis("Vertical");
         m_MouseX = Input.GetAxis("Mouse X");
         m_MouseY = Input.GetAxis("Mouse Y");
+        m_Scroll = Input.GetAxis("Mouse ScrollWheel");
 
         if (Input.GetMouseButtonUp(1)) {
             m_AutoFocus = true;
@@ -263,11 +275,18 @@ public class CameraController2 : GameSystem
         }
     }
 
+    private void Zoom() {
+        m_TargetZoom = m_TargetZoom - m_Scroll * zoomSpeed;
+        m_TargetZoom = Mathf.Clamp(m_TargetZoom, 1, maxZoom);
+        m_Zoom = Mathf.Lerp(m_Zoom, m_TargetZoom, 4 * Time.deltaTime);
+        m_FollowOffset = targetOffset + followOffset * m_Zoom;
+    }
+
     /*
      * Look at the target
      */ 
     private void ApplyCameraRotation() {
-        m_LookPos = target.position + targetOffset + target.right * followOffset.x + target.up * followOffset.y;
+        m_LookPos = target.position + targetOffset + target.right * m_FollowOffset.x + target.up * m_FollowOffset.y;
         m_TargetRotation = Quaternion.LookRotation(m_LookPos - transform.position, Vector3.up);
         m_TargetRotation *= Quaternion.Euler(rotationOffset);
         transform.rotation = m_TargetRotation;
@@ -278,8 +297,54 @@ public class CameraController2 : GameSystem
      */
     private void ApplyCameraPosition() {
         m_MouseRotation = Quaternion.Euler(m_MouseRotationOffset.x, m_MouseRotationOffset.y, 0);
-        m_TargetPos = target.position + targetOffset + (target.rotation * m_MouseRotation) * followOffset;
+        m_TargetPos = target.position + targetOffset + (target.rotation * m_MouseRotation) * m_FollowOffset;
         transform.position = m_TargetPos;
     }
+
+#region Collision Detection
+    private void DetectCollision() {
+        // get clip points
+        Vector3 _upperLeft = m_Camera.ScreenToWorldPoint(new Vector3(-collisionPadding, Screen.height+collisionPadding, m_Camera.nearClipPlane+0.0001f));
+        Vector3 _upperRight = m_Camera.ScreenToWorldPoint(new Vector3(Screen.width+collisionPadding, Screen.height+collisionPadding, m_Camera.nearClipPlane+0.0001f));
+        Vector3 _lowerLeft = m_Camera.ScreenToWorldPoint(new Vector3(-collisionPadding, -collisionPadding, m_Camera.nearClipPlane+0.0001f));
+        Vector3 _lowerRight = m_Camera.ScreenToWorldPoint(new Vector3(Screen.width+collisionPadding, -collisionPadding, m_Camera.nearClipPlane+0.0001f));
+        Vector3 _center = m_Camera.ScreenToWorldPoint(new Vector3(Screen.width/2.0f, Screen.height/2.0f, m_Camera.nearClipPlane+0.0001f));
+
+        // draw debugging rays
+        if (debug) {
+            Debug.DrawLine(m_LookPos, _upperLeft, Color.green);
+            Debug.DrawLine(m_LookPos, _upperRight, Color.green);
+            Debug.DrawLine(m_LookPos, _lowerLeft, Color.green);
+            Debug.DrawLine(m_LookPos, _lowerRight, Color.green);
+            Debug.DrawLine(m_LookPos, _center, Color.green);
+        }
+
+        // check raycasts
+        float _collisionOffset = 0;
+        _collisionOffset = AggregateClipPointCollisionOffset(_center, _collisionOffset);
+        _collisionOffset = AggregateClipPointCollisionOffset(_upperLeft, _collisionOffset);
+        _collisionOffset = AggregateClipPointCollisionOffset(_upperRight, _collisionOffset);
+        _collisionOffset = AggregateClipPointCollisionOffset(_lowerLeft, _collisionOffset);
+        _collisionOffset = AggregateClipPointCollisionOffset(_lowerRight, _collisionOffset);
+        if (_collisionOffset > 0)
+            _collisionOffset += collisionBump;
+
+        transform.position += transform.forward * _collisionOffset;
+    }
+
+    private float AggregateClipPointCollisionOffset(Vector3 _clip, float _maxDistance) {
+        RaycastHit _hit;
+        if (Physics.Raycast(m_LookPos, _clip - m_LookPos, out _hit, Vector3.Distance(_clip, m_LookPos), collisionLayer)) {
+            if (debug) {
+                Debug.DrawLine(_hit.point, _clip, Color.red);
+            }
+            float _distance = Vector3.Distance(_hit.point, _clip);
+            if (_distance > _maxDistance) {
+                _maxDistance = _distance;
+            }
+        }
+        return _maxDistance;
+    }
+#endregion
 #endregion
 }

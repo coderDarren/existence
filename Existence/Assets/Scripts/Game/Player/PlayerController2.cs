@@ -6,17 +6,17 @@ public class PlayerController2 : GameSystem
 {
 
     [Header("Forces")]
-    public float runSpeed;
-    public float walkSpeed;
-    public float jumpForce;
-    public float gravity;
+    public float runSpeed = 6.0F;
+    public float walkSpeed = 2.0F;
+    public float jumpForce = 4.0F;
+    public float gravity = 0.15F;
 
     [Header("Grounding")]
     [Range(4,24)]
-    public int groundCheckDensity = 5;
-    public float groundCheckRadius = 1.0f;
-    public float groundCheckDist = 1.0f;
-    public float groundCheckBias = 0.1f;
+    public int groundCheckDensity = 12;
+    public float groundCheckRadius = 0.3F;
+    public float groundCheckDist = 1.2F;
+    public float groundCheckBias = 0.1F;
     public LayerMask groundLayer;
 
     // Components
@@ -27,7 +27,6 @@ public class PlayerController2 : GameSystem
 
     // Inputs
     private bool m_RightClick;
-    private bool m_LeftClick;
     private bool m_Jump;
     private float m_HorizontalRaw;
     private float m_Horizontal;
@@ -82,7 +81,6 @@ public class PlayerController2 : GameSystem
 #region Private Functions
     private void PollInput() {
         m_RightClick = Input.GetMouseButton(1);
-        m_LeftClick = Input.GetMouseButton(0);
         m_Jump = Input.GetButton("Jump");
         m_HorizontalRaw = Input.GetAxisRaw("Horizontal");
         m_Horizontal = Input.GetAxis("Horizontal");
@@ -91,9 +89,9 @@ public class PlayerController2 : GameSystem
     }
 
     private void Jump() {
-        if (m_Grounded && m_Jump)
+        if (m_Grounded && m_Jump) {
             m_MoveDirection.y = jumpForce;
-        else if (!m_Grounded) {
+        } else if (!m_Grounded) {
             m_MoveDirection.y -= gravity;
         }
     }
@@ -111,7 +109,7 @@ public class PlayerController2 : GameSystem
 
     private void Animate() {
         float _running = 0;
-        if (m_RightClick) {
+        if (m_RightClick) { // a few different strafing cases to consider to ensure smooth animation.. 
             if (m_VerticalRaw > 0)
                 _running = Mathf.Abs(m_Horizontal) + Mathf.Abs(m_Vertical);
             else if (m_VerticalRaw == 0) {
@@ -129,13 +127,11 @@ public class PlayerController2 : GameSystem
     private void CheckGrounded() {
         RaycastHit _hitInfo;
         Vector3 _from = transform.position + character.center;
-        Vector3 _normalAggregate = Vector3.zero;
         int _hits = 0;
         bool _hit = false;
 
         // check center
         if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
-            _normalAggregate += _hitInfo.normal;
             _hit = true;
             _hits++;
             if (debug) {
@@ -150,7 +146,6 @@ public class PlayerController2 : GameSystem
             float _angle = (360.0F / groundCheckDensity) * i;
             _from = transform.position + character.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * groundCheckRadius;
             if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
-                _normalAggregate += _hitInfo.normal;
                 _hit = true;
                 _hits++;
             }
@@ -163,7 +158,6 @@ public class PlayerController2 : GameSystem
             float _angle = (360.0F / groundCheckDensity) * i;
             _from = transform.position + character.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * (groundCheckRadius/2.0f);
             if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
-                _normalAggregate += _hitInfo.normal;
                 _hit = true;
                 _hits++;
             }
@@ -176,7 +170,6 @@ public class PlayerController2 : GameSystem
             float _angle = (360.0F / groundCheckDensity) * i;
             _from = transform.position + character.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * (groundCheckRadius/5.0f);
             if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
-                _normalAggregate += _hitInfo.normal;
                 _hit = true;
                 _hits++;
             }
@@ -190,9 +183,6 @@ public class PlayerController2 : GameSystem
         if (_hit) {
             m_Grounded = true;
             m_GroundBiasTimer = 0;
-            // Vector3 _avgNormal = _normalAggregate / _hits;
-            // m_ForwardVec = Vector3.Cross(transform.right, _avgNormal);
-            // m_RightVec = Vector3.Cross(_avgNormal, m_ForwardVec);
         } else {
             // Don't "unground" until bias is reached
             if (m_Grounded) {
@@ -202,16 +192,11 @@ public class PlayerController2 : GameSystem
                 }
             }
         }
-
-        // if (!m_Grounded) {
-        //     m_ForwardVec = transform.forward;
-        //     m_RightVec = transform.right;
-        // }
         
-        // if (debug) {
-        //     Debug.DrawLine(transform.position, transform.position + m_ForwardVec * 1.0f, Color.blue);
-        //     Debug.DrawLine(transform.position, transform.position + m_RightVec * 1.0f, Color.red);
-        // }
+        if (debug) {
+            Debug.DrawLine(transform.position, transform.position + transform.forward * 1.0f, Color.blue);
+            Debug.DrawLine(transform.position, transform.position + transform.right * 1.0f, Color.red);
+        }
     }
 #endregion
 }
