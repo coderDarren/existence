@@ -6,10 +6,12 @@ const validateParams = function(_query)
     if (!_query) return -1;
     const _id = _query['id'];
     const _ql = _query['ql'];
+    const _simple = _query['simple'];
 
     return {
         id: _id,
-        ql: _ql
+        ql: _ql,
+        simple: _simple
     };
 }
 

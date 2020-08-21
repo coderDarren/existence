@@ -17,13 +17,36 @@ async def sendRequestsConcurrently(load):
     
     http = aiohttp.ClientSession()
     for i in range(load):
-        #await asyncio.sleep(0.01)
+        #await asyncio.sleep(0.05)
         task = asyncio.ensure_future(loginTask(sem, http))
         tasks.append(task)
     
     success = 0
     failure = 0
     responses = await asyncio.gather(*tasks)
+    for i in responses:
+        if i == 1:
+            success += 1
+        else:
+            failure += 1
+    await http.close()
+    print("done")
+    print("success: "+str(success))
+    print("failure: "+str(failure))
+    print(f"time to complete {load} requests: {millis()-testStart}ms")
+
+async def startRequests(load):
+    testStart = millis()
+    
+    http = aiohttp.ClientSession()
+    responses = []
+    for i in range(load):
+        await asyncio.sleep(0.05)
+        resp = await login(http)
+        responses.append(resp)
+    
+    success = 0
+    failure = 0
     for i in responses:
         if i == 1:
             success += 1
@@ -61,4 +84,5 @@ async def login(http):
             return 1
 
 
-asyncio.run(sendRequestsConcurrently(100))
+#asyncio.run(sendRequestsConcurrently(100))
+asyncio.run(startRequests(100))

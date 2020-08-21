@@ -1,87 +1,86 @@
-﻿ 
+﻿using UniRx.Async;
 using UnityEngine;
-using UniRx.Async;
 
 [RequireComponent(typeof(CharacterController))]
-[RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Player))]
-[RequireComponent(typeof(NetworkPlayer))]
 public class PlayerController : GameSystem
 {
 
-    [Header("Running")]
-    public float runSpeed = 6.0f;
-    public float walkSpeed = 1.0f;
-    public float backwardSpeed = 0.45f;
-
-    [Header("Strafing")]
-    public float walkStrafeSpeed = 3.0f;
-    public float runStrafeSpeed = 3.0f;
-
-    [Header("Turning")]
-    public float turnSpeed = 20.0f;
-
-    [Header("Jumping")]
-    public float jumpSpeed = 8.0f;
-    public float gravity = 20.0f;
+    [Header("Forces")]
+    public float runSpeed = 6.0F;
+    public float walkSpeed = 2.0F;
+    public float jumpForce = 4.0F;
+    public float gravity = 0.15F;
 
     [Header("Grounding")]
     [Range(4,24)]
-    public int groundCheckDensity = 5;
-    public float groundCheckRadius = 1.0f;
-    public float groundCheckDist = 1.0f;
-    public float groundCheckBias = 0.1f;
+    public int groundCheckDensity = 12;
+    public float groundCheckRadius = 0.3F;
+    public float groundCheckDist = 1.2F;
+    public float groundCheckBias = 0.1F;
     public LayerMask groundLayer;
-    
+
+    // Components
     private Player m_Player;
-    private CharacterController m_Controller;
-    private Animator m_Animator;
-    private ParticleSystem[] m_Particles;
+    private CharacterController m_Character;
     private Vector3 m_MoveDirection;
-    private Vector3 m_ForwardVec;
-    private Vector3 m_RightVec;
-    private Quaternion m_DeltaRotation;
-    private float m_ForwardInput;
-    private float m_TurnInput;
-    private float m_StrafeInput;
-    private float m_StrafeAnimation;
-    private bool m_JumpInput;
-    private bool m_RightMouseDown;
-    private bool m_ShiftIsDown;
-    private bool m_CancelTarget;
-    private float m_VerticalAxis;
-    private float m_VerticalAxisRaw;
-    private float m_HorizontalAxis;
-    private float m_HorizontalAxisRaw;
+    private Quaternion m_TargetRotation;
+    private Animator m_Animator;
+
+    // Inputs
+    private bool m_Update;
+    private bool m_InputIsFrozen;
+    private bool m_RightClick;
+    private bool m_Jump;
+    private bool m_Shift;
+    private float m_HorizontalRaw;
+    private float m_Horizontal;
+    private float m_VerticalRaw;
+    private float m_Vertical;
+
+    // Physics
     private bool m_Grounded;
     private float m_GroundBiasTimer;
-    private bool m_InputIsFrozen;
-    private float m_AnimationSpeed;   
     private float m_Gravity;
-    private bool m_Update=true;
 
-    public float runAnimation { get {return m_ForwardInput;} }
-    public float strafeAnimation { get {return m_StrafeAnimation;} }
+    // Animation
+    private float m_RunAnimationSpeed;
+
+    // Player Data
+    private StatData m_PlayerStats;
+
+    private CharacterController character {
+        get {
+            if (!m_Character) {
+                m_Character = GetComponent<CharacterController>();
+            }
+            return m_Character;
+        }
+    }
+
+    public float runInput { get {return m_Vertical;} }
     public bool grounded { get { return m_Grounded; } }
 
 #region Unity Functions
-    private void Start()
-    {
+    private void Start() {
         m_Player = GetComponent<Player>();
-        m_Controller = GetComponent<CharacterController>();
         m_Animator = GetComponent<Animator>();
+        m_TargetRotation = transform.rotation;
+        m_Update = true;
+        m_InputIsFrozen = false;
     }
 
-    private void Update()
-    {
+    private void Update() {
         if (!m_Update) return;
+        m_PlayerStats = m_Player.GetAggregatedStats();
 
-        GetInput();
+        PollInput();
+        CheckGrounded();
+        Jump();
         Move();
         Turn();
         Animate();
     }
-
 #endregion
 
 #region Public Functions
@@ -98,93 +97,93 @@ public class PlayerController : GameSystem
     public void FreeInput() {
         m_InputIsFrozen = false;
     }
+
+    public void Rotate(float _angle) {
+        m_TargetRotation *= Quaternion.Euler(0, _angle, 0);
+    }
+
+    public void SetRotation(Quaternion _rot) {
+        m_TargetRotation = _rot;
+    }
+
+    public void SetRotationImmediate(Quaternion _rot) {
+        transform.rotation = _rot;
+        m_TargetRotation = transform.rotation;
+    }
 #endregion
 
 #region Private Functions
     private void DecayInput() {
-        m_VerticalAxis = Mathf.Lerp(m_VerticalAxis, 0, 5*Time.deltaTime);
-        m_VerticalAxisRaw = Mathf.Lerp(m_VerticalAxisRaw, 0, 5*Time.deltaTime);
-        m_HorizontalAxis = Mathf.Lerp(m_HorizontalAxis, 0, 5*Time.deltaTime);
-        m_HorizontalAxisRaw = Mathf.Lerp(m_HorizontalAxisRaw, 0, 5*Time.deltaTime);
-        m_TurnInput = Mathf.Lerp(m_TurnInput, 0, 5*Time.deltaTime);
-        m_StrafeInput = Mathf.Lerp(m_StrafeInput, 0, 5*Time.deltaTime);
-        m_ForwardInput = Mathf.Lerp(m_ForwardInput, 0, 5*Time.deltaTime);
-        m_RightMouseDown = false;
-        m_ShiftIsDown = false;
-        m_JumpInput = false;
+        m_Vertical = Mathf.Lerp(m_Vertical, 0, 5*Time.deltaTime);
+        m_VerticalRaw = Mathf.Lerp(m_VerticalRaw, 0, 5*Time.deltaTime);
+        m_Horizontal = Mathf.Lerp(m_Horizontal, 0, 5*Time.deltaTime);
+        m_HorizontalRaw = Mathf.Lerp(m_HorizontalRaw, 0, 5*Time.deltaTime);
+        m_Shift = false;
     }
 
-    private void GetInput() {
+    private void PollInput() {
         if (m_InputIsFrozen) {
             DecayInput();
             return;
         }
-        m_VerticalAxisRaw = Input.GetAxisRaw("Vertical");
-        m_VerticalAxis = Input.GetAxis("Vertical");
-        m_HorizontalAxis = Input.GetAxis("Horizontal");
-        m_HorizontalAxisRaw = Input.GetAxisRaw("Horizontal");
-        m_RightMouseDown = Input.GetMouseButton(1);
-        m_ShiftIsDown = Input.GetKey(KeyCode.LeftShift);
-        m_JumpInput = Input.GetButton("Jump");
-        m_TurnInput = m_RightMouseDown ? Input.GetAxis("Mouse X")*3 : m_HorizontalAxisRaw;
-        m_StrafeInput = m_RightMouseDown && Mathf.Abs(m_HorizontalAxisRaw) > 0 ? m_HorizontalAxis : 0;
-        m_StrafeAnimation = Mathf.Abs(m_VerticalAxisRaw) == 0 ? m_StrafeInput == 0 ? ApproachTarget(m_StrafeAnimation, 0) : m_StrafeInput : ApproachTarget(m_StrafeAnimation, 0);
-        DetectWalking();
+
+        m_RightClick = Input.GetMouseButton(1);
+        m_Jump = Input.GetButton("Jump");
+        m_Shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        m_HorizontalRaw = Input.GetAxisRaw("Horizontal");
+        m_Horizontal = Input.GetAxis("Horizontal");
+        m_VerticalRaw = Input.GetAxisRaw("Vertical");
+        m_Vertical = Input.GetAxis("Vertical");
+    }
+
+    private void Jump() {
+        if (m_Grounded && m_Jump) {
+            m_MoveDirection.y = jumpForce + 0.01f * (0.01f+m_PlayerStats.strength);
+        } else if (!m_Grounded) {
+            m_MoveDirection.y -= gravity;
+        }
     }
 
     private void Move() {
-        var _playerStats = m_Player.GetAggregatedStats();
-
-        // calculate forward speed
-        m_AnimationSpeed = m_ForwardInput <= 0 || m_ShiftIsDown ? 1 : (0.75f + 0.00045f*_playerStats.runSpeed);
-        m_AnimationSpeed = Mathf.Clamp(m_AnimationSpeed, 0.25f, 3);
-        float _forwardSpeed = m_ForwardInput < 0 ? backwardSpeed : m_ShiftIsDown ? walkSpeed : (runSpeed+0.01f*_playerStats.runSpeed);
-        _forwardSpeed = Mathf.Clamp(_forwardSpeed, 0.25f, Mathf.Infinity);
-        float _strafeSpeed = m_ShiftIsDown || m_VerticalAxisRaw < 0 ? walkStrafeSpeed : runStrafeSpeed;
-        
-        CheckGrounded();
-        if (m_Controller.isGrounded)
-        {
-            m_Gravity = gravity;
-            m_MoveDirection = m_ForwardVec * m_VerticalAxisRaw * _forwardSpeed + m_RightVec * m_StrafeInput * _strafeSpeed - Vector3.up * 1000;
-
-            if (m_JumpInput) 
-            {
-                m_MoveDirection.y = jumpSpeed + 0.01f*_playerStats.strength;
-            }
-        }
-        
-        m_MoveDirection.y -= gravity * Time.deltaTime;
-        m_Controller.Move(m_MoveDirection * Time.deltaTime);
-    }
-
-    private void DetectWalking() {
-        if (m_ShiftIsDown) {
-            if (m_VerticalAxis > 0.5f) {
-                m_ForwardInput = 0.5f;
-            } else {
-                m_ForwardInput = m_VerticalAxis;
-            }
-        } else {
-            m_ForwardInput = m_VerticalAxis;
-        }
+        Vector3 _dir = m_RightClick && m_VerticalRaw == 0 && m_HorizontalRaw != 0 ? transform.forward : transform.forward * m_VerticalRaw;
+        float _speed = m_VerticalRaw < 0 || m_Shift ? walkSpeed : (0.1F + runSpeed * (1+m_PlayerStats.runSpeed));
+        m_MoveDirection = _dir * _speed + Vector3.up * m_MoveDirection.y;
+        character.Move(m_MoveDirection * Time.deltaTime);
     }
 
     private void Turn() {
-        m_DeltaRotation = Quaternion.Euler(0.0f, m_TurnInput * turnSpeed * Time.deltaTime, 0.0f);
-        transform.rotation *= m_DeltaRotation;
+        transform.rotation = Quaternion.Lerp(transform.rotation, m_TargetRotation, 25 * Time.deltaTime);
+    }
+
+    private void Animate() {
+        m_RunAnimationSpeed = m_Vertical <= 0 || m_Shift ? 1 : (0.75f + 0.00045f * m_PlayerStats.runSpeed);
+        m_RunAnimationSpeed = Mathf.Clamp(m_RunAnimationSpeed, 0.25f, 3);
+        
+        float _running = 0;
+        if (m_RightClick) { // a few different strafing cases to consider to ensure smooth animation.. 
+            if (m_VerticalRaw > 0)
+                _running = Mathf.Abs(m_Horizontal) + Mathf.Abs(m_Vertical);
+            else if (m_VerticalRaw == 0) {
+                _running = Mathf.Abs(m_Horizontal);
+            } else if (m_VerticalRaw < 0) {
+                _running = m_Vertical;
+            }
+        } else {
+            _running = m_Vertical;
+        }
+        m_Animator.SetFloat("running", _running);
+        m_Animator.SetBool("grounded", m_Grounded);
+        m_Animator.speed = m_RunAnimationSpeed;
     }
 
     private void CheckGrounded() {
         RaycastHit _hitInfo;
-        Vector3 _from = transform.position + m_Controller.center;
-        Vector3 _normalAggregate = Vector3.zero;
+        Vector3 _from = transform.position + character.center;
         int _hits = 0;
         bool _hit = false;
 
         // check center
         if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
-            _normalAggregate += _hitInfo.normal;
             _hit = true;
             _hits++;
             if (debug) {
@@ -197,9 +196,8 @@ public class PlayerController : GameSystem
         // Make this a function
         for (int i = 0; i < groundCheckDensity; i++) {
             float _angle = (360.0F / groundCheckDensity) * i;
-            _from = transform.position + m_Controller.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * groundCheckRadius;
+            _from = transform.position + character.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * groundCheckRadius;
             if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
-                _normalAggregate += _hitInfo.normal;
                 _hit = true;
                 _hits++;
             }
@@ -210,9 +208,8 @@ public class PlayerController : GameSystem
 
         for (int i = 0; i < groundCheckDensity; i++) {
             float _angle = (360.0F / groundCheckDensity) * i;
-            _from = transform.position + m_Controller.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * (groundCheckRadius/2.0f);
+            _from = transform.position + character.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * (groundCheckRadius/2.0f);
             if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
-                _normalAggregate += _hitInfo.normal;
                 _hit = true;
                 _hits++;
             }
@@ -223,9 +220,8 @@ public class PlayerController : GameSystem
 
         for (int i = 0; i < groundCheckDensity; i++) {
             float _angle = (360.0F / groundCheckDensity) * i;
-            _from = transform.position + m_Controller.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * (groundCheckRadius/5.0f);
+            _from = transform.position + character.center + (Quaternion.Euler(0, _angle, 0) * Vector3.forward) * (groundCheckRadius/5.0f);
             if (Physics.Raycast(_from, Vector3.down, out _hitInfo, groundCheckDist, groundLayer)) {
-                _normalAggregate += _hitInfo.normal;
                 _hit = true;
                 _hits++;
             }
@@ -239,9 +235,6 @@ public class PlayerController : GameSystem
         if (_hit) {
             m_Grounded = true;
             m_GroundBiasTimer = 0;
-            Vector3 _avgNormal = _normalAggregate / _hits;
-            m_ForwardVec = Vector3.Cross(transform.right, _avgNormal);
-            m_RightVec = Vector3.Cross(_avgNormal, m_ForwardVec);
         } else {
             // Don't "unground" until bias is reached
             if (m_Grounded) {
@@ -251,33 +244,11 @@ public class PlayerController : GameSystem
                 }
             }
         }
-
-        if (!m_Grounded) {
-            m_ForwardVec = transform.forward;
-            m_RightVec = transform.right;
-        }
         
         if (debug) {
-            Debug.DrawLine(transform.position, transform.position + m_ForwardVec * 1.0f, Color.blue);
-            Debug.DrawLine(transform.position, transform.position + m_RightVec * 1.0f, Color.red);
+            Debug.DrawLine(transform.position, transform.position + transform.forward * 1.0f, Color.blue);
+            Debug.DrawLine(transform.position, transform.position + transform.right * 1.0f, Color.red);
         }
     }
-
-    private float ApproachTarget(float _val, float _target) {
-        _val = Mathf.Lerp(_val, _target, 5 * Time.deltaTime);
-        if (Mathf.Abs(_val - _target) <= 0.025f) {
-            _val = 0;
-        }
-        return _val;
-    }
-
-    private void Animate() {
-        m_Animator.SetFloat("running", m_ForwardInput);
-        m_Animator.SetFloat("strafing", m_StrafeAnimation);
-        m_Animator.SetBool("grounded", grounded);
-        m_Animator.speed = m_AnimationSpeed;//Need to use a multiplier on runspeed and access that instead of accessing base animatior speed
-    }
-
-    
 #endregion
 }
