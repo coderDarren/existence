@@ -76,6 +76,12 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_DISCONNECT = "disconnect";
     private static readonly string NETMSG_HANDSHAKE = "HANDSHAKE";
     private static readonly string NETMSG_PLAYER_DATA = "PLAYER";
+    private static readonly string NETMSG_PLAYER_TRANSFORM_CHANGE = "PLAYER_TRANSFORM_CHANGE";
+    private static readonly string NETMSG_PLAYER_ATTACK_START = "PLAYER_ATTACK_START";
+    private static readonly string NETMSG_PLAYER_ATTACK_STOP = "PLAYER_ATTACK_STOP";
+    private static readonly string NETMSG_PLAYER_USE_SPECIAL = "PLAYER_USE_SPECIAL";
+    private static readonly string NETMSG_PLAYER_HEALTH_CHANGE = "PLAYER_HEALTH_CHANGE";
+    private static readonly string NETMSG_PLAYER_LVL_CHANGE = "PLAYER_LVL_CHANGE";
     private static readonly string NETMSG_PLAYER_LEFT = "PLAYER_LEFT";
     private static readonly string NETMSG_PLAYER_JOINED = "PLAYER_JOINED";
     private static readonly string NETMSG_CHAT = "CHAT";
@@ -443,6 +449,30 @@ public class NetworkController : GameSystem
 
     public void SendNetworkPlayer(NetworkPlayerData _data) {
         SendNetworkData<NetworkPlayerData>(NETMSG_PLAYER_DATA, _data);
+    }
+
+    public void SendPlayerStartAttack(NetworkPlayerAttackStart _data) {
+        SendNetworkData<NetworkPlayerAttackStart>(NETMSG_PLAYER_ATTACK_START, _data);
+    }
+
+    public void SendPlayerStopAttack(NetworkPlayerAttackStop _data) {
+        SendNetworkData<NetworkPlayerAttackStop>(NETMSG_PLAYER_ATTACK_STOP, _data);
+    }
+
+    public void SendPlayerUseSpecial(NetworkPlayerUseSpecial _data) {
+        SendNetworkData<NetworkPlayerUseSpecial>(NETMSG_PLAYER_USE_SPECIAL, _data);
+    }
+
+    public void SendPlayerHealthChange(NetworkPlayerHealthChange _data) {
+        SendNetworkData<NetworkPlayerHealthChange>(NETMSG_PLAYER_HEALTH_CHANGE, _data);
+    }
+
+    public void SendPlayerLevelChange(NetworkPlayerLvlChange _data) {
+        SendNetworkData<NetworkPlayerLvlChange>(NETMSG_PLAYER_LVL_CHANGE, _data);
+    }
+
+    public void SendPlayerTransformChange(NetworkPlayerTransformChange _data) {
+        SendNetworkData<NetworkPlayerTransformChange>(NETMSG_PLAYER_TRANSFORM_CHANGE, _data);
     }
 
     public void HitMob(NetworkMobHitInfo _data) {

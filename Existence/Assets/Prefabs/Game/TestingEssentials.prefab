@@ -6672,7 +6672,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7226465a8c661b242bc0287d82e41c98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debug: 1
+  debug: 0
   target: {fileID: 0}
   turnSpeed: 150
   autoFocusTime: 0.5
@@ -6684,7 +6684,7 @@ MonoBehaviour:
   rotationOffset: {x: 20, y: 0, z: 0}
   collisionLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 4097
   collisionPadding: 1000
   collisionBump: 0.25
   minimumInspectAngle: -90
@@ -58852,7 +58852,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6223f31a033aec94c9df0004571a4907, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debug: 1
+  debug: 0
   testing: 1
   testingSpawnLoc: {x: 661.0167, y: 40.043, z: -82.29373}
   equipmentItemData: {fileID: 11400000, guid: c99602b47a5553643984a42b6d055520, type: 2}
@@ -58872,7 +58872,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   url: ws://ec2-52-205-254-61.compute-1.amazonaws.com:8081/socket.io/?EIO=4&transport=websocket
-  localhost: 0
+  localhost: 1
   autoConnect: 0
   reconnectDelay: 4
   ackExpirationTime: 1800
