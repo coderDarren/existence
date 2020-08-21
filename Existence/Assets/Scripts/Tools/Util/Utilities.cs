@@ -50,5 +50,22 @@ public class Utilities
         Sprite _ret = Sprite.Create(_tex, new Rect(0,0,_tex.width, _tex.height), Vector2.one*0.5f, 100);
         return _ret;
     }
+
+    public static float ClampAngle(float _a, float _min, float _max) 
+    {
+        while (_max < _min) _max += 360.0f;
+        while (_a > _max) _a -= 360.0f;
+        while (_a < _min) _a += 360.0f;
+        
+        if (_a > _max)
+            {
+            if (_a - (_max + _min) * 0.5f < 180.0f)
+                return _max;
+            else
+                return _min;
+            }
+        else
+            return _a;
+    }
 #endregion
 }

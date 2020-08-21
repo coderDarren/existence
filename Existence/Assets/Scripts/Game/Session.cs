@@ -20,6 +20,7 @@ public class Session : GameSystem
     public static Session instance;
 
     public bool testing;
+    public Vector3 testingSpawnLoc;
     public EquipmentData equipmentItemData;
     public GameObject playerObject;
     [HideInInspector]
@@ -205,9 +206,9 @@ public class Session : GameSystem
         _playerData.sessionData = new PlayerSessionData();
         _playerData.player = new PlayerInfo();
         _playerData.player.name = "Tester";
-        _playerData.sessionData.posX = -21;
-        _playerData.sessionData.posY = 35;
-        _playerData.sessionData.posZ = 275;
+        _playerData.sessionData.posX = testingSpawnLoc.x;
+        _playerData.sessionData.posY = testingSpawnLoc.y;
+        _playerData.sessionData.posZ = testingSpawnLoc.z;
         InitGame(_playerData);
     }
 

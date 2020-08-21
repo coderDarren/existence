@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-public class CameraController : GameSystem
+public class CameraController2 : GameSystem
 {
     [Header("General")]
     public Transform target;
@@ -31,7 +31,7 @@ public class CameraController : GameSystem
     public float zoomSpeed = 2.0F;
 
     // Components
-    private PlayerController m_Player;
+    private PlayerController2 m_Player;
     private Camera m_Camera;
 
     // Inputs
@@ -71,14 +71,14 @@ public class CameraController : GameSystem
     private float m_Zoom;
     private float m_TargetZoom;
 
-    private PlayerController player {
+    private PlayerController2 player {
         get {
             if (!target) {
                 LogWarning("No target found.");
                 return null;
             }
             if (!m_Player) {
-                m_Player = target.GetComponent<PlayerController>();
+                m_Player = target.GetComponent<PlayerController2>();
             }
             if (!m_Player) {
                 LogWarning("Target must have PlayerController attached");
