@@ -14,7 +14,10 @@ const authenticate = require('./authenticate.js');
 const getAccountPlayers = require('./getAccountPlayers.js');
 const modifyItem = require('./modifyItem.js');
 const getMobLoot = require('./getMobLoot.js');
+const getMobs = require('./getMobs.js');
+const getMob = require('./getMob.js');
 const getItem = require('./getItem.js');
+const getItems = require('./getItems.js');
 const modifyElement = require('./modifyElement.js');
 const equip = require('./equip.js');
 const unequip = require('./unequip.js');
@@ -81,6 +84,12 @@ const handleRoute = async function(_req) {
         case "/api/getMobLoot": // GET
             _resp = await getMobLoot(_req.query);
             break;
+        case "/api/getMobs": // GET
+            _resp = await getMobs(_req.query);
+            break;
+        case "/api/getMob": // GET
+            _resp = await getMob(_req.query);
+            break;
         case "/api/getItem": // GET
             _resp = await getItem(_req.query);
             break;
@@ -92,6 +101,9 @@ const handleRoute = async function(_req) {
             break;
         case "/api/unequip": // POST
             _resp = await unequip(_req.body);
+            break;
+        case "/api/getItems":
+            _resp = await getItems(_req.query);
             break;
     }
 
