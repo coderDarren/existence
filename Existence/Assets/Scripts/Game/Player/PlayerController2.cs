@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(Player))]
-public class PlayerController : GameSystem
+public class PlayerController2 : GameSystem
 {
 
     [Header("Forces")]
@@ -138,7 +138,7 @@ public class PlayerController : GameSystem
 
     private void Jump() {
         if (m_Grounded && m_Jump) {
-            m_MoveDirection.y = jumpForce + 0.01f * (0.01f+m_PlayerStats.strength);
+            m_MoveDirection.y = jumpForce + 0.01f * m_PlayerStats.strength;
         } else if (!m_Grounded) {
             m_MoveDirection.y -= gravity;
         }
@@ -146,7 +146,7 @@ public class PlayerController : GameSystem
 
     private void Move() {
         Vector3 _dir = m_RightClick && m_VerticalRaw == 0 && m_HorizontalRaw != 0 ? transform.forward : transform.forward * m_VerticalRaw;
-        float _speed = m_VerticalRaw < 0 || m_Shift ? walkSpeed : (0.1F + runSpeed * (1+m_PlayerStats.runSpeed));
+        float _speed = m_VerticalRaw < 0 || m_Shift ? walkSpeed : (0.1F + runSpeed * m_PlayerStats.runSpeed);
         m_MoveDirection = _dir * _speed + Vector3.up * m_MoveDirection.y;
         character.Move(m_MoveDirection * Time.deltaTime);
     }

@@ -529,6 +529,60 @@ class SQLController {
         }
     }
 
+    async getMob(_params) {
+        try {
+            var _mob = await this._mob.findByPk(_params.id);
+
+            if (_params.simple == 'true') {
+                return {
+                    data: _mob
+                }
+            }
+
+            const _lootInfo = await this._mobLootItem.findAll({where: {mobID: _params.id}});
+            var _loot = [];
+            for (var i in _lootInfo) {
+                const _info = _lootInfo[i].dataValues;
+                const _itemData = await this.getItem({id: _info.itemID, ql: 1, simple: 'true'});
+                if (_itemData.error) {
+                    return _itemData;
+                }
+                const _lootItem = {
+                    item: _itemData.data,
+                    constraints: _info
+                }
+                _loot.push(_lootItem);
+            }
+
+            return {
+                data: {
+                    ..._mob.dataValues,
+                    loot: _loot
+                }
+            }
+        } catch (_err) {
+            console.log(_err);
+            return {
+                error: _err
+            }
+        }
+    }
+
+    async getMobs(_params) {
+        try {
+            var _mobs = await this._mob.findAll();
+
+            return {
+                data: _mobs
+            }
+        } catch (_err) {
+            console.log(_err);
+            return {
+                error: _err
+            }
+        }
+    }
+
     /* 
      * Determine the table to do operations on for generic requests
      * 1500 error code family
@@ -787,6 +841,12 @@ class SQLController {
                 }
             }
 
+            if (_params.simple && _params.simple == "true") {
+                return {
+                    data: _item
+                }
+            }
+
             var _copy = JSON.parse(JSON.stringify(_item.dataValues));
             _copy.ID = _copy.id;
             _copy = await this.__construct_item__(_copy, _params.ql);
@@ -805,6 +865,16 @@ class SQLController {
     async getItems(_params) {
         try {
             var _items = await this._item.findAll();
+            if (!_params.simple) {
+                _params.simple = false;
+            }
+
+            if (_params.simple && _params.simple == "true") {
+                return {
+                    data: _items
+                }
+            }
+
             for (var i in _items) {
                 _items[i] = JSON.parse(JSON.stringify(_items[i].dataValues));
                 _items[i].ID = _items[i].id;

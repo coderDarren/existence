@@ -3,14 +3,16 @@ const SQL = require('../services/sql.js');
 
 const validateParams = function(_query)
 {
-    const _simple = _query['simple'];
+    const _id = _query['id'];
+    if (!_id) return -1;
 
     return {
-        simple: _simple
+        id: _id,
+        simple: _query['simple']
     };
 }
 
-const getItems = async function(_query) {
+const getMob = async function(_query) {
     //console.log(`query: ${JSON.stringify(_query)}`);
     const _params = validateParams(_query);
 
@@ -21,7 +23,7 @@ const getItems = async function(_query) {
     }
 
     const _sql = new SQL();
-    const _result = await _sql.getItems(_params);
+    const _result = await _sql.getMob(_params);
     if (_result.error) {
         return _result;
     }
@@ -31,4 +33,4 @@ const getItems = async function(_query) {
     }
 }
 
-module.exports = getItems
+module.exports = getMob;
