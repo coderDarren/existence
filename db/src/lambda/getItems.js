@@ -4,9 +4,13 @@ const SQL = require('../services/sql.js');
 const validateParams = function(_query)
 {
     const _simple = _query['simple'];
+    const _shopBuyable = _query['shopBuyable'];
+    const _itemType = _query['itemType'];
 
     return {
-        simple: _simple
+        simple: _simple,
+        shopBuyable: _shopBuyable,
+        itemType: _itemType
     };
 }
 
