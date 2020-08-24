@@ -864,7 +864,16 @@ class SQLController {
 
     async getItems(_params) {
         try {
-            var _items = await this._item.findAll();
+            var _searchCondition = null;
+            if (_params.shopBuyable != null || _params.itemType != null) {
+                _searchCondition = {where:{}};
+                if (_params.shopBuyable != null) 
+                    _searchCondition.where.shopBuyable = _params.shopBuyable == 'true' ? true : false;
+                if (_params.itemType != null)
+                    _searchCondition.where.itemType = parseInt(_params.itemType);
+            }
+
+            var _items = _searchCondition != null ? await this._item.findAll(_searchCondition) : await this._item.findAll();
             if (!_params.simple) {
                 _params.simple = false;
             }
