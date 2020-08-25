@@ -61,6 +61,8 @@ public class NameplateController : GameSystem
         foreach(DictionaryEntry _entry in m_Selectables) {
             Selectable _s = (Selectable)_entry.Value;
             Nameplate _n = _s.nameplate;
+
+            if (_n == null) continue;
             
             float _dist = Vector3.Distance(Camera.main.transform.position, _s.transform.position);
             if (!_s.selected) {
@@ -101,13 +103,13 @@ public class NameplateController : GameSystem
         }
         _n.SetHealthbarVisibility(true);
         _n.BringToForeground();
-        _s.selected = true;
+        _s.OnSelected();
     }
     
     private void OnTargetDeselected(Selectable _s, bool _primary) {
         Nameplate _n = _s.nameplate;
         _n.PushToBackground();
-        _s.selected = false;
+        _s.OnDeselected();
     }
 #endregion
 }
