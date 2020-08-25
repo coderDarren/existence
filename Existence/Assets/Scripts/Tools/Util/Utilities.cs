@@ -51,6 +51,25 @@ public class Utilities
         return _ret;
     }
 
+    [System.Serializable]
+    public class RectBounds {
+        public int minX;
+        public int maxX;
+        public int minY;
+        public int maxY;
+    }
+    public static Texture2D InsertTextureIntoTextureBounds(Texture2D _insertTex, Texture2D _intoTex, RectBounds _bounds) {
+        for (int y = _bounds.minY; y <= _bounds.maxY; y++) {
+            for (int x = _bounds.minX; x <= _bounds.maxX; x++) {
+                Color _c = _insertTex.GetPixel(_bounds.maxX - x, _bounds.maxY - y);
+                Debug.Log("setting pixel");
+                _intoTex.SetPixel(x, y, _c);
+            }
+        }
+        _intoTex.Apply();
+        return _intoTex;
+    }
+
     public static float ClampAngle(float _a, float _min, float _max) 
     {
         while (_max < _min) _max += 360.0f;

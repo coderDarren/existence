@@ -68,6 +68,11 @@ public class NetworkController : GameSystem
     public event MobLootedAction OnMobLooted;
 #endregion
 
+#region SHOP TERMINAL EVENTS
+    public delegate void ShopTerminalAction(NetworkShopTerminalData _data);
+    public event ShopTerminalAction OnShopTerminalInteracted;
+#endregion
+
     public bool usePredictiveSmoothing=true;
 
     private SocketIOComponent m_Network;
@@ -112,6 +117,8 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_PLAYER_EQUIP_FAILURE = "PLAYER_EQUIP_FAILURE";
     private static readonly string NETMSG_PLAYER_UNEQUIP_SUCCESS = "PLAYER_UNEQUIP_SUCCESS";
     private static readonly string NETMSG_PLAYER_UNEQUIP_FAILURE = "PLAYER_UNEQUIP_FAILURE";
+    private static readonly string NETMSG_INTERACT_SHOP = "NETMSG_INTERACT_SHOP";
+    private static readonly string NETMSG_INTERACT_SHOP_SUCCESS = "NETMSG_INTERACT_SHOP_SUCCESS";
 
     public bool IsConnected { get { return m_Network.IsConnected; } }
 
@@ -150,6 +157,7 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_PLAYER_UNEQUIP_SUCCESS, OnNetworkPlayerUnequipSuccess);
         m_Network.On(NETMSG_PLAYER_EQUIP_FAILURE, OnNetworkPlayerEquipFail);
         m_Network.On(NETMSG_PLAYER_UNEQUIP_FAILURE, OnNetworkPlayerUnequipFail);
+        m_Network.On(NETMSG_INTERACT_SHOP_SUCCESS, OnNetworkShopTerminalInteracted);
     }
 
     private void OnDisable() {
@@ -329,6 +337,13 @@ public class NetworkController : GameSystem
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
         TryRunAction(OnPlayerUnequipFail, _msg);
     }
+    
+    private void OnNetworkShopTerminalInteracted(SocketIOEvent _evt) {
+        Log("Player interacted with shop terminal");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkShopTerminalData _data = NetworkShopTerminalData.FromJsonStr<NetworkShopTerminalData>(_msg);
+        TryRunAction(OnShopTerminalInteracted, _data);
+    }
 
     private void TryRunAction(BasicAction _action) {
         try {
@@ -418,6 +433,14 @@ public class NetworkController : GameSystem
         }
     }
 
+    private void TryRunAction(ShopTerminalAction _action, NetworkShopTerminalData _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
+    }
+
     private void SendString(string _id, string _data) {
         //Log("Sending {\"message\":\""+_data+"\"} to "+_id);
         m_Network.Emit(_id, new JSONObject("{\"message\":\""+_data+"\"}"));
@@ -498,6 +521,10 @@ public class NetworkController : GameSystem
     
     public void Unequip(NetworkEquipData _data) {
         SendNetworkData<NetworkEquipData>(NETMSG_PLAYER_UNEQUIP, _data);
+    }
+
+    public void InteractShop(NetworkShopTerminalInteractData _data) {
+        SendNetworkData<NetworkShopTerminalInteractData>(NETMSG_INTERACT_SHOP, _data);
     }
 #endregion
 }

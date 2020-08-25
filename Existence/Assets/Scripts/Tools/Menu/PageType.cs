@@ -17,7 +17,8 @@
             Inventory,
             LootPreview,
             Attacks,
-            Equipment
+            Equipment,
+            ShopTerminal
         }
     }
 }

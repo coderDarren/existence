@@ -196,7 +196,7 @@ public class CameraController : GameSystem
                         m_HorizontalRaw < 0 && m_VerticalRaw == 0 ? -90 : 0;
 
         if (m_VerticalRaw != 0) {
-            m_StrafeAngle = Mathf.Lerp(m_StrafeAngle, _target, 5 * Time.deltaTime);
+            m_StrafeAngle = Mathf.Lerp(m_StrafeAngle, _target, 15 * Time.deltaTime);
         } else {
             m_StrafeAngle = _target;
         }
@@ -254,9 +254,11 @@ public class CameraController : GameSystem
         m_MouseRotationOffset.y = Utilities.ClampAngle(m_MouseRotationOffset.y, -180, 180);
 
         if (m_MouseRotationOffset.y <= -idleTurnAngleLimit) {
-            m_MouseRotationOffset.y = Utilities.ClampAngle(Mathf.Lerp(m_MouseRotationOffset.y, -idleTurnAngleLimit, 5 * Time.deltaTime), -180, 180);
+            //m_MouseRotationOffset.y = Utilities.ClampAngle(Mathf.Lerp(m_MouseRotationOffset.y, -idleTurnAngleLimit, 5 * Time.deltaTime), -180, 180);
+            m_MouseRotationOffset.y = Utilities.ClampAngle(-idleTurnAngleLimit, -180, 180);
         } else if (m_MouseRotationOffset.y >= idleTurnAngleLimit) {
-            m_MouseRotationOffset.y = Utilities.ClampAngle(Mathf.Lerp(m_MouseRotationOffset.y, idleTurnAngleLimit, 5 * Time.deltaTime), -180, 180);
+            //m_MouseRotationOffset.y = Utilities.ClampAngle(Mathf.Lerp(m_MouseRotationOffset.y, idleTurnAngleLimit, 5 * Time.deltaTime), -180, 180);
+            m_MouseRotationOffset.y = Utilities.ClampAngle(idleTurnAngleLimit, -180, 180);
         }
 
         if (Mathf.Abs(m_MouseRotationOffset.y) >= idleTurnAngleLimit) {

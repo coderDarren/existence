@@ -45,10 +45,12 @@ public class Nameplate : GameSystem
     }
 
     public void SetHealthBar(int _max, int _curr) {
+        if (!healthBar) return;
         healthBar.fillAmount = _curr / (float)_max;
     }
 
     public void SetHealthbarVisibility(bool _visible) {
+        if (!healthBarCanvas) return;
         healthBarCanvas.alpha = _visible ? 1 : 0;
     }
 
