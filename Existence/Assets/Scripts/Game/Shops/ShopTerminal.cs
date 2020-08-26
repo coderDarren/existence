@@ -51,8 +51,6 @@ public class ShopTerminal : Selectable
     public override void OnDeselected() {
         base.OnDeselected();
         Log("you deselected shop terminal "+id);
-        if (!shopManager) return;
-        shopManager.CloseShop();
     }
 #endregion
 }

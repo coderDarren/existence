@@ -831,6 +831,50 @@ class SQLController {
         }
     }
 
+    async shopTerminalTrade(_params) {
+        try {
+            // verify account
+            const _authCheck = await this.__validate_account__(_params);
+            if (_authCheck.error) {
+                return _authCheck;
+            }
+
+            // get player
+            const _player = this._player.findByPk(_params.playerID);
+
+            var _purchasedItems = [];
+            var _sellableInventory = [];
+            var _netTransfer = 0;
+
+            if (_params.sell.length > 0) {
+                await this._inventorySlot.destroy({where: {playerID:_params.playerID,itemID:_params.sell[i].itemID,loc:_params.sell[i].inventoryLoc}});
+                _netTransfer += _params.sell[i].price;
+                _sellableInventory.push(_params.sell[i]);
+            }
+
+            if (_params.buy.length > 0) {
+                // get bought items
+                for (var i in _params.buy) {
+                    await this._inventorySlot.create({itemID: _params.buy[i].itemID, playerID: _params.playerID, lvl: _params.buy[i].lvl, loc: -1});
+                    _netTransfer -= _params.buy[i].price;
+                    //_purchasedItems.push(_item);
+                }
+            }
+            
+            return {
+                data: {
+                    transactionId: _params.transactionId,
+                    tix:0
+                }
+            }
+        } catch (_err) {
+            console.log(_err);
+            return {
+                error: _err
+            }
+        }
+    }
+
     async getItem(_params) {
         try {
             var _item = await this._item.findByPk(_params.id);

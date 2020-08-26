@@ -21,6 +21,7 @@ const getItems = require('./getItems.js');
 const modifyElement = require('./modifyElement.js');
 const equip = require('./equip.js');
 const unequip = require('./unequip.js');
+const shopTerminalTrade = require('./shopTerminalTrade.js');
 
 const versionCode = '0.1';
 const api = async function(_event, _context) {
@@ -101,6 +102,9 @@ const handleRoute = async function(_req) {
             break;
         case "/api/unequip": // POST
             _resp = await unequip(_req.body);
+            break;
+        case "/api/shopTerminalTrade": // POST
+            _resp = await shopTerminalTrade(_req.body);
             break;
         case "/api/getItems":
             _resp = await getItems(_req.query);
