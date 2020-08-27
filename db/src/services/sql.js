@@ -374,13 +374,14 @@ class SQLController {
                 return _authCheck;
             }
 
-            const _player = await this._player.findByPk(_params.playerID);
+            // This context should be confirmed by the server already...
+            /*const _player = await this._player.findByPk(_params.playerID);
             if (!_player) {
                 return {
                     error: `Player does not exist with id ${_params.playerID}`,
                     code: 1400
                 }
-            }
+            }*/
 
             const _item = await this.getItem({id:_params.itemID,ql:_params.lvl});
 
@@ -599,6 +600,7 @@ class SQLController {
             case 'equipmentSlots': return this._equipmentSlot;
             case 'mobs': return this._mob;
             case 'mobLootItems': return this._mobLootItem;
+            case 'inventorySlots': return this._inventorySlot;
             default: return {
                 error: `Unsupported table operation`,
                 code: 1501
@@ -831,50 +833,6 @@ class SQLController {
         }
     }
 
-    async shopTerminalTrade(_params) {
-        try {
-            // verify account
-            const _authCheck = await this.__validate_account__(_params);
-            if (_authCheck.error) {
-                return _authCheck;
-            }
-
-            // get player
-            const _player = this._player.findByPk(_params.playerID);
-
-            var _purchasedItems = [];
-            var _sellableInventory = [];
-            var _netTransfer = 0;
-
-            if (_params.sell.length > 0) {
-                await this._inventorySlot.destroy({where: {playerID:_params.playerID,itemID:_params.sell[i].itemID,loc:_params.sell[i].inventoryLoc}});
-                _netTransfer += _params.sell[i].price;
-                _sellableInventory.push(_params.sell[i]);
-            }
-
-            if (_params.buy.length > 0) {
-                // get bought items
-                for (var i in _params.buy) {
-                    await this._inventorySlot.create({itemID: _params.buy[i].itemID, playerID: _params.playerID, lvl: _params.buy[i].lvl, loc: -1});
-                    _netTransfer -= _params.buy[i].price;
-                    //_purchasedItems.push(_item);
-                }
-            }
-            
-            return {
-                data: {
-                    transactionId: _params.transactionId,
-                    tix:0
-                }
-            }
-        } catch (_err) {
-            console.log(_err);
-            return {
-                error: _err
-            }
-        }
-    }
-
     async getItem(_params) {
         try {
             var _item = await this._item.findByPk(_params.id);
@@ -1076,6 +1034,7 @@ class SQLController {
             level: DataTypes.INTEGER,
             xp: DataTypes.INTEGER,
             statPoints: DataTypes.INTEGER,
+            tix: DataTypes.INTEGER
         }, {
             timestamps: false
         });

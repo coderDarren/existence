@@ -20,6 +20,7 @@ public class PlayerInfo : NetworkModel {
     public int statPoints;
     public int health;
     public int maxHealth;
+    public int tix;
     public Sex sex;
     public Race race;
 }

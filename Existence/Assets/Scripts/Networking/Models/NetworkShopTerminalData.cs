@@ -25,11 +25,11 @@ public class NetworkShopTerminalSellInfo : NetworkModel {
 
 public class NetworkShopTerminalBuyInfo : NetworkModel {
     public int itemID;
-    public int lvl;
+    public int level;
     public int price;
     public NetworkShopTerminalBuyInfo(int _id, int _lv, int _pr){
         itemID = _id;
-        lvl = _lv;
+        level = _lv;
         price = _pr;
     }
 }

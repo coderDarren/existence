@@ -13,6 +13,7 @@ public class ShopManager : GameSystem
     public PageController pageController;
 
     private Session m_Session;
+    private CursorController m_Cursor;
 
     // Use this to prevent opening multiple shop terminals
     private bool m_UsingShopTerminal;
@@ -31,6 +32,18 @@ public class ShopManager : GameSystem
                 LogError("Trying to use Session, but no instance could be found.");
             }
             return m_Session;
+        }
+    }
+
+    private CursorController cursor {
+        get {
+            if (!m_Cursor) {
+                m_Cursor = CursorController.instance;
+            }
+            if (!m_Cursor) {
+                LogWarning("Trying to use cursor, but no instance of CursorController was found.");
+            }
+            return m_Cursor;
         }
     }
 
@@ -65,6 +78,7 @@ public class ShopManager : GameSystem
         if (!session) return;
         if (!session.network) return;
         session.network.OnShopTerminalInteracted += OnShopTerminalInteracted;
+        session.network.OnShopTerminalTradeSuccess += OnShopTerminalTradeSuccess;
     }
 
     private void OnDisable() {
@@ -74,6 +88,7 @@ public class ShopManager : GameSystem
         if (!session) return;
         if (!session.network) return;
         session.network.OnShopTerminalInteracted -= OnShopTerminalInteracted;
+        session.network.OnShopTerminalTradeSuccess -= OnShopTerminalTradeSuccess;
     }
 #endregion
 
@@ -89,6 +104,9 @@ public class ShopManager : GameSystem
         m_UsingShopTerminal = false;
         m_ShopTerminalData = null;
         pageController.TurnPageOff(PageType.ShopTerminal);
+        foreach(IItem _i in m_SellItems) {
+            session.player.AddInventory(_i);
+        }
         m_ShopItems = new List<IItem>();
         m_TradeItems = new List<IItem>();
         m_SellItems = new List<IItem>();
@@ -102,9 +120,13 @@ public class ShopManager : GameSystem
     }
 
     public void PrepareSellItem(IItem _item) {
+        if (!cursor) return;
+        if (cursor.selectedItem == null) return;
         if (!ShopTerminalPage.instance) return;
         // check for item in inventory
         m_SellItems.Add(_item);
+        session.player.RemoveInventory(_item);
+        cursor.DropItem();
         ShopTerminalPage.instance.Redraw();
     }
 
@@ -116,6 +138,7 @@ public class ShopManager : GameSystem
 
     public void CancelSellItem(IItem _item) {
         if (!ShopTerminalPage.instance) return;
+        session.player.AddInventory(_item);
         m_SellItems.Remove(_item);
         ShopTerminalPage.instance.Redraw();
     }
@@ -125,11 +148,15 @@ public class ShopManager : GameSystem
         if (!session) return;
         if (!session.network) return;
         List<NetworkShopTerminalSellInfo> _sell = new List<NetworkShopTerminalSellInfo>();
+        foreach(IItem _item in m_SellItems) {
+            _sell.Add(new NetworkShopTerminalSellInfo(_item.def.id, _item.def.slotLoc, 0));
+        }
         List<NetworkShopTerminalBuyInfo> _buy = new List<NetworkShopTerminalBuyInfo>();
         foreach(IItem _item in m_TradeItems) {
             _buy.Add(new NetworkShopTerminalBuyInfo(_item.def.id, _item.def.level, 0));
         }
         session.network.TradeShop(new NetworkShopTerminalTradeData(_sell, _buy));
+        m_SellItems = new List<IItem>();
     }
 #endregion
 
@@ -141,6 +168,12 @@ public class ShopManager : GameSystem
         m_TradeItems = new List<IItem>();
         m_SellItems = new List<IItem>();
         pageController.TurnPageOn(PageType.ShopTerminal);
+    }
+
+    private void OnShopTerminalTradeSuccess(NetworkShopTerminalTradeSuccessData _data) {
+        pageController.TurnPageOff(PageType.ShopTerminal);
+        Log("Closing shop");
+        CloseShop();
     }
     
     private List<IItem> ParseItems(string[] _itemData) {

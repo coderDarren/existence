@@ -196,6 +196,7 @@ public class Player : GameSystem
 
         if (session && session.network) {
             session.network.OnMobDeath += OnMobDeath;
+            session.network.OnShopTerminalTradeSuccess += OnShopTerminalTradeSuccess;
         } 
     }
 
@@ -203,6 +204,7 @@ public class Player : GameSystem
         if (!session) return;
         if (!session.network) return;
         session.network.OnMobDeath -= OnMobDeath;
+        session.network.OnShopTerminalTradeSuccess -= OnShopTerminalTradeSuccess;
     }
 
     public void SaveBaselineStats(StatData _stats) {
@@ -272,6 +274,15 @@ public class Player : GameSystem
 
     public void AddInventory(IItem _item) {
         m_Data.inventory.Add(_item);
+
+        // redraw inventory if the window is open
+        if (inventoryWindow) {
+            inventoryWindow.Redraw();
+        }
+    }
+
+    public void RemoveInventory(IItem _item) {
+        m_Data.inventory.Remove(_item);
 
         // redraw inventory if the window is open
         if (inventoryWindow) {
@@ -463,6 +474,10 @@ public class Player : GameSystem
             m_Data.player.health = Mathf.Clamp(m_Data.player.health, 0, MaxHealth());
             healDeltaTimer = 0;
         }
+    }
+    
+    private void OnShopTerminalTradeSuccess(NetworkShopTerminalTradeSuccessData _data) {
+        m_Data.player.tix = _data.tix;
     }
 
     private void OnMobDeath(NetworkMobDeathData _data) {

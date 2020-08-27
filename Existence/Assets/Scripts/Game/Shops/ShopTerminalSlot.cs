@@ -88,6 +88,8 @@ public class ShopTerminalSlot : InspectableItem
      */
     private void BuyItem() {
         if (!shopManager) return;
+        if (!cursor) return;
+        if (cursor.selectedItem != null) return;
         if (m_Item == null) return;
         shopManager.PrepareBuyItem(m_Item);
     }
