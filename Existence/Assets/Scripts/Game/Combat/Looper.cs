@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Looper : StateMachineBehaviour
 {   
-    public float atkSpeed;
     public float buffSpeed;
 
     private Player m_Player;
@@ -13,7 +12,7 @@ public class Looper : StateMachineBehaviour
     
 
 
-    // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
+    // Need to reference weapon attack speed and create a parameter in <Player> that handles debuffs applied to the character.
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
         //animator.SetBool("cycle", false);
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
@@ -22,10 +21,8 @@ public class Looper : StateMachineBehaviour
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        if (!m_Player) return;
-        attacking = animator.GetBool(m_Player.weapon.ToString());        
+        attacking = animator.GetBool(m_Player.weapon.ToString());        // Move this to inside of attack and recharge scripts
         if(attacking){
-            totalSpeed = buffSpeed * atkSpeed;
             animator.SetFloat("totalSpeed", totalSpeed);
         }
         animator.SetBool("cycle", false);
