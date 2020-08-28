@@ -18,8 +18,6 @@ public class Warpfield : MonoBehaviour
     private void Update(){
         m_Player = GameObject.FindGameObjectWithTag("Player");
         m_Controller = m_Player.GetComponent<CharacterController>();
-        Debug.Log(m_Player.transform.position);
-        Debug.Log(m_PosDiff);
 
         if(m_Colliding){
             m_Difference = m_Player.transform.position - transform.position;
@@ -31,7 +29,7 @@ public class Warpfield : MonoBehaviour
                 m_RotDiff += 180;
                 m_Player.transform.Rotate(Vector3.up, m_RotDiff);
                 m_PosDiff = Quaternion.Euler(0f, m_RotDiff, 0f) * m_Difference;
-                m_Controller.enabled = false;
+                m_Controller.enabled = false;                
                 m_Controller.transform.position = destination.transform.position + m_PosDiff;
                 RenderSettings.skybox = skyBox;
                 m_Controller.enabled = true;                
