@@ -146,6 +146,7 @@ public class NetworkPlayer : Selectable
         m_ClientData.id = _data.player.ID;
         m_ClientData.name = _data.player.name;
         m_ClientData.weaponName = Player.Weapon.oneHandRanged.ToString(); // ???
+        m_ClientData.tix = _data.player.tix;
     }
 
     public void Dispose() {

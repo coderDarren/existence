@@ -7,13 +7,12 @@ public class ShopTerminalPage : Page
 {
     public static ShopTerminalPage instance;
 
-    public Transform slotParent;
+    public Transform shopSlotsParent;
+    public Transform sellSlotsParent;
+    public Transform tradeSlotsParent;
 
     private Session m_Session;
     private ShopManager m_ShopManager;
-    private List<IItem> m_ShopItems;
-    private List<IItem> m_SellItems;
-    private List<IItem> m_BuyItems;
 
     // get Session with integrity
     private Session session {
@@ -42,51 +41,46 @@ public class ShopTerminalPage : Page
     }
 
 #region Private Functions
-    private void Clear() {
+    private void Draw() {
+        DrawItems(shopSlotsParent, shopManager.shopItems);
+        DrawItems(sellSlotsParent, shopManager.sellItems);
+        DrawItems(tradeSlotsParent, shopManager.tradeItems);
+    }
+
+    private void DrawItems(Transform _slotContainer, List<IItem> _items) {
         int _index = 0;
-        foreach (Transform _t in slotParent) {
-            if (_t == slotParent) continue;
-            _t.GetComponent<ShopTerminalSlot>().ClearItem();
+        if (_items == null) return;
+        foreach (IItem _item in _items) {
+            ShopTerminalSlot _slot = _slotContainer.transform.GetChild(_index).GetComponent<ShopTerminalSlot>();
+            _slot.AssignItem(_item);
             _index++;
         }
     }
 
-    private void Draw() {
-        // // !! TODO 
-        // // Looping through children to assign index id.. init ids a better way..
-        // int _index = 0;
-        // foreach (Transform _t in slotParent) {
-        //     if (_t == slotParent) continue;
-        //     _t.GetComponent<InventorySlot>().Init(_index);
-        //     _index++;
-        // }
+    private void Clear() {
+        ClearChildren(shopSlotsParent);
+        ClearChildren(sellSlotsParent);
+        ClearChildren(tradeSlotsParent);
+    }
 
-        int _index = 0;
-        foreach (IItem _item in m_ShopItems) {
-            ShopTerminalSlot _slot = slotParent.transform.GetChild(_index).GetComponent<ShopTerminalSlot>();
-            _slot.AssignItem(_item);
-            _index++;
+    private void ClearChildren(Transform _parent) {
+        foreach (Transform _t in _parent) {
+            if (_t == _parent) continue;
+            _t.GetComponent<ShopTerminalSlot>().ClearItem();
         }
     }
 #endregion
 
 #region Public Functions
     public void Redraw() {
+        if (instance != this) return;
         Clear();
         Draw();
     }
 #endregion
 
 #region Private Functions
-    private List<IItem> ParseItems(string[] _itemData) {
-        List<IItem> _ret = new List<IItem>();
-        if (_itemData == null) return _ret;
-        foreach(string _itemJson in _itemData) {
-            IItem _item = ItemData.CreateItem(_itemJson);
-            _ret.Add(_item);
-        }
-        return _ret;
-    }
+    
 #endregion
 
 #region Override Functions
@@ -94,14 +88,10 @@ public class ShopTerminalPage : Page
         base.OnPageEnabled();
         if (!session) return;
         if (!shopManager) return;
-        if (session.playerData == null) return;
+        if (instance != null) return;
         if (!instance) {
             instance = this;
         }
-        
-        m_ShopItems = ParseItems(shopManager.shopTerminalData.itemData);
-        m_BuyItems = new List<IItem>();
-        m_SellItems = new List<IItem>();
 
         Redraw();
     }

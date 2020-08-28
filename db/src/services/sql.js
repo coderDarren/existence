@@ -374,13 +374,14 @@ class SQLController {
                 return _authCheck;
             }
 
-            const _player = await this._player.findByPk(_params.playerID);
+            // This context should be confirmed by the server already...
+            /*const _player = await this._player.findByPk(_params.playerID);
             if (!_player) {
                 return {
                     error: `Player does not exist with id ${_params.playerID}`,
                     code: 1400
                 }
-            }
+            }*/
 
             const _item = await this.getItem({id:_params.itemID,ql:_params.lvl});
 
@@ -599,6 +600,7 @@ class SQLController {
             case 'equipmentSlots': return this._equipmentSlot;
             case 'mobs': return this._mob;
             case 'mobLootItems': return this._mobLootItem;
+            case 'inventorySlots': return this._inventorySlot;
             default: return {
                 error: `Unsupported table operation`,
                 code: 1501
@@ -1032,6 +1034,7 @@ class SQLController {
             level: DataTypes.INTEGER,
             xp: DataTypes.INTEGER,
             statPoints: DataTypes.INTEGER,
+            tix: DataTypes.INTEGER
         }, {
             timestamps: false
         });
