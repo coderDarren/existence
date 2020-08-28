@@ -12,7 +12,6 @@ public class Attack : StateMachineBehaviour
     private Mob target;
     private bool attacking;
     private float pauseSpeed;
-    private float safetySpeed;
     private float distance;
     
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex    ){
@@ -21,28 +20,31 @@ public class Attack : StateMachineBehaviour
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         m_PlayerCombat = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCombatController>();
         range = m_Player.attackRange;
-        safetySpeed = 0;
     }
     
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
         
+
         attacking = animator.GetBool(m_Player.weapon.ToString());
         target = m_PlayerCombat.target; 
 
         #region Cancel/Pause Animaton
         if(!attacking){//Cancel animation
             animator.SetFloat("totalSpeed", pauseSpeed);
-            animator.SetBool("cycle", true);            
+            animator.SetBool("cycle", true);
+        if(m_PlayerCombat.target){            //set animation weights to 0                        
         }
-        if(m_PlayerCombat.target){            
             distance = Vector3.Distance(animator.gameObject.transform.position, target.transform.position);
 
-            if (!target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) || range <= distance){
-                animator.SetFloat("totalSpeed", safetySpeed);
+            if (target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) == false || range <= distance){
+                animator.SetFloat("totalSpeed", 0);
+                //animator.SetLayerWeight(1,0);
             }
             
             if (target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) && range >= distance){//No attack logic
                 animator.SetFloat("totalSpeed", pauseSpeed);
+                //animator.SetLayerWeight(1,1);
+                
             }
         }
         #endregion
