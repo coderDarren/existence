@@ -91,39 +91,39 @@ public class NetworkEntityHandler : GameSystem
 
         if (!network) return;
         network.OnConnect += OnConnect;
-        network.OnPlayerLeft += OnPlayerLeft;
-        network.OnInstanceUpdated += OnInstanceUpdated;
-        network.OnMobAttack += OnMobAttack;
-        network.OnPlayerSpawn += OnPlayerSpawn;
-        network.OnPlayerExit += OnPlayerExit;
-        network.OnPlayerHit += OnPlayerHit;
-        network.OnPlayerEquipSuccess += OnPlayerEquipSuccess;
-        network.OnPlayerUnequipSuccess += OnPlayerUnequipSuccess;
-        network.OnMobSpawn += OnMobSpawn;
-        network.OnMobExit += OnMobExit;
-        network.OnMobAttackRangeStateChange += OnMobAttackRangeStateChange;
-        network.OnMobCombatStateChange += OnMobCombatStateChange;
-        network.OnMobHealthChange += OnMobHealthChange;
-        network.OnMobDeath += OnMobDeath;
+        network.playerLeaveEvt.OnEvt += OnPlayerLeft;
+        network.instanceDataEvt.OnEvt += OnInstanceUpdated;
+        network.mobAttackEvt.OnEvt += OnMobAttack;
+        network.playerSpawnEvt.OnEvt += OnPlayerSpawn;
+        network.playerExitEvt.OnEvt += OnPlayerExit;
+        network.playerHitEvt.OnEvt += OnPlayerHit;
+        network.playerEquipSuccessEvt.OnEvt += OnPlayerEquipSuccess;
+        network.playerUnequipSuccessEvt.OnEvt += OnPlayerUnequipSuccess;
+        network.mobSpawnEvt.OnEvt += OnMobSpawn;
+        network.mobExitEvt.OnEvt += OnMobExit;
+        network.mobAttackRangeStateChangeEvt.OnEvt += OnMobAttackRangeStateChange;
+        network.mobCombatStateChangeEvt.OnEvt += OnMobCombatStateChange;
+        network.mobHealthChangeEvt.OnEvt += OnMobHealthChange;
+        network.mobDeathEvt.OnEvt += OnMobDeath;
     }
 
     private void OnDisable() {
         if (!network) return;
         network.OnConnect -= OnConnect;
-        network.OnPlayerLeft -= OnPlayerLeft;
-        network.OnInstanceUpdated -= OnInstanceUpdated;
-        network.OnMobAttack -= OnMobAttack;
-        network.OnPlayerSpawn -= OnPlayerSpawn;
-        network.OnPlayerExit -= OnPlayerExit;
-        network.OnPlayerHit -= OnPlayerHit;
-        network.OnPlayerEquipSuccess -= OnPlayerEquipSuccess;
-        network.OnPlayerUnequipSuccess -= OnPlayerUnequipSuccess;
-        network.OnMobSpawn -= OnMobSpawn;
-        network.OnMobExit -= OnMobExit;
-        network.OnMobAttackRangeStateChange -= OnMobAttackRangeStateChange;
-        network.OnMobCombatStateChange -= OnMobCombatStateChange;
-        network.OnMobHealthChange -= OnMobHealthChange;
-        network.OnMobDeath -= OnMobDeath;
+        network.playerLeaveEvt.OnEvt -= OnPlayerLeft;
+        network.instanceDataEvt.OnEvt -= OnInstanceUpdated;
+        network.mobAttackEvt.OnEvt -= OnMobAttack;
+        network.playerSpawnEvt.OnEvt -= OnPlayerSpawn;
+        network.playerExitEvt.OnEvt -= OnPlayerExit;
+        network.playerHitEvt.OnEvt -= OnPlayerHit;
+        network.playerEquipSuccessEvt.OnEvt -= OnPlayerEquipSuccess;
+        network.playerUnequipSuccessEvt.OnEvt -= OnPlayerUnequipSuccess;
+        network.mobSpawnEvt.OnEvt -= OnMobSpawn;
+        network.mobExitEvt.OnEvt -= OnMobExit;
+        network.mobAttackRangeStateChangeEvt.OnEvt -= OnMobAttackRangeStateChange;
+        network.mobCombatStateChangeEvt.OnEvt -= OnMobCombatStateChange;
+        network.mobHealthChangeEvt.OnEvt -= OnMobHealthChange;
+        network.mobDeathEvt.OnEvt -= OnMobDeath;
     }
 #endregion
 

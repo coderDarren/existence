@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -4753,7 +4753,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 14.996, y: 0, z: 0}
 --- !u!114 &795909787
 MonoBehaviour:
@@ -11122,7 +11122,7 @@ PrefabInstance:
     - target: {fileID: 7811763725767428911, guid: 707807310056b0949889a281fefb33a9,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7811763725767428911, guid: 707807310056b0949889a281fefb33a9,
         type: 3}
@@ -12211,6 +12211,6 @@ MonoBehaviour:
   testing: 0
   testingSpawnLoc: {x: 0, y: 0, z: 0}
   equipmentItemData: {fileID: 11400000, guid: c99602b47a5553643984a42b6d055520, type: 2}
-  playerObject: {fileID: 3355374177494136147, guid: 6f47b3c6bbe51cb41a7da647689f2600,
+  playerObject: {fileID: 3091728861525301948, guid: 6f47b3c6bbe51cb41a7da647689f2600,
     type: 3}
   entryPage: 6

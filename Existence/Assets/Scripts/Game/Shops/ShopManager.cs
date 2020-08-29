@@ -77,8 +77,8 @@ public class ShopManager : GameSystem
 
         if (!session) return;
         if (!session.network) return;
-        session.network.OnShopTerminalInteracted += OnShopTerminalInteracted;
-        session.network.OnShopTerminalTradeSuccess += OnShopTerminalTradeSuccess;
+        session.network.shopTerminalInteractEvt.OnEvt += OnShopTerminalInteracted;
+        session.network.shopTerminalTradeSuccessEvt.OnEvt += OnShopTerminalTradeSuccess;
     }
 
     private void OnDisable() {
@@ -87,8 +87,8 @@ public class ShopManager : GameSystem
 
         if (!session) return;
         if (!session.network) return;
-        session.network.OnShopTerminalInteracted -= OnShopTerminalInteracted;
-        session.network.OnShopTerminalTradeSuccess -= OnShopTerminalTradeSuccess;
+        session.network.shopTerminalInteractEvt.OnEvt -= OnShopTerminalInteracted;
+        session.network.shopTerminalTradeSuccessEvt.OnEvt -= OnShopTerminalTradeSuccess;
     }
 #endregion
 

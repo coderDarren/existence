@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class TestTextureUpdates : MonoBehaviour
 {
-    public Texture2D body1, body2, pants1, pants2;
-    public Utilities.RectBounds bodyBounds, pantsBounds;
+    public Texture2D body1, body2, pants1, pants2, armor;
+    public Utilities.RectBounds bodyBounds, pantsBounds, armorBounds;
     
     private Material m_Material;
 
@@ -28,6 +28,10 @@ public class TestTextureUpdates : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.R)) {
             m_Material.mainTexture = (Texture)Utilities.InsertTextureIntoTextureBounds(pants2, (Texture2D)m_Material.mainTexture, pantsBounds);
+        }
+
+        if (Input.GetKeyDown(KeyCode.T)) {
+            m_Material.mainTexture = (Texture)Utilities.InsertTextureIntoTextureBounds(armor, (Texture2D)m_Material.mainTexture, armorBounds);
         }
     }
 #endregion
