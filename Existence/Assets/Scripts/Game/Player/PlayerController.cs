@@ -138,9 +138,9 @@ public class PlayerController : GameSystem
 
     private void Jump() {
         if (m_Grounded && m_Jump) {
-            m_MoveDirection.y = jumpForce + 0.01f * (0.01f+m_PlayerStats.strength);
+            m_MoveDirection.y = jumpForce + 0.01f * (0.01f+m_PlayerStats.strength) * Time.deltaTime;
         } else if (!m_Grounded) {
-            m_MoveDirection.y -= gravity;
+            m_MoveDirection.y -= gravity * Time.deltaTime;
         }
     }
 

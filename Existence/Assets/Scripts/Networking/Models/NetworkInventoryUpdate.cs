@@ -9,3 +9,9 @@ public class NetworkInventoryUpdate : NetworkModel
         slotLoc = _slotLoc;
     }
 }
+
+public class NetworkInventoryRemoveData : NetworkModel 
+{
+    public int itemID;
+    public int inventoryLoc;
+}

@@ -47,6 +47,12 @@ public class NetworkController : GameSystem
     public event StringAction OnPlayerUnequipFail;
 #endregion
 
+#region INVENTORY NETWORK EVENTS
+    public delegate void InventoryRemoveAction(NetworkInventoryRemoveData _data);
+    public event InventoryRemoveAction OnRemoveInventorySuccess;
+    public event InventoryRemoveAction OnRemoveInventoryFailure;
+#endregion
+
 #region MOB NETWORK EVENTS
     public delegate void MobAction(NetworkMobData _mob);
     public event MobAction OnMobSpawn;
@@ -66,6 +72,13 @@ public class NetworkController : GameSystem
 #region LOOT NETWORK EVENTS
     public delegate void MobLootedAction(NetworkMobLootData _data);
     public event MobLootedAction OnMobLooted;
+#endregion
+
+#region SHOP TERMINAL EVENTS
+    public delegate void ShopTerminalAction(NetworkShopTerminalData _data);
+    public event ShopTerminalAction OnShopTerminalInteracted;
+    public delegate void ShopTerminalTradeAction(NetworkShopTerminalTradeSuccessData _data);
+    public event ShopTerminalTradeAction OnShopTerminalTradeSuccess;
 #endregion
 
     public bool usePredictiveSmoothing=true;
@@ -94,6 +107,8 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_ADD_INVENTORY = "ADD_INVENTORY";
     private static readonly string NETMSG_ADD_INVENTORY_SUCCESS = "ADD_INVENTORY_SUCCESS";
     private static readonly string NETMSG_ADD_INVENTORY_FAILURE = "ADD_INVENTORY_FAILURE";
+    private static readonly string NETMSG_RM_INVENTORY_SUCCESS = "RM_INVENTORY_SUCCESS";
+    private static readonly string NETMSG_RM_INVENTORY_FAILURE = "RM_INVENTORY_FAILURE";
     private static readonly string NETMSG_MOB_SPAWN = "MOB_SPAWN";
     private static readonly string NETMSG_MOB_EXIT = "MOB_EXIT";
     private static readonly string NETMSG_PLAYER_SPAWN = "PLAYER_SPAWN";
@@ -112,6 +127,10 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_PLAYER_EQUIP_FAILURE = "PLAYER_EQUIP_FAILURE";
     private static readonly string NETMSG_PLAYER_UNEQUIP_SUCCESS = "PLAYER_UNEQUIP_SUCCESS";
     private static readonly string NETMSG_PLAYER_UNEQUIP_FAILURE = "PLAYER_UNEQUIP_FAILURE";
+    private static readonly string NETMSG_INTERACT_SHOP = "NETMSG_INTERACT_SHOP";
+    private static readonly string NETMSG_INTERACT_SHOP_SUCCESS = "NETMSG_INTERACT_SHOP_SUCCESS";
+    private static readonly string NETMSG_TRADE_SHOP = "NETMSG_TRADE_SHOP";
+    private static readonly string NETMSG_TRADE_SHOP_SUCCESS = "NETMSG_TRADE_SHOP_SUCCESS";
 
     public bool IsConnected { get { return m_Network.IsConnected; } }
 
@@ -135,6 +154,8 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_MOB_ATTACK, OnNetworkMobAttack);
         m_Network.On(NETMSG_ADD_INVENTORY_SUCCESS, OnAddInventorySuccess);
         m_Network.On(NETMSG_ADD_INVENTORY_FAILURE, OnAddInventoryFailure);
+        m_Network.On(NETMSG_RM_INVENTORY_SUCCESS, OnNetworkRemoveInventorySuccess);
+        m_Network.On(NETMSG_RM_INVENTORY_FAILURE, OnNetworkRemoveInventoryFailure);
         m_Network.On(NETMSG_PLAYER_SPAWN, OnNetworkPlayerSpawn);
         m_Network.On(NETMSG_PLAYER_EXIT, OnNetworkPlayerExit);
         m_Network.On(NETMSG_MOB_SPAWN, OnNetworkMobSpawn);
@@ -150,6 +171,8 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_PLAYER_UNEQUIP_SUCCESS, OnNetworkPlayerUnequipSuccess);
         m_Network.On(NETMSG_PLAYER_EQUIP_FAILURE, OnNetworkPlayerEquipFail);
         m_Network.On(NETMSG_PLAYER_UNEQUIP_FAILURE, OnNetworkPlayerUnequipFail);
+        m_Network.On(NETMSG_INTERACT_SHOP_SUCCESS, OnNetworkShopTerminalInteracted);
+        m_Network.On(NETMSG_TRADE_SHOP_SUCCESS, OnNetworkShopTerminalTradeSuccess);
     }
 
     private void OnDisable() {
@@ -213,6 +236,20 @@ public class NetworkController : GameSystem
         Log("Add inventory fail.");
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
         TryRunAction(OnAddInventoryFail, _msg);
+    }
+
+    private void OnNetworkRemoveInventorySuccess(SocketIOEvent _evt) {
+        Log("Remove inventory success.");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkInventoryRemoveData _data = NetworkInventoryRemoveData.FromJsonStr<NetworkInventoryRemoveData>(_msg);
+        TryRunAction(OnRemoveInventorySuccess, _data);
+    }
+
+    private void OnNetworkRemoveInventoryFailure(SocketIOEvent _evt) {
+        Log("Remove inventory fail.");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkInventoryRemoveData _data = NetworkInventoryRemoveData.FromJsonStr<NetworkInventoryRemoveData>(_msg);
+        TryRunAction(OnRemoveInventoryFailure, _data);
     }
 
     private void OnNetworkHitPlayer(SocketIOEvent _evt) {
@@ -329,6 +366,21 @@ public class NetworkController : GameSystem
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
         TryRunAction(OnPlayerUnequipFail, _msg);
     }
+    
+    private void OnNetworkShopTerminalInteracted(SocketIOEvent _evt) {
+        Log("Player interacted with shop terminal");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        NetworkShopTerminalData _data = NetworkShopTerminalData.FromJsonStr<NetworkShopTerminalData>(_msg);
+        TryRunAction(OnShopTerminalInteracted, _data);
+    }
+
+    private void OnNetworkShopTerminalTradeSuccess(SocketIOEvent _evt) {
+        Log("Player finished trade with shop terminal");
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+        Log(_msg);
+        NetworkShopTerminalTradeSuccessData _data = NetworkShopTerminalTradeSuccessData.FromJsonStr<NetworkShopTerminalTradeSuccessData>(_msg);
+        TryRunAction(OnShopTerminalTradeSuccess, _data);
+    }
 
     private void TryRunAction(BasicAction _action) {
         try {
@@ -418,6 +470,30 @@ public class NetworkController : GameSystem
         }
     }
 
+    private void TryRunAction(ShopTerminalAction _action, NetworkShopTerminalData _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
+    }
+
+    private void TryRunAction(ShopTerminalTradeAction _action, NetworkShopTerminalTradeSuccessData _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
+    }
+
+    private void TryRunAction(InventoryRemoveAction _action, NetworkInventoryRemoveData _data) {
+        try {
+            _action(_data);
+        } catch (System.Exception _e) {
+            Debug.LogWarning(_e);
+        }
+    }
+
     private void SendString(string _id, string _data) {
         //Log("Sending {\"message\":\""+_data+"\"} to "+_id);
         m_Network.Emit(_id, new JSONObject("{\"message\":\""+_data+"\"}"));
@@ -498,6 +574,14 @@ public class NetworkController : GameSystem
     
     public void Unequip(NetworkEquipData _data) {
         SendNetworkData<NetworkEquipData>(NETMSG_PLAYER_UNEQUIP, _data);
+    }
+
+    public void InteractShop(NetworkShopTerminalInteractData _data) {
+        SendNetworkData<NetworkShopTerminalInteractData>(NETMSG_INTERACT_SHOP, _data);
+    }
+
+    public void TradeShop(NetworkShopTerminalTradeData _data) {
+        SendNetworkData<NetworkShopTerminalTradeData>(NETMSG_TRADE_SHOP, _data);
     }
 #endregion
 }
