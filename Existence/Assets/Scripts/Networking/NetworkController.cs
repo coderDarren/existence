@@ -16,73 +16,6 @@ public class NetworkController : GameSystem
 {
     public static NetworkController instance;
 
-    /*
-     * Some helpful events to subscribe to..
-     * ..to help listeners get information from..
-     * ..network events
-     */
-    public delegate void BasicAction();
-    public event BasicAction OnConnect;
-    public event BasicAction OnDisconnect;
-    public delegate void StringAction(string _msg);
-    public event StringAction OnChat;
-    public event StringAction OnAddInventoryFail;
-    public delegate void InstanceUpdateAction(NetworkInstanceData _data);
-    public event InstanceUpdateAction OnHandshake;
-    public event InstanceUpdateAction OnInstanceUpdated;
-
-#region PLAYER NETWORK EVENTS
-    public delegate void PlayerAction(NetworkPlayerData _player);
-    public event PlayerAction OnPlayerJoined;
-    public event PlayerAction OnPlayerLeft;
-    public event PlayerAction OnPlayerSpawn;
-    public event StringAction OnPlayerExit;
-    public event StringAction OnInventoryAdded;
-    public delegate void PlayerHitAction(NetworkPlayerHitInfo _data);
-    public event PlayerHitAction OnPlayerHit;
-    public delegate void PlayerEquipAction(NetworkEquipSuccessData _data);
-    public event PlayerEquipAction OnPlayerEquipSuccess;
-    public event PlayerEquipAction OnPlayerUnequipSuccess;
-    public event StringAction OnPlayerEquipFail;
-    public event StringAction OnPlayerUnequipFail;
-#endregion
-
-#region INVENTORY NETWORK EVENTS
-    public delegate void InventoryRemoveAction(NetworkInventoryRemoveData _data);
-    public event InventoryRemoveAction OnRemoveInventorySuccess;
-    public event InventoryRemoveAction OnRemoveInventoryFailure;
-#endregion
-
-#region MOB NETWORK EVENTS
-    public delegate void MobAction(NetworkMobData _mob);
-    public event MobAction OnMobSpawn;
-    public event StringAction OnMobExit;
-    public event MobAction OnMobAttackRangeStateChange;
-    public event MobAction OnMobCombatStateChange;
-    public event MobAction OnMobHealthChange;
-    public delegate void MobAttackAction(NetworkMobAttackData _data);
-    public event MobAttackAction OnMobAttack;
-    public event MobAttackAction OnMobAttackStart;
-    public delegate void MobHitAction(NetworkMobHitInfo _data);
-    public event MobHitAction OnMobHit;
-    public delegate void MobDeathAction(NetworkMobDeathData _data);
-    public event MobDeathAction OnMobDeath;
-#endregion
-
-#region LOOT NETWORK EVENTS
-    public delegate void MobLootedAction(NetworkMobLootData _data);
-    public event MobLootedAction OnMobLooted;
-#endregion
-
-#region SHOP TERMINAL EVENTS
-    public delegate void ShopTerminalAction(NetworkShopTerminalData _data);
-    public event ShopTerminalAction OnShopTerminalInteracted;
-    public delegate void ShopTerminalTradeAction(NetworkShopTerminalTradeSuccessData _data);
-    public event ShopTerminalTradeAction OnShopTerminalTradeSuccess;
-#endregion
-
-    public bool usePredictiveSmoothing=true;
-
     private SocketIOComponent m_Network;
 
     private static readonly string NETMSG_CONNECT = "connect";
@@ -132,47 +65,78 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_TRADE_SHOP = "NETMSG_TRADE_SHOP";
     private static readonly string NETMSG_TRADE_SHOP_SUCCESS = "NETMSG_TRADE_SHOP_SUCCESS";
 
+    /*
+     * Some helpful events to subscribe to..
+     * ..to help listeners get information from..
+     * ..network events
+     */
+    public delegate void BasicAction();
+    public delegate void StringAction(string _msg);
+
+    public event BasicAction OnConnect;
+    public event BasicAction OnDisconnect;
+    
+    public NetworkEventHandler<string> chatEvt {get; private set;}
+    public NetworkEventHandler<NetworkInstanceData> handshakeEvt {get; private set;}
+    public NetworkEventHandler<NetworkInstanceData> instanceDataEvt {get; private set;}
+
+#region PLAYER NETWORK EVENTS
+    public NetworkEventHandler<NetworkPlayerData> playerJoinEvt {get; private set;}
+    public NetworkEventHandler<NetworkPlayerData> playerLeaveEvt {get; private set;}
+    public NetworkEventHandler<NetworkPlayerData> playerSpawnEvt {get; private set;}
+    public NetworkEventHandler<NetworkPlayerTransform> playerTransformEvt {get; private set;}
+    public NetworkEventHandler<NetworkPlayerLvl> playerLvlEvt {get; private set;}
+    public NetworkEventHandler<NetworkPlayerHealth> playerHealthEvt {get; private set;}
+    public NetworkEventHandler<NetworkPlayerUseSpecial> playerUseSpecialEvt {get; private set;}
+    public NetworkEventHandler<NetworkPlayerAttackStart> playerAttackStartEvt {get; private set;}
+    public NetworkEventHandler<NetworkPlayerAttackStop> playerAttackStopEvt {get; private set;}
+    public NetworkEventHandler<NetworkPlayerHitInfo> playerHitEvt {get; private set;}
+    public NetworkEventHandler<NetworkEquipSuccessData> playerEquipSuccessEvt {get; private set;}
+    public NetworkEventHandler<NetworkEquipSuccessData> playerUnequipSuccessEvt {get; private set;}
+    public NetworkEventHandler<string> playerEquipFailEvt {get; private set;}
+    public NetworkEventHandler<string> playerUnequipFailEvt {get; private set;}
+    public NetworkEventHandler<string> playerExitEvt {get; private set;}
+#endregion
+
+#region INVENTORY NETWORK EVENTS
+    public NetworkEventHandler<NetworkInventoryRemoveData> rmInventorySuccessEvt {get; private set;}
+    public NetworkEventHandler<NetworkInventoryRemoveData> rmInventoryFailEvt {get; private set;}
+    public NetworkEventHandler<string> addInventoryEvt {get; private set;}
+    public NetworkEventHandler<string> addInventoryFailEvt {get; private set;}
+#endregion
+
+#region MOB NETWORK EVENTS
+    public NetworkEventHandler<NetworkMobData> mobSpawnEvt;
+    public NetworkEventHandler<NetworkMobData> mobAttackRangeStateChangeEvt;
+    public NetworkEventHandler<NetworkMobData> mobCombatStateChangeEvt;
+    public NetworkEventHandler<NetworkMobData> mobHealthChangeEvt;
+    public NetworkEventHandler<string> mobExitEvt;
+    public NetworkEventHandler<NetworkMobAttackData> mobAttackEvt;
+    public NetworkEventHandler<NetworkMobAttackData> mobAttackStartEvt;
+    public NetworkEventHandler<NetworkMobHitInfo> mobHitEvt;
+    public NetworkEventHandler<NetworkMobDeathData> mobDeathEvt;
+#endregion
+
+#region LOOT NETWORK EVENTS
+    public NetworkEventHandler<NetworkMobLootData> mobLootEvt;
+#endregion
+
+#region SHOP TERMINAL EVENTS
+    public NetworkEventHandler<NetworkShopTerminalData> shopTerminalInteractEvt;
+    public NetworkEventHandler<NetworkShopTerminalTradeSuccessData> shopTerminalTradeSuccessEvt;
+#endregion
+
+    public bool usePredictiveSmoothing=true;
+
     public bool IsConnected { get { return m_Network.IsConnected; } }
 
 #region Unity Functions
     private void Awake() {
         if (instance == null) {
+            ConfigureEventHandlers();
+            SubscribeEventHandlers();
             instance = this;
         }
-    }
-
-    private void Start() {
-        m_Network = GetComponent<SocketIOComponent>();
-        m_Network.On(NETMSG_CONNECT, OnNetworkConnected);
-        m_Network.On(NETMSG_DISCONNECT, OnNetworkDisconnected);
-        m_Network.On(NETMSG_HANDSHAKE, OnNetworkHandshake);
-        m_Network.On(NETMSG_INSTANCE, OnInstanceUpdate);
-        m_Network.On(NETMSG_PLAYER_JOINED, OnNetworkPlayerJoined);
-        m_Network.On(NETMSG_PLAYER_LEFT, OnNetworkPlayerLeft);
-        m_Network.On(NETMSG_CHAT, OnNetworkChat);
-        m_Network.On(NETMSG_MOB_HIT_PLAYER, OnNetworkHitPlayer);
-        m_Network.On(NETMSG_MOB_ATTACK, OnNetworkMobAttack);
-        m_Network.On(NETMSG_ADD_INVENTORY_SUCCESS, OnAddInventorySuccess);
-        m_Network.On(NETMSG_ADD_INVENTORY_FAILURE, OnAddInventoryFailure);
-        m_Network.On(NETMSG_RM_INVENTORY_SUCCESS, OnNetworkRemoveInventorySuccess);
-        m_Network.On(NETMSG_RM_INVENTORY_FAILURE, OnNetworkRemoveInventoryFailure);
-        m_Network.On(NETMSG_PLAYER_SPAWN, OnNetworkPlayerSpawn);
-        m_Network.On(NETMSG_PLAYER_EXIT, OnNetworkPlayerExit);
-        m_Network.On(NETMSG_MOB_SPAWN, OnNetworkMobSpawn);
-        m_Network.On(NETMSG_MOB_EXIT, OnNetworkMobExit);
-        m_Network.On(NETMSG_MOB_COMBAT_STATE_CHANGE, OnNetworkMobCombatStateChange);
-        m_Network.On(NETMSG_MOB_ATTACK_RANGE_CHANGE, OnNetworkMobAttackRangeStateChange);
-        m_Network.On(NETMSG_MOB_HEALTH_CHANGE, OnNetworkMobHealthChange);
-        m_Network.On(NETMSG_MOB_ATTACK_START, OnNetworkMobAttackStart);
-        m_Network.On(NETMSG_PLAYER_HIT_MOB_CONFIRMATION, OnNetworkPlayerHitMobConfirmation);
-        m_Network.On(NETMSG_MOB_DEATH, OnNetworkMobDeath);
-        m_Network.On(NETMSG_MOB_LOOTED, OnNetworkMobLooted);
-        m_Network.On(NETMSG_PLAYER_EQUIP_SUCCESS, OnNetworkPlayerEquipSuccess);
-        m_Network.On(NETMSG_PLAYER_UNEQUIP_SUCCESS, OnNetworkPlayerUnequipSuccess);
-        m_Network.On(NETMSG_PLAYER_EQUIP_FAILURE, OnNetworkPlayerEquipFail);
-        m_Network.On(NETMSG_PLAYER_UNEQUIP_FAILURE, OnNetworkPlayerUnequipFail);
-        m_Network.On(NETMSG_INTERACT_SHOP_SUCCESS, OnNetworkShopTerminalInteracted);
-        m_Network.On(NETMSG_TRADE_SHOP_SUCCESS, OnNetworkShopTerminalTradeSuccess);
     }
 
     private void OnDisable() {
@@ -182,6 +146,103 @@ public class NetworkController : GameSystem
 #endregion
 
 #region Private Functions
+    private void ConfigureEventHandlers() {
+        chatEvt = new NetworkEventHandler<string>("Incoming chat", debug);
+        handshakeEvt = new NetworkEventHandler<NetworkInstanceData>("Incoming handshake.", debug);        
+        instanceDataEvt = new NetworkEventHandler<NetworkInstanceData>("Network instance updated.", debug);
+        
+        // player events
+        playerJoinEvt = new NetworkEventHandler<NetworkPlayerData>("Player joined.", debug);
+        playerLeaveEvt = new NetworkEventHandler<NetworkPlayerData>("Player left.", debug);
+        playerSpawnEvt = new NetworkEventHandler<NetworkPlayerData>("Player entered range.", debug);
+        playerTransformEvt = new NetworkEventHandler<NetworkPlayerTransform>("Player transform changed.", debug);
+        playerLvlEvt = new NetworkEventHandler<NetworkPlayerLvl>("Player lvl changed.", debug);
+        playerHealthEvt = new NetworkEventHandler<NetworkPlayerHealth>("Player health changed.", debug);
+        playerAttackStartEvt = new NetworkEventHandler<NetworkPlayerAttackStart>("Player started attacking.", debug);
+        playerAttackStopEvt = new NetworkEventHandler<NetworkPlayerAttackStop>("Player stopped attacking.", debug);
+        playerHitEvt = new NetworkEventHandler<NetworkPlayerHitInfo>("Player hit mob.", debug);
+        playerEquipSuccessEvt = new NetworkEventHandler<NetworkEquipSuccessData>("Player equipped.", debug);
+        playerUnequipSuccessEvt = new NetworkEventHandler<NetworkEquipSuccessData>("Player unequipped.", debug);
+        playerEquipFailEvt = new NetworkEventHandler<string>("Player failed to equip.", debug);
+        playerUnequipFailEvt = new NetworkEventHandler<string>("Player failed to unequip.", debug);
+        playerExitEvt = new NetworkEventHandler<string>("Player exited range.", debug);
+
+        // inventory events
+        rmInventorySuccessEvt = new NetworkEventHandler<NetworkInventoryRemoveData>("Successfully removed inventory.", debug);
+        rmInventoryFailEvt = new NetworkEventHandler<NetworkInventoryRemoveData>("Failed to remove inventory.", debug);
+        addInventoryEvt = new NetworkEventHandler<string>("Successfully added inventory.", debug);
+        addInventoryFailEvt = new NetworkEventHandler<string>("Failed to add inventory.", debug);
+
+        // mob events
+        mobSpawnEvt = new NetworkEventHandler<NetworkMobData>("Mob spawned.", debug);
+        mobAttackRangeStateChangeEvt = new NetworkEventHandler<NetworkMobData>("Mob attack range state changed.", debug);
+        mobCombatStateChangeEvt = new NetworkEventHandler<NetworkMobData>("Mob combat state changed.", debug);
+        mobHealthChangeEvt = new NetworkEventHandler<NetworkMobData>("Mob health changed.", debug);
+        mobExitEvt = new NetworkEventHandler<string>("Mob exited range.", debug);
+        mobAttackEvt = new NetworkEventHandler<NetworkMobAttackData>("Mob attacked.", debug);
+        mobAttackStartEvt = new NetworkEventHandler<NetworkMobAttackData>("Mob started attacking.", debug);
+        mobHitEvt = new NetworkEventHandler<NetworkMobHitInfo>("Mob hit player.", debug);
+        mobDeathEvt = new NetworkEventHandler<NetworkMobDeathData>("Mob died.", debug);
+
+        // loot events
+        mobLootEvt = new NetworkEventHandler<NetworkMobLootData>("Mob looted.", debug);
+
+        // shop terminal events
+        shopTerminalInteractEvt = new NetworkEventHandler<NetworkShopTerminalData>("Shop terminal was interacted with.", debug);
+        shopTerminalTradeSuccessEvt = new NetworkEventHandler<NetworkShopTerminalTradeSuccessData>("Shop terminal trade was successful.", debug);
+    }
+
+    private void SubscribeEventHandlers() {
+        m_Network = GetComponent<SocketIOComponent>();
+
+        // server events
+        m_Network.On(NETMSG_CONNECT, OnNetworkConnected);
+        m_Network.On(NETMSG_DISCONNECT, OnNetworkDisconnected);
+        m_Network.On(NETMSG_HANDSHAKE, handshakeEvt.HandleEvt);
+        m_Network.On(NETMSG_INSTANCE, instanceDataEvt.HandleEvt);
+        m_Network.On(NETMSG_CHAT, chatEvt.HandleEvt);
+
+        // player events
+        m_Network.On(NETMSG_PLAYER_SPAWN, playerSpawnEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_EXIT, playerExitEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_JOINED, playerJoinEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_LEFT, playerLeaveEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_TRANSFORM_CHANGE, playerTransformEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_LVL_CHANGE, playerLvlEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_HEALTH_CHANGE, playerHealthEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_ATTACK_START, playerAttackStartEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_ATTACK_STOP, playerAttackStopEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_HIT_MOB_CONFIRMATION, playerHitEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_EQUIP_SUCCESS, playerEquipSuccessEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_UNEQUIP_SUCCESS, playerUnequipSuccessEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_EQUIP_FAILURE, playerEquipFailEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_UNEQUIP_FAILURE, playerUnequipFailEvt.HandleEvt);
+
+        // inventory events
+        m_Network.On(NETMSG_ADD_INVENTORY_SUCCESS, addInventoryEvt.HandleEvt);
+        m_Network.On(NETMSG_ADD_INVENTORY_FAILURE, addInventoryFailEvt.HandleEvt);
+        m_Network.On(NETMSG_RM_INVENTORY_SUCCESS, rmInventorySuccessEvt.HandleEvt);
+        m_Network.On(NETMSG_RM_INVENTORY_FAILURE, rmInventoryFailEvt.HandleEvt);
+
+        // mob events
+        m_Network.On(NETMSG_MOB_SPAWN, mobSpawnEvt.HandleEvt);
+        m_Network.On(NETMSG_MOB_EXIT, mobExitEvt.HandleEvt);
+        m_Network.On(NETMSG_MOB_COMBAT_STATE_CHANGE, mobCombatStateChangeEvt.HandleEvt);
+        m_Network.On(NETMSG_MOB_ATTACK_RANGE_CHANGE, mobAttackRangeStateChangeEvt.HandleEvt);
+        m_Network.On(NETMSG_MOB_HEALTH_CHANGE, mobHealthChangeEvt.HandleEvt);
+        m_Network.On(NETMSG_MOB_ATTACK_START, mobAttackStartEvt.HandleEvt);
+        m_Network.On(NETMSG_MOB_DEATH, mobDeathEvt.HandleEvt);
+        m_Network.On(NETMSG_MOB_HIT_PLAYER, mobHitEvt.HandleEvt);
+        m_Network.On(NETMSG_MOB_ATTACK, mobAttackEvt.HandleEvt);
+
+        // loot events
+        m_Network.On(NETMSG_MOB_LOOTED, mobLootEvt.HandleEvt);
+
+        // shop terminal events
+        m_Network.On(NETMSG_INTERACT_SHOP_SUCCESS, shopTerminalInteractEvt.HandleEvt);
+        m_Network.On(NETMSG_TRADE_SHOP_SUCCESS, shopTerminalTradeSuccessEvt.HandleEvt);
+    }
+
     private void OnNetworkConnected(SocketIOEvent _evt) {
         Log("Successfully connected to the server.");
         TryRunAction(OnConnect);
@@ -192,303 +253,9 @@ public class NetworkController : GameSystem
         TryRunAction(OnDisconnect);
     }
 
-    private void OnNetworkHandshake(SocketIOEvent _evt) {
-        Log("Handshake received from the server.");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkInstanceData _instance = NetworkInstanceData.FromJsonStr<NetworkInstanceData>(_msg);
-        TryRunAction(OnHandshake, _instance);
-    }
-
-    private void OnNetworkPlayerJoined(SocketIOEvent _evt) {
-        Log("Player joined the server.");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkPlayerData _player = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
-        TryRunAction(OnPlayerJoined, _player);
-    }
-
-    private void OnNetworkPlayerLeft(SocketIOEvent _evt) {
-        Log("Player left the server.");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkPlayerData _player = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
-        TryRunAction(OnPlayerLeft, _player);
-    }
-
-    private void OnInstanceUpdate(SocketIOEvent _evt) {
-        Log("Instance was updated from the server.");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkInstanceData _instance = NetworkInstanceData.FromJsonStr<NetworkInstanceData>(_msg);
-        TryRunAction(OnInstanceUpdated, _instance);
-    }
-
-    private void OnNetworkChat(SocketIOEvent _evt) {
-        Log("Incoming chat from the server.");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        TryRunAction(OnChat, _msg);
-    }
-
-    private void OnAddInventorySuccess(SocketIOEvent _evt) {
-        Log("Add inventory success.");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        TryRunAction(OnInventoryAdded, _msg);
-    }
-
-    private void OnAddInventoryFailure(SocketIOEvent _evt) {
-        Log("Add inventory fail.");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        TryRunAction(OnAddInventoryFail, _msg);
-    }
-
-    private void OnNetworkRemoveInventorySuccess(SocketIOEvent _evt) {
-        Log("Remove inventory success.");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkInventoryRemoveData _data = NetworkInventoryRemoveData.FromJsonStr<NetworkInventoryRemoveData>(_msg);
-        TryRunAction(OnRemoveInventorySuccess, _data);
-    }
-
-    private void OnNetworkRemoveInventoryFailure(SocketIOEvent _evt) {
-        Log("Remove inventory fail.");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkInventoryRemoveData _data = NetworkInventoryRemoveData.FromJsonStr<NetworkInventoryRemoveData>(_msg);
-        TryRunAction(OnRemoveInventoryFailure, _data);
-    }
-
-    private void OnNetworkHitPlayer(SocketIOEvent _evt) {
-        Log("Player was hit");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkPlayerHitInfo _info = NetworkPlayerHitInfo.FromJsonStr<NetworkPlayerHitInfo>(_msg);
-        TryRunAction(OnPlayerHit, _info);
-    }
-    
-    private void OnNetworkMobAttack(SocketIOEvent _evt) {
-        Log("Mob attacked");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkMobAttackData _data = NetworkMobAttackData.FromJsonStr<NetworkMobAttackData>(_msg);
-        TryRunAction(OnMobAttack, _data);
-    }
-
-    private void OnNetworkMobAttackStart(SocketIOEvent _evt) {
-        Log("Mob started attacking");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkMobAttackData _data = NetworkMobAttackData.FromJsonStr<NetworkMobAttackData>(_msg);
-        TryRunAction(OnMobAttackStart, _data);
-    }
-
-    private void OnNetworkPlayerSpawn(SocketIOEvent _evt) {
-        Log("Player spawned");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkPlayerData _data = NetworkPlayerData.FromJsonStr<NetworkPlayerData>(_msg);
-        TryRunAction(OnPlayerSpawn, _data);
-    }
-
-    private void OnNetworkPlayerExit(SocketIOEvent _evt) {
-        Log("Player out of range");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        TryRunAction(OnPlayerExit, _msg);
-    }
-
-    private void OnNetworkMobSpawn(SocketIOEvent _evt) {
-        Log("Mob spawned");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkMobData _data = NetworkMobData.FromJsonStr<NetworkMobData>(_msg);
-        TryRunAction(OnMobSpawn, _data);
-    }
-
-    private void OnNetworkMobExit(SocketIOEvent _evt) {
-        Log("Mob out of range");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        TryRunAction(OnMobExit, _msg);
-    }
-
-    private void OnNetworkMobAttackRangeStateChange(SocketIOEvent _evt) {
-        Log("Mob attack range state changed");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkMobData _data = NetworkMobData.FromJsonStr<NetworkMobData>(_msg);
-        TryRunAction(OnMobAttackRangeStateChange, _data);
-    }
-
-    private void OnNetworkMobCombatStateChange(SocketIOEvent _evt) {
-        Log("Mob combat state changed");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkMobData _data = NetworkMobData.FromJsonStr<NetworkMobData>(_msg);
-        TryRunAction(OnMobCombatStateChange, _data);
-    }
-
-    private void OnNetworkMobHealthChange(SocketIOEvent _evt) {
-        Log("Mob health changed");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkMobData _data = NetworkMobData.FromJsonStr<NetworkMobData>(_msg);
-        TryRunAction(OnMobHealthChange, _data);
-    }
-
-    private void OnNetworkPlayerHitMobConfirmation(SocketIOEvent _evt) {
-        Log("Received confirmation of player hitting mob");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkMobHitInfo _data = NetworkMobHitInfo.FromJsonStr<NetworkMobHitInfo>(_msg);
-        TryRunAction(OnMobHit, _data);
-    }
-
-    private void OnNetworkMobDeath(SocketIOEvent _evt) {
-        Log("Mob died");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkMobDeathData _data = NetworkMobDeathData.FromJsonStr<NetworkMobDeathData>(_msg);
-        TryRunAction(OnMobDeath, _data);
-    }
-
-    private void OnNetworkMobLooted(SocketIOEvent _evt) {
-        Log("Mob died");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkMobLootData _data = NetworkMobLootData.FromJsonStr<NetworkMobLootData>(_msg);
-        TryRunAction(OnMobLooted, _data);
-    }
-
-    private void OnNetworkPlayerEquipSuccess(SocketIOEvent _evt) {
-        Log("Player equip succeeded");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkEquipSuccessData _data = NetworkEquipSuccessData.FromJsonStr<NetworkEquipSuccessData>(_msg);
-        TryRunAction(OnPlayerEquipSuccess, _data);
-    }
-
-    private void OnNetworkPlayerUnequipSuccess(SocketIOEvent _evt) {
-        Log("Player unequip succeeded");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkEquipSuccessData _data = NetworkEquipSuccessData.FromJsonStr<NetworkEquipSuccessData>(_msg);
-        TryRunAction(OnPlayerUnequipSuccess, _data);
-    }
-
-    private void OnNetworkPlayerEquipFail(SocketIOEvent _evt) {
-        Log("Player equip failed");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        TryRunAction(OnPlayerEquipFail, _msg);
-    }
-
-    private void OnNetworkPlayerUnequipFail(SocketIOEvent _evt) {
-        Log("Player unequip failed");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        TryRunAction(OnPlayerUnequipFail, _msg);
-    }
-    
-    private void OnNetworkShopTerminalInteracted(SocketIOEvent _evt) {
-        Log("Player interacted with shop terminal");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        NetworkShopTerminalData _data = NetworkShopTerminalData.FromJsonStr<NetworkShopTerminalData>(_msg);
-        TryRunAction(OnShopTerminalInteracted, _data);
-    }
-
-    private void OnNetworkShopTerminalTradeSuccess(SocketIOEvent _evt) {
-        Log("Player finished trade with shop terminal");
-        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
-        Log(_msg);
-        NetworkShopTerminalTradeSuccessData _data = NetworkShopTerminalTradeSuccessData.FromJsonStr<NetworkShopTerminalTradeSuccessData>(_msg);
-        TryRunAction(OnShopTerminalTradeSuccess, _data);
-    }
-
     private void TryRunAction(BasicAction _action) {
         try {
             _action();
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(StringAction _action, string _msg) {
-        try {
-            _action(_msg);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(PlayerAction _action, NetworkPlayerData _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(InstanceUpdateAction _action, NetworkInstanceData _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(PlayerHitAction _action, NetworkPlayerHitInfo _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(MobAttackAction _action, NetworkMobAttackData _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(MobAction _action, NetworkMobData _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(MobHitAction _action, NetworkMobHitInfo _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(MobDeathAction _action, NetworkMobDeathData _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(MobLootedAction _action, NetworkMobLootData _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(PlayerEquipAction _action, NetworkEquipSuccessData _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(ShopTerminalAction _action, NetworkShopTerminalData _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(ShopTerminalTradeAction _action, NetworkShopTerminalTradeSuccessData _data) {
-        try {
-            _action(_data);
-        } catch (System.Exception _e) {
-            Debug.LogWarning(_e);
-        }
-    }
-
-    private void TryRunAction(InventoryRemoveAction _action, NetworkInventoryRemoveData _data) {
-        try {
-            _action(_data);
         } catch (System.Exception _e) {
             Debug.LogWarning(_e);
         }
@@ -539,16 +306,16 @@ public class NetworkController : GameSystem
         SendNetworkData<NetworkPlayerUseSpecial>(NETMSG_PLAYER_USE_SPECIAL, _data);
     }
 
-    public void SendPlayerHealthChange(NetworkPlayerHealthChange _data) {
-        SendNetworkData<NetworkPlayerHealthChange>(NETMSG_PLAYER_HEALTH_CHANGE, _data);
+    public void SendPlayerHealthChange(NetworkPlayerHealth _data) {
+        SendNetworkData<NetworkPlayerHealth>(NETMSG_PLAYER_HEALTH_CHANGE, _data);
     }
 
-    public void SendPlayerLevelChange(NetworkPlayerLvlChange _data) {
-        SendNetworkData<NetworkPlayerLvlChange>(NETMSG_PLAYER_LVL_CHANGE, _data);
+    public void SendPlayerLevelChange(NetworkPlayerLvl _data) {
+        SendNetworkData<NetworkPlayerLvl>(NETMSG_PLAYER_LVL_CHANGE, _data);
     }
 
-    public void SendPlayerTransformChange(NetworkPlayerTransformChange _data) {
-        SendNetworkData<NetworkPlayerTransformChange>(NETMSG_PLAYER_TRANSFORM_CHANGE, _data);
+    public void SendPlayerTransformChange(NetworkPlayerTransform _data) {
+        SendNetworkData<NetworkPlayerTransform>(NETMSG_PLAYER_TRANSFORM_CHANGE, _data);
     }
 
     public void HitMob(NetworkMobHitInfo _data) {
@@ -556,7 +323,6 @@ public class NetworkController : GameSystem
     }
 
     public void SaveInventory(NetworkInventoryUpdate _data) {
-        Log("Saving inventory "+_data.slotID+"-"+_data.slotLoc);
         SendNetworkData<NetworkInventoryUpdate>(NETMSG_INVENTORY_CHANGED, _data);
     }
 
@@ -584,4 +350,75 @@ public class NetworkController : GameSystem
         SendNetworkData<NetworkShopTerminalTradeData>(NETMSG_TRADE_SHOP, _data);
     }
 #endregion
+}
+
+/*
+ * This class designed in response to unwieldy network methods..
+ * Solves an issue where each NetworkModel type would require its..
+ * ..own "HandleEvt()" and "TryRunAction()" functions
+ *
+ * This class supports NetworkModel and string types
+ */
+public class NetworkEventHandler<T> {
+    
+    public delegate void NetworkAction(T _data);
+    public delegate void StringAction(string _msg);
+
+    public event NetworkAction OnEvt;
+    public event StringAction OnMsg;
+
+    private string m_EvtLog;
+    private bool m_Debug;
+    private bool m_Invalid;
+
+    public NetworkEventHandler(string _evtLog, bool _debug) {
+        m_EvtLog = _evtLog;
+        m_Debug = _debug;
+
+        if (!typeof(NetworkModel).IsAssignableFrom(typeof(T)) && !typeof(string).IsAssignableFrom(typeof(T))) {
+            m_Invalid = true;
+            Debug.LogError("Network Event Handler for event must be of type NetworkModel or string: "+_evtLog);
+        }
+    }
+
+    public void HandleEvt(SocketIOEvent _evt) {
+        if (m_Invalid) return;
+
+        if (m_Debug) {
+            Debug.Log(m_EvtLog);
+        }
+
+        string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
+
+        if (typeof(T) == typeof(NetworkModel)) {
+            T _netData = NetworkModel.FromJsonStr<T>(_msg);
+            TryRunAction(OnEvt, _netData);
+        } else if (typeof(T) == typeof(string)) {
+            TryRunAction(OnMsg, _msg);
+        }
+    }
+
+    private void TryRunAction(NetworkAction _action, T _data) {
+        if (m_Invalid) return;
+
+        try {
+            _action(_data);
+        } catch (System.Exception _e) {
+            if (m_Debug) {
+                Debug.LogWarning(_e);
+            }
+        }
+    }
+
+    private void TryRunAction(StringAction _action, string _data) {
+        if (m_Invalid) return;
+
+        try {
+            _action(_data);
+        } catch (System.Exception _e) {
+            if (m_Debug) {
+                Debug.LogWarning(_e);
+            }
+        }
+    }
 }

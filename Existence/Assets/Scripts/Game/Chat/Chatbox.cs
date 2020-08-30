@@ -63,18 +63,18 @@ public class Chatbox : GameSystem
         if (network) {
             network.OnConnect += OnServerConnect;
             network.OnDisconnect += OnServerDisconnect;
-            network.OnHandshake += OnServerHandshake;
-            network.OnPlayerJoined += OnPlayerJoined;
-            network.OnPlayerLeft += OnPlayerLeft;
-            network.OnChat += OnChat;
-            network.OnInventoryAdded += OnInventoryAdded;
-            network.OnAddInventoryFail += OnAddInventoryFail;
-            network.OnPlayerHit += OnPlayerHit;
-            network.OnMobAttackStart += OnMobAttackStart;
-            network.OnMobHit += OnMobHit;
-            network.OnMobDeath += OnMobDeath;
-            network.OnPlayerEquipSuccess += OnPlayerEquipSuccess;
-            network.OnPlayerUnequipSuccess += OnPlayerUnequipSuccess;
+            network.handshakeEvt.OnEvt += OnServerHandshake;
+            network.playerJoinEvt.OnEvt += OnPlayerJoined;
+            network.playerLeaveEvt.OnEvt += OnPlayerLeft;
+            network.chatEvt.OnEvt += OnChat;
+            network.addInventoryEvt.OnEvt += OnInventoryAdded;
+            network.addInventoryFailEvt.OnEvt += OnAddInventoryFail;
+            network.playerHitEvt.OnEvt += OnPlayerHit;
+            network.mobAttackStartEvt.OnEvt += OnMobAttackStart;
+            network.mobHitEvt.OnEvt += OnMobHit;
+            network.mobDeathEvt.OnEvt += OnMobDeath;
+            network.playerEquipSuccessEvt.OnEvt += OnPlayerEquipSuccess;
+            network.playerUnequipSuccessEvt.OnEvt += OnPlayerUnequipSuccess;
         }
     }
 
@@ -96,18 +96,18 @@ public class Chatbox : GameSystem
         if (network) {
             network.OnConnect -= OnServerConnect;
             network.OnDisconnect -= OnServerDisconnect;
-            network.OnHandshake -= OnServerHandshake;
-            network.OnPlayerJoined -= OnPlayerJoined;
-            network.OnPlayerLeft -= OnPlayerLeft;
-            network.OnChat -= OnChat;
-            network.OnInventoryAdded -= OnInventoryAdded;
-            network.OnAddInventoryFail -= OnAddInventoryFail;
-            network.OnPlayerHit -= OnPlayerHit;
-            network.OnMobAttackStart -= OnMobAttackStart;
-            network.OnMobHit -= OnMobHit;
-            network.OnMobDeath -= OnMobDeath;
-            network.OnPlayerEquipSuccess -= OnPlayerEquipSuccess;
-            network.OnPlayerUnequipSuccess -= OnPlayerUnequipSuccess;
+            network.handshakeEvt.OnEvt -= OnServerHandshake;
+            network.playerJoinEvt.OnEvt -= OnPlayerJoined;
+            network.playerLeaveEvt.OnEvt -= OnPlayerLeft;
+            network.chatEvt.OnEvt -= OnChat;
+            network.addInventoryEvt.OnEvt -= OnInventoryAdded;
+            network.addInventoryFailEvt.OnEvt -= OnAddInventoryFail;
+            network.playerHitEvt.OnEvt -= OnPlayerHit;
+            network.mobAttackStartEvt.OnEvt -= OnMobAttackStart;
+            network.mobHitEvt.OnEvt -= OnMobHit;
+            network.mobDeathEvt.OnEvt -= OnMobDeath;
+            network.playerEquipSuccessEvt.OnEvt -= OnPlayerEquipSuccess;
+            network.playerUnequipSuccessEvt.OnEvt -= OnPlayerUnequipSuccess;
         }
 
         if (session) {

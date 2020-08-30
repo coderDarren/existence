@@ -27,7 +27,7 @@ public class LootPreviewItem : InspectablePreviewItem, IPointerClickHandler
     private void OnEnable() {
         if (!session) return;
         if (!session.network) return;
-        session.network.OnMobLooted += OnMobLooted;
+        session.network.mobLootEvt.OnEvt += OnMobLooted;
     }
 #endregion
 
@@ -77,7 +77,7 @@ public class LootPreviewItem : InspectablePreviewItem, IPointerClickHandler
         base.Dispose();
         if (!session) return;
         if (!session.network) return;
-        session.network.OnMobLooted -= OnMobLooted;
+        session.network.mobLootEvt.OnEvt -= OnMobLooted;
     }
 #endregion
 }

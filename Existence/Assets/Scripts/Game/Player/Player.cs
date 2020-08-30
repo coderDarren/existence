@@ -195,16 +195,18 @@ public class Player : GameSystem
         //InitializeTestEquipment();
 
         if (session && session.network) {
-            session.network.OnMobDeath += OnMobDeath;
-            session.network.OnShopTerminalTradeSuccess += OnShopTerminalTradeSuccess;
+            session.network.mobDeathEvt.OnEvt += OnMobDeath;
+            session.network.shopTerminalTradeSuccessEvt.OnEvt += OnShopTerminalTradeSuccess;
         } 
     }
 
     public void Dispose() {
         if (!session) return;
         if (!session.network) return;
-        session.network.OnMobDeath -= OnMobDeath;
-        session.network.OnShopTerminalTradeSuccess -= OnShopTerminalTradeSuccess;
+        if (session && session.network) {
+            session.network.mobDeathEvt.OnEvt -= OnMobDeath;
+            session.network.shopTerminalTradeSuccessEvt.OnEvt -= OnShopTerminalTradeSuccess;
+        }
     }
 
     public void SaveBaselineStats(StatData _stats) {
