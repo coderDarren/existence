@@ -32,6 +32,7 @@ public class TestTextureUpdates : MonoBehaviour
             EquipTex(sleeves, sleevesBounds);
         }
 
+// Delete this section once equip slots call proper function.
         if (Input.GetKeyDown(KeyCode.V)) 
             EquipTex(body, bodyBounds);   
         
@@ -40,6 +41,18 @@ public class TestTextureUpdates : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.N))
             EquipTex(sleeves, sleevesBounds);       
+    }
+
+    public void EquipChest(){
+        EquipTex(body, bodyBounds);
+    }
+
+    public void EquipPants(){
+        EquipTex(pants, pantsBounds);
+    }
+
+    public void EquipSleeves(){
+        EquipTex(sleeves, sleevesBounds); 
     }
 
     private void EquipTex(Texture2D _slot, Utilities.RectBounds _bounds){
