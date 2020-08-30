@@ -61,7 +61,7 @@ public class Utilities
     public static Texture2D InsertTextureIntoTextureBounds(Texture2D _insertTex, Texture2D _intoTex, RectBounds _bounds) {
         for (int y = _bounds.minY; y <= _bounds.maxY; y++) {
             for (int x = _bounds.minX; x <= _bounds.maxX; x++) {
-                Color _c = _insertTex.GetPixel(_bounds.maxX - x, _bounds.maxY - y);
+                Color _c = _insertTex.GetPixel(x - _bounds.maxX, y - _bounds.maxY);
                 _intoTex.SetPixel(x, y, _c);
             }
         }
