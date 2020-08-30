@@ -62,7 +62,7 @@ public class Utilities
         for (int y = _bounds.minY; y <= _bounds.maxY; y++) {
             for (int x = _bounds.minX; x <= _bounds.maxX; x++) {
                 Color _c = _insertTex.GetPixel(x - _bounds.maxX, y - _bounds.maxY);
-                _intoTex.SetPixel(_intoTex.width - x, _intoTex.height - y, _c);
+                _intoTex.SetPixel(x, y, _c);
             }
         }
         _intoTex.Apply();

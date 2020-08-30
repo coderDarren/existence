@@ -3,36 +3,69 @@ using UnityEngine;
 
 public class TestTextureUpdates : MonoBehaviour
 {
-    public Texture2D body1, body2, pants1, pants2, armor;
-    public Utilities.RectBounds bodyBounds, pantsBounds, armorBounds;
-    
+    public Texture2D storedTex;
+    public Texture2D body, pants, sleeves, bodySkin, pantsSkin, sleevesSkin;
+    public Utilities.RectBounds bodyBounds, pantsBounds, sleevesBounds;
+        
     private Material m_Material;
+    private Texture2D m_CopyTex;
 
 #region Unity Functions
-    private void Start() {
-        m_Material = GetComponent<MeshRenderer>().materials[0];
+     private void Start() {
+        m_Material = GetComponent<MeshRenderer>().sharedMaterials[0];
+        m_CopyTex = Instantiate(m_Material.mainTexture) as Texture2D;
     }
 
     private void Update() {
-        if (Input.GetKeyDown(KeyCode.Q)) {
-            m_Material.mainTexture = (Texture)Utilities.InsertTextureIntoTextureBounds(body1, (Texture2D)m_Material.mainTexture, bodyBounds);
-        }
-        
-        if (Input.GetKeyDown(KeyCode.W)) {
-            m_Material.mainTexture = (Texture)Utilities.InsertTextureIntoTextureBounds(body2, (Texture2D)m_Material.mainTexture, bodyBounds);
-        }
-        
-        if (Input.GetKeyDown(KeyCode.E)) {
-            m_Material.mainTexture = (Texture)Utilities.InsertTextureIntoTextureBounds(pants1, (Texture2D)m_Material.mainTexture, pantsBounds);
-        }
-        
-        if (Input.GetKeyDown(KeyCode.R)) {
-            m_Material.mainTexture = (Texture)Utilities.InsertTextureIntoTextureBounds(pants2, (Texture2D)m_Material.mainTexture, pantsBounds);
+        if(!body){
+            body = bodySkin;
+            EquipTex(body, bodyBounds);
         }
 
-        if (Input.GetKeyDown(KeyCode.T)) {
-            m_Material.mainTexture = (Texture)Utilities.InsertTextureIntoTextureBounds(armor, (Texture2D)m_Material.mainTexture, armorBounds);
+        if(!pants){
+            pants = pantsSkin;
+            EquipTex(pants, pantsBounds); 
         }
+
+        if(!sleeves){
+            sleeves = sleevesSkin;
+            EquipTex(sleeves, sleevesBounds);
+        }
+
+// Delete this section once equip slots call proper function.
+        if (Input.GetKeyDown(KeyCode.V)) 
+            EquipTex(body, bodyBounds);   
+        
+        if (Input.GetKeyDown(KeyCode.B))
+            EquipTex(pants, pantsBounds);
+
+        if (Input.GetKeyDown(KeyCode.N))
+            EquipTex(sleeves, sleevesBounds);       
+    }
+
+    public void EquipChest(){
+        EquipTex(body, bodyBounds);
+    }
+
+    public void EquipPants(){
+        EquipTex(pants, pantsBounds);
+    }
+
+    public void EquipSleeves(){
+        EquipTex(sleeves, sleevesBounds); 
+    }
+
+    private void EquipTex(Texture2D _slot, Utilities.RectBounds _bounds){
+        m_CopyTex = (Texture2D)Utilities.InsertTextureIntoTextureBounds(_slot, (Texture2D)m_CopyTex, _bounds);
+            m_Material.mainTexture = m_CopyTex;
+            StoreTex();
+    }
+
+    private async void StoreTex(){
+        Color32[] _color = m_CopyTex.GetPixels32();
+        storedTex.SetPixels32(_color);
+        storedTex.Apply();
+        m_Material.mainTexture = storedTex;       
     }
 #endregion
 }
