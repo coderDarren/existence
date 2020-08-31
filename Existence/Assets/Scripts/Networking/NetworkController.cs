@@ -90,7 +90,7 @@ public class NetworkController : GameSystem
     public NetworkEventHandler<NetworkPlayerUseSpecial> playerUseSpecialEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerAttackStart> playerAttackStartEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerAttackStop> playerAttackStopEvt {get; private set;}
-    public NetworkEventHandler<NetworkPlayerHitInfo> playerHitEvt {get; private set;}
+    public NetworkEventHandler<NetworkMobHitInfo> playerHitEvt {get; private set;}
     public NetworkEventHandler<NetworkEquipSuccessData> playerEquipSuccessEvt {get; private set;}
     public NetworkEventHandler<NetworkEquipSuccessData> playerUnequipSuccessEvt {get; private set;}
     public NetworkEventHandler<string> playerEquipFailEvt {get; private set;}
@@ -113,7 +113,7 @@ public class NetworkController : GameSystem
     public NetworkEventHandler<string> mobExitEvt;
     public NetworkEventHandler<NetworkMobAttackData> mobAttackEvt;
     public NetworkEventHandler<NetworkMobAttackData> mobAttackStartEvt;
-    public NetworkEventHandler<NetworkMobHitInfo> mobHitEvt;
+    public NetworkEventHandler<NetworkPlayerHitInfo> mobHitEvt;
     public NetworkEventHandler<NetworkMobDeathData> mobDeathEvt;
 #endregion
 
@@ -133,13 +133,18 @@ public class NetworkController : GameSystem
 #region Unity Functions
     private void Awake() {
         if (instance == null) {
-            ConfigureEventHandlers();
-            SubscribeEventHandlers();
             instance = this;
+            ConfigureEventHandlers();
         }
     }
 
+    private void Start() {
+        if (instance != this) return;
+        SubscribeEventHandlers();
+    }
+
     private void OnDisable() {
+        if (instance != this) return;
         if (!m_Network) return;
         m_Network.Close();
     }
@@ -160,7 +165,7 @@ public class NetworkController : GameSystem
         playerHealthEvt = new NetworkEventHandler<NetworkPlayerHealth>("Player health changed.", debug);
         playerAttackStartEvt = new NetworkEventHandler<NetworkPlayerAttackStart>("Player started attacking.", debug);
         playerAttackStopEvt = new NetworkEventHandler<NetworkPlayerAttackStop>("Player stopped attacking.", debug);
-        playerHitEvt = new NetworkEventHandler<NetworkPlayerHitInfo>("Player hit mob.", debug);
+        playerHitEvt = new NetworkEventHandler<NetworkMobHitInfo>("Player hit mob.", debug);
         playerEquipSuccessEvt = new NetworkEventHandler<NetworkEquipSuccessData>("Player equipped.", debug);
         playerUnequipSuccessEvt = new NetworkEventHandler<NetworkEquipSuccessData>("Player unequipped.", debug);
         playerEquipFailEvt = new NetworkEventHandler<string>("Player failed to equip.", debug);
@@ -181,7 +186,7 @@ public class NetworkController : GameSystem
         mobExitEvt = new NetworkEventHandler<string>("Mob exited range.", debug);
         mobAttackEvt = new NetworkEventHandler<NetworkMobAttackData>("Mob attacked.", debug);
         mobAttackStartEvt = new NetworkEventHandler<NetworkMobAttackData>("Mob started attacking.", debug);
-        mobHitEvt = new NetworkEventHandler<NetworkMobHitInfo>("Mob hit player.", debug);
+        mobHitEvt = new NetworkEventHandler<NetworkPlayerHitInfo>("Mob hit player.", debug);
         mobDeathEvt = new NetworkEventHandler<NetworkMobDeathData>("Mob died.", debug);
 
         // loot events
@@ -199,6 +204,7 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_CONNECT, OnNetworkConnected);
         m_Network.On(NETMSG_DISCONNECT, OnNetworkDisconnected);
         m_Network.On(NETMSG_HANDSHAKE, handshakeEvt.HandleEvt);
+    
         m_Network.On(NETMSG_INSTANCE, instanceDataEvt.HandleEvt);
         m_Network.On(NETMSG_CHAT, chatEvt.HandleEvt);
 
@@ -390,11 +396,15 @@ public class NetworkEventHandler<T> {
 
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
 
-        if (typeof(T) == typeof(NetworkModel)) {
+        if (typeof(NetworkModel).IsAssignableFrom(typeof(T))) {
+            //Debug.Log("NETWORK MODEL "+typeof(T)+": "+_msg);
             T _netData = NetworkModel.FromJsonStr<T>(_msg);
             TryRunAction(OnEvt, _netData);
         } else if (typeof(T) == typeof(string)) {
+            //Debug.Log("NETWORK MODEL STRING: "+_msg);
             TryRunAction(OnMsg, _msg);
+        } else {
+            Debug.LogWarning("NO EVENT EMITTED FOR "+_msg+" "+typeof(T));
         }
     }
 

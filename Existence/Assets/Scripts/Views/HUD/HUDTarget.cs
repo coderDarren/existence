@@ -19,6 +19,9 @@ public class HUDTarget : MonoBehaviour
     }
 
     public void UpdateData(NameplateData _data) {
+        if (hp == null) return;
+        if (hpLabel == null) return;
+        if (_data == null) return;
         hp.fillAmount = _data.health / (float)_data.maxHealth;
         hpLabel.text = _data.health + "/" + _data.maxHealth;
     }

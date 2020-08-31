@@ -21,7 +21,6 @@ public class PlayerCombatController : GameSystem
     private ParticleSystem[] m_Charge;
     private ParticleSystem[] m_Projectile;
     private ParticleSystem.Particle[] m_CurrentParticle;
-    private Mob m_CurrentTarget;
     private Mob m_Target;
     private Material bladeMat;
     private float specialRecharge;
@@ -131,7 +130,7 @@ public class PlayerCombatController : GameSystem
             _dmg = (int)((float)m_WepData.damageMax * 1.5f) + m_Player.attackRatingBoost;
         }
 
-        m_Target.Hit(_dmg, _crit);         
+        m_Target.Hit(_dmg, _crit);     
     }
 
     public void SelectTarget(Selectable _s, bool _primary) {
@@ -217,7 +216,6 @@ public class PlayerCombatController : GameSystem
     private void GetInput() {
         m_AttackInput = Input.GetKeyDown(attack);
         m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
-        
     }
 
     private void Attack(){
