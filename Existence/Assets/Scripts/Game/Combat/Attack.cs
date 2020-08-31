@@ -32,8 +32,9 @@ public class Attack : StateMachineBehaviour
         if(!attacking){//Cancel animation
             animator.SetFloat("totalSpeed", pauseSpeed);
             animator.SetBool("cycle", true);
-        if(m_PlayerCombat.target){            //set animation weights to 0                        
         }
+        if(m_PlayerCombat.target){            //set animation weights to 0                        
+        
             distance = Vector3.Distance(animator.gameObject.transform.position, target.transform.position);
 
             if (target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) == false || range <= distance){
