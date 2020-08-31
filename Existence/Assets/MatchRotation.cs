@@ -7,6 +7,6 @@ public class MatchRotation : MonoBehaviour
     
     void Update()
     {
-        transform.rotation = GameObject.FindGameObjectWithTag("Player").transform.rotation;
+        transform.rotation = Camera.main.transform.rotation;
     }
 }
