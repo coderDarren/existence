@@ -364,6 +364,7 @@ MonoBehaviour:
   body2: {fileID: 2800000, guid: 09925a40b880c874186de7e74f473ead, type: 3}
   pants1: {fileID: 2800000, guid: 2abe39410e90138448d3c752bff910e2, type: 3}
   pants2: {fileID: 2800000, guid: f3fd7151eac6eec41bc004ca09b42adf, type: 3}
+  armor: {fileID: 2800000, guid: ab97b1f76868e114a93e11ee3ca8426b, type: 3}
   bodyBounds:
     minX: 512
     maxX: 1024
@@ -374,6 +375,11 @@ MonoBehaviour:
     maxX: 512
     minY: 0
     maxY: 1024
+  armorBounds:
+    minX: 300
+    maxX: 556
+    minY: 300
+    maxY: 556
 --- !u!65 &1896603085
 BoxCollider:
   m_ObjectHideFlags: 0
