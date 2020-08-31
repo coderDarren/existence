@@ -12,7 +12,7 @@ public class TestTextureUpdates : MonoBehaviour
 
 #region Unity Functions
      private void Start() {
-        m_Material = GetComponent<MeshRenderer>().sharedMaterials[0];
+        m_Material = GetComponent<SkinnedMeshRenderer>().sharedMaterials[0];
         m_CopyTex = Instantiate(m_Material.mainTexture) as Texture2D;
     }
 
