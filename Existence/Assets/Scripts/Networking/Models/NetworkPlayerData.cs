@@ -80,28 +80,28 @@ public class NetworkPlayerUseSpecial : NetworkPlayerEvent {
     }
 }
 
-public class NetworkPlayerHealthChange : NetworkPlayerEvent {
+public class NetworkPlayerHealth : NetworkPlayerEvent {
     public int health;
     public int maxHealth;
-    public NetworkPlayerHealthChange(string _n, int _h, int _m) : base(_n) {
+    public NetworkPlayerHealth(string _n, int _h, int _m) : base(_n) {
         name = _n;
         health = _h;
         maxHealth = _m;
     }
 }
 
-public class NetworkPlayerLvlChange : NetworkPlayerEvent {
+public class NetworkPlayerLvl : NetworkPlayerEvent {
     public int lvl;
-    public NetworkPlayerLvlChange(string _n, int _l) : base(_n) {
+    public NetworkPlayerLvl(string _n, int _l) : base(_n) {
         name = _n;
         lvl = _l;
     }
 }
 
-public class NetworkPlayerTransformChange : NetworkPlayerEvent {
+public class NetworkPlayerTransform : NetworkPlayerEvent {
     public NetworkVector3 pos;
     public NetworkVector3 rot;
-    public NetworkPlayerTransformChange(string _n, NetworkVector3 _p, NetworkVector3 _r) : base(_n) {
+    public NetworkPlayerTransform(string _n, NetworkVector3 _p, NetworkVector3 _r) : base(_n) {
         name = _n;
         pos = _p;
         rot = _r;
