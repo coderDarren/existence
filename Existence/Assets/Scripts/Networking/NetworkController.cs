@@ -84,7 +84,7 @@ public class NetworkController : GameSystem
     public NetworkEventHandler<NetworkPlayerData> playerJoinEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerData> playerLeaveEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerData> playerSpawnEvt {get; private set;}
-    public NetworkEventHandler<NetworkPlayerTransform> playerTransformEvt {get; private set;}
+    public NetworkEventHandler<NetworkTransform> playerTransformEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerLvl> playerLvlEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerHealth> playerHealthEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerUseSpecial> playerUseSpecialEvt {get; private set;}
@@ -160,7 +160,7 @@ public class NetworkController : GameSystem
         playerJoinEvt = new NetworkEventHandler<NetworkPlayerData>("Player joined.", debug);
         playerLeaveEvt = new NetworkEventHandler<NetworkPlayerData>("Player left.", debug);
         playerSpawnEvt = new NetworkEventHandler<NetworkPlayerData>("Player entered range.", debug);
-        playerTransformEvt = new NetworkEventHandler<NetworkPlayerTransform>("Player transform changed.", debug);
+        playerTransformEvt = new NetworkEventHandler<NetworkTransform>("Player transform changed.", debug);
         playerLvlEvt = new NetworkEventHandler<NetworkPlayerLvl>("Player lvl changed.", debug);
         playerHealthEvt = new NetworkEventHandler<NetworkPlayerHealth>("Player health changed.", debug);
         playerAttackStartEvt = new NetworkEventHandler<NetworkPlayerAttackStart>("Player started attacking.", debug);
@@ -312,16 +312,16 @@ public class NetworkController : GameSystem
         SendNetworkData<NetworkPlayerUseSpecial>(NETMSG_PLAYER_USE_SPECIAL, _data);
     }
 
-    public void SendPlayerHealthChange(NetworkPlayerHealth _data) {
+    public void SendPlayerHealth(NetworkPlayerHealth _data) {
         SendNetworkData<NetworkPlayerHealth>(NETMSG_PLAYER_HEALTH_CHANGE, _data);
     }
 
-    public void SendPlayerLevelChange(NetworkPlayerLvl _data) {
+    public void SendPlayerLevel(NetworkPlayerLvl _data) {
         SendNetworkData<NetworkPlayerLvl>(NETMSG_PLAYER_LVL_CHANGE, _data);
     }
 
-    public void SendPlayerTransformChange(NetworkPlayerTransform _data) {
-        SendNetworkData<NetworkPlayerTransform>(NETMSG_PLAYER_TRANSFORM_CHANGE, _data);
+    public void SendPlayerTransform(NetworkTransform _data) {
+        SendNetworkData<NetworkTransform>(NETMSG_PLAYER_TRANSFORM_CHANGE, _data);
     }
 
     public void HitMob(NetworkMobHitInfo _data) {
@@ -397,11 +397,11 @@ public class NetworkEventHandler<T> {
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
 
         if (typeof(NetworkModel).IsAssignableFrom(typeof(T))) {
-            //Debug.Log("NETWORK MODEL "+typeof(T)+": "+_msg);
+            Debug.Log("NETWORK MODEL "+typeof(T)+": "+_msg);
             T _netData = NetworkModel.FromJsonStr<T>(_msg);
             TryRunAction(OnEvt, _netData);
         } else if (typeof(T) == typeof(string)) {
-            //Debug.Log("NETWORK MODEL STRING: "+_msg);
+            Debug.Log("NETWORK MODEL STRING: "+_msg);
             TryRunAction(OnMsg, _msg);
         } else {
             Debug.LogWarning("NO EVENT EMITTED FOR "+_msg+" "+typeof(T));

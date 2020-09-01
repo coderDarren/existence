@@ -71,8 +71,8 @@ public class Mob : Selectable
         m_NameplateData.name = m_Data.name;
         m_Controller = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
 
-        transform.rotation = Quaternion.Euler(_data.rot.x, _data.rot.y, _data.rot.z);
-        transform.position = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
+        transform.rotation = Quaternion.Euler(_data.transform.rot.x, _data.transform.rot.y, _data.transform.rot.z);
+        transform.position = new Vector3(_data.transform.pos.x, _data.transform.pos.y, _data.transform.pos.z);
         FindGroundPos();
         m_InitialRot = transform.eulerAngles;
         m_InitialPos = transform.position;
@@ -92,15 +92,15 @@ public class Mob : Selectable
     }
 
     public void UpdateTransform(NetworkMobData _data) {
-        m_Data.pos = _data.pos;
-        m_Data.rot = _data.rot;
+        m_Data.transform.pos = _data.transform.pos;
+        m_Data.transform.rot = _data.transform.rot;
 
-        m_TargetPos.x = m_Data.pos.x;
-        m_TargetPos.y = m_Data.pos.y;
-        m_TargetPos.z = m_Data.pos.z;
-        m_TargetRot.x = m_Data.rot.x;
-        m_TargetRot.y = m_Data.rot.y;
-        m_TargetRot.z = m_Data.rot.z;
+        m_TargetPos.x = m_Data.transform.pos.x;
+        m_TargetPos.y = m_Data.transform.pos.y;
+        m_TargetPos.z = m_Data.transform.pos.z;
+        m_TargetRot.x = m_Data.transform.rot.x;
+        m_TargetRot.y = m_Data.transform.rot.y;
+        m_TargetRot.z = m_Data.transform.rot.z;
         m_InitialRot = transform.eulerAngles;
         m_InitialPos = transform.position;
         m_UpdateTimer = 0;

@@ -22,8 +22,7 @@ public class NetworkPlayerData : NetworkModel
     public string weaponName;
     public string specialName;
     public NetworkPlayerInput input;
-    public NetworkVector3 pos;
-    public NetworkVector3 rot;
+    public NetworkTransform transform;
     public int health;
     public int maxHealth;
     public int energy;
@@ -34,8 +33,21 @@ public class NetworkPlayerData : NetworkModel
 
     public NetworkPlayerData() {
         input = new NetworkPlayerInput();
-        pos = new NetworkVector3();
-        rot = new NetworkVector3();
+        transform = new NetworkTransform();
+    }
+
+    public void UpdatePos(UnityEngine.Vector3 _pos) {
+        transform.id = name;
+        transform.pos.x = _pos.x;
+        transform.pos.y = _pos.y;
+        transform.pos.z = _pos.z;
+    }
+
+    public void UpdateRot(UnityEngine.Vector3 _rot) {
+        transform.id = name;
+        transform.rot.x = _rot.x;
+        transform.rot.y = _rot.y;
+        transform.rot.z = _rot.z;
     }
 }
 
@@ -50,9 +62,9 @@ public class NetworkPlayerAnimation : NetworkModel {
 }
 
 public class NetworkPlayerEvent : NetworkModel {
-    public string name;
+    public string id;
     public NetworkPlayerEvent(string _n) {
-        name = _n;
+        id = _n;
     }
 }
 
@@ -60,7 +72,7 @@ public class NetworkPlayerAttackStart : NetworkPlayerEvent {
     public float attackSpeed;
     public string weaponName;
     public NetworkPlayerAttackStart(string _n, float _a, string _w) : base(_n) {
-        name = _n;
+        id = _n;
         attackSpeed = _a;
         weaponName = _w;
     }
@@ -68,14 +80,14 @@ public class NetworkPlayerAttackStart : NetworkPlayerEvent {
 
 public class NetworkPlayerAttackStop : NetworkPlayerEvent {
     public NetworkPlayerAttackStop(string _n) : base(_n) {
-        name = _n;
+        id = _n;
     }
 }
 
 public class NetworkPlayerUseSpecial : NetworkPlayerEvent {
     public string specialName;
     public NetworkPlayerUseSpecial(string _n, string _s) : base(_n) {
-        name = _n;
+        id = _n;
         specialName = _s;
     }
 }
@@ -84,7 +96,7 @@ public class NetworkPlayerHealth : NetworkPlayerEvent {
     public int health;
     public int maxHealth;
     public NetworkPlayerHealth(string _n, int _h, int _m) : base(_n) {
-        name = _n;
+        id = _n;
         health = _h;
         maxHealth = _m;
     }
@@ -93,17 +105,16 @@ public class NetworkPlayerHealth : NetworkPlayerEvent {
 public class NetworkPlayerLvl : NetworkPlayerEvent {
     public int lvl;
     public NetworkPlayerLvl(string _n, int _l) : base(_n) {
-        name = _n;
+        id = _n;
         lvl = _l;
     }
 }
 
-public class NetworkPlayerTransform : NetworkPlayerEvent {
+public class NetworkTransform : NetworkPlayerEvent {
     public NetworkVector3 pos;
     public NetworkVector3 rot;
-    public NetworkPlayerTransform(string _n, NetworkVector3 _p, NetworkVector3 _r) : base(_n) {
-        name = _n;
-        pos = _p;
-        rot = _r;
+    public NetworkTransform() : base("") {
+        pos = new NetworkVector3();
+        rot = new NetworkVector3();
     }
 }
