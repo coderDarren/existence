@@ -38,6 +38,10 @@ public class PlayerSessionData : NetworkModel {
 public class PlayerEquipmentData : NetworkModel {
     public List<ArmorItemData> armor;
     public List<WeaponItemData> weapons;
+    public PlayerEquipmentData() {
+        armor = new List<ArmorItemData>();
+        weapons = new List<WeaponItemData>();
+    }
 }
 
 public class PlayerData : NetworkModel {

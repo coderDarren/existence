@@ -30,6 +30,8 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_PLAYER_LVL_CHANGE = "PLAYER_LVL_CHANGE";
     private static readonly string NETMSG_PLAYER_LEFT = "PLAYER_LEFT";
     private static readonly string NETMSG_PLAYER_JOINED = "PLAYER_JOINED";
+    private static readonly string NETMSG_PLAYER_ANIM_FLOAT = "NETMSG_PLAYER_ANIM_FLOAT";
+    private static readonly string NETMSG_PLAYER_ANIM_BOOL = "NETMSG_PLAYER_ANIM_BOOL";
     private static readonly string NETMSG_CHAT = "CHAT";
     private static readonly string NETMSG_INSTANCE = "INSTANCE";
     private static readonly string NETMSG_HIT_MOB = "HIT_MOB";
@@ -93,6 +95,8 @@ public class NetworkController : GameSystem
     public NetworkEventHandler<NetworkMobHitInfo> playerHitEvt {get; private set;}
     public NetworkEventHandler<NetworkEquipSuccessData> playerEquipSuccessEvt {get; private set;}
     public NetworkEventHandler<NetworkEquipSuccessData> playerUnequipSuccessEvt {get; private set;}
+    public NetworkEventHandler<NetworkAnimFloat> playerAnimFloatEvt {get; private set;}
+    public NetworkEventHandler<NetworkAnimBool> playerAnimBoolEvt {get; private set;}
     public NetworkEventHandler<string> playerEquipFailEvt {get; private set;}
     public NetworkEventHandler<string> playerUnequipFailEvt {get; private set;}
     public NetworkEventHandler<string> playerExitEvt {get; private set;}
@@ -171,6 +175,8 @@ public class NetworkController : GameSystem
         playerEquipFailEvt = new NetworkEventHandler<string>("Player failed to equip.", debug);
         playerUnequipFailEvt = new NetworkEventHandler<string>("Player failed to unequip.", debug);
         playerExitEvt = new NetworkEventHandler<string>("Player exited range.", debug);
+        playerAnimFloatEvt = new NetworkEventHandler<NetworkAnimFloat>("Player float animation changed.", debug);
+        playerAnimBoolEvt = new NetworkEventHandler<NetworkAnimBool>("Player bool animation changed.", debug);
 
         // inventory events
         rmInventorySuccessEvt = new NetworkEventHandler<NetworkInventoryRemoveData>("Successfully removed inventory.", debug);
@@ -223,6 +229,8 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_PLAYER_UNEQUIP_SUCCESS, playerUnequipSuccessEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_EQUIP_FAILURE, playerEquipFailEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_UNEQUIP_FAILURE, playerUnequipFailEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_ANIM_FLOAT, playerAnimFloatEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_ANIM_BOOL, playerAnimBoolEvt.HandleEvt);
 
         // inventory events
         m_Network.On(NETMSG_ADD_INVENTORY_SUCCESS, addInventoryEvt.HandleEvt);
@@ -318,6 +326,14 @@ public class NetworkController : GameSystem
 
     public void SendPlayerLevel(NetworkPlayerLvl _data) {
         SendNetworkData<NetworkPlayerLvl>(NETMSG_PLAYER_LVL_CHANGE, _data);
+    }
+    
+    public void SendPlayerAnimFloat(NetworkAnimFloat _data) {
+        SendNetworkData<NetworkAnimFloat>(NETMSG_PLAYER_ANIM_FLOAT, _data);
+    }
+
+    public void SendPlayerAnimBool(NetworkAnimBool _data) {
+        SendNetworkData<NetworkAnimBool>(NETMSG_PLAYER_ANIM_FLOAT, _data);
     }
 
     public void SendPlayerTransform(NetworkTransform _data) {

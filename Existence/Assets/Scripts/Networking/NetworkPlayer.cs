@@ -132,13 +132,13 @@ public class NetworkPlayer : Selectable
         m_TargetEuler = new Vector3(_data.transform.rot.x, _data.transform.rot.y, _data.transform.rot.z);
         transform.position = m_TargetPos;
 
-        /*foreach (ArmorItemData _item in _data.equipment.armor) {
+        foreach (ArmorItemData _item in _data.equipment.armor) {
             equipmentController.Equip(_item);
         }
 
         foreach (WeaponItemData _item in _data.equipment.weapons) {
             equipmentController.Equip(_item);
-        }*/
+        }
 
         m_InitialRunning = m_Running;
         m_TargetRunning = _data.input.running;

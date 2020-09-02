@@ -34,6 +34,7 @@ public class NetworkPlayerData : NetworkModel
     public NetworkPlayerData() {
         input = new NetworkPlayerInput();
         transform = new NetworkTransform();
+        equipment = new PlayerEquipmentData();
     }
 
     public void UpdatePos(UnityEngine.Vector3 _pos) {
@@ -116,5 +117,26 @@ public class NetworkTransform : NetworkPlayerEvent {
     public NetworkTransform() : base("") {
         pos = new NetworkVector3();
         rot = new NetworkVector3();
+    }
+}
+
+public class NetworkAnim : NetworkPlayerEvent {
+    public string anim;
+    public NetworkAnim(string _id, string _anim) : base(_id) {
+        anim = _anim;
+    }
+}
+
+public class NetworkAnimFloat : NetworkAnim {
+    public float val;
+    public NetworkAnimFloat(string _anim) : base("", _anim) {
+        val = 0;
+    }
+}
+
+public class NetworkAnimBool : NetworkAnim {
+    public bool val;
+    public NetworkAnimBool(string _anim) : base("", _anim) {
+        val = false;
     }
 }
