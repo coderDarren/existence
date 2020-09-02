@@ -33,7 +33,6 @@ public class Attack : StateMachineBehaviour
         }
         if(m_PlayerCombat.target){            //set animation weights to 0     
             range = m_Player.attackRange;         
-                  
             distance = Vector3.Distance(animator.gameObject.transform.position, target.transform.position);
 
             if (target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) == false || range <= distance){
