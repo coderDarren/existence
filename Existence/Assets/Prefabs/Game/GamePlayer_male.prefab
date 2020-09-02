@@ -493,7 +493,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bc260baec2fae35498fffb728f3c1192, type: 2}
+  - {fileID: 2100000, guid: 86fb131d35ecbf14f845d1b8bb530c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1298,7 +1298,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bc260baec2fae35498fffb728f3c1192, type: 2}
+  - {fileID: 2100000, guid: 86fb131d35ecbf14f845d1b8bb530c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1443,7 +1443,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bc260baec2fae35498fffb728f3c1192, type: 2}
+  - {fileID: 2100000, guid: 86fb131d35ecbf14f845d1b8bb530c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1529,7 +1529,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8274133419916619345, guid: 7a9dd32e243caa640a2392988e205d05, type: 3}
+  - {fileID: 2100000, guid: 86fb131d35ecbf14f845d1b8bb530c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1709,7 +1709,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bc260baec2fae35498fffb728f3c1192, type: 2}
+  - {fileID: 2100000, guid: 86fb131d35ecbf14f845d1b8bb530c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1883,7 +1883,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bc260baec2fae35498fffb728f3c1192, type: 2}
+  - {fileID: 2100000, guid: 86fb131d35ecbf14f845d1b8bb530c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2004,7 +2004,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bc260baec2fae35498fffb728f3c1192, type: 2}
+  - {fileID: 2100000, guid: 86fb131d35ecbf14f845d1b8bb530c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2216,7 +2216,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bc260baec2fae35498fffb728f3c1192, type: 2}
+  - {fileID: 2100000, guid: 86fb131d35ecbf14f845d1b8bb530c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2872,7 +2872,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bc260baec2fae35498fffb728f3c1192, type: 2}
+  - {fileID: 2100000, guid: 86fb131d35ecbf14f845d1b8bb530c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2957,6 +2957,40 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.00009569526, y: -0.1686255, z: 0.030669764}
     m_Extent: {x: 1.0000464, y: 1.0732868, z: 0.1903411}
   m_DirtyAABB: 0
+--- !u!114 &2417929368619221540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362695939823360880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd33051404841c949a54555b4093ab26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  storedTex: {fileID: 2800000, guid: 34c11bfc1b68a0c43a49b9c90844023d, type: 3}
+  body: {fileID: 2800000, guid: 9b6737e94921d5544bef714f3865a815, type: 3}
+  pants: {fileID: 2800000, guid: 139bfde9293cc2e428c933415bd8e951, type: 3}
+  sleeves: {fileID: 2800000, guid: e0704f1ffb7952a4b9d272dd5f4537e0, type: 3}
+  bodySkin: {fileID: 2800000, guid: cccff6c05bf7b624a9527aee9e39c8c4, type: 3}
+  pantsSkin: {fileID: 2800000, guid: 410c1886ccc1f6d4f833844d901fbc29, type: 3}
+  sleevesSkin: {fileID: 2800000, guid: b9222a24a6052a44fb1a5bb05a77697c, type: 3}
+  bodyBounds:
+    minX: 0
+    maxX: 285
+    minY: 449
+    maxY: 1024
+  pantsBounds:
+    minX: 654
+    maxX: 1024
+    minY: 624
+    maxY: 1024
+  sleevesBounds:
+    minX: 286
+    maxX: 653
+    minY: 624
+    maxY: 1024
 --- !u!1 &7460801012569430406
 GameObject:
   m_ObjectHideFlags: 0
@@ -3398,7 +3432,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bc260baec2fae35498fffb728f3c1192, type: 2}
+  - {fileID: 2100000, guid: 86fb131d35ecbf14f845d1b8bb530c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -15,7 +15,6 @@ public class Attack : StateMachineBehaviour
     private float distance;
     
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex    ){
-        pauseSpeed = animator.GetFloat("totalSpeed");
 
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         m_PlayerCombat = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCombatController>();
@@ -23,8 +22,7 @@ public class Attack : StateMachineBehaviour
     }
     
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        
-
+        pauseSpeed = animator.GetFloat("totalSpeed");
         attacking = animator.GetBool(m_Player.weapon.ToString());
         target = m_PlayerCombat.target; 
 
@@ -33,8 +31,8 @@ public class Attack : StateMachineBehaviour
             animator.SetFloat("totalSpeed", pauseSpeed);
             animator.SetBool("cycle", true);
         }
-        if(m_PlayerCombat.target){            //set animation weights to 0                        
-        
+        if(m_PlayerCombat.target){            //set animation weights to 0     
+            range = m_Player.attackRange;         
             distance = Vector3.Distance(animator.gameObject.transform.position, target.transform.position);
 
             if (target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) == false || range <= distance){
@@ -43,7 +41,7 @@ public class Attack : StateMachineBehaviour
             }
             
             if (target.GetComponentInChildren<Renderer>().IsVisibleFrom(Camera.main) && range >= distance){//No attack logic
-                animator.SetFloat("totalSpeed", pauseSpeed);
+                animator.SetFloat("totalSpeed", 1);
                 //animator.SetLayerWeight(1,1);
                 
             }

@@ -46,11 +46,9 @@ public class NetworkMobData : NetworkModel {
     public bool inCombat;
     public bool dead;
     public NetworkLootPreviewData[] lootPreview;
-    public NetworkVector3 pos;
-    public NetworkVector3 rot;
+    public NetworkTransform transform;
 
     public NetworkMobData() {
-        pos = new NetworkVector3();
-        rot = new NetworkVector3();
+        transform = new NetworkTransform();
     }
 }

@@ -128,8 +128,8 @@ public class NetworkPlayer : Selectable
         if (isClient) return;
         m_NameplateData = new NameplateData();
         m_NameplateData.name = _data.name;
-        m_TargetPos = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
-        m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
+        m_TargetPos = new Vector3(_data.transform.pos.x, _data.transform.pos.y, _data.transform.pos.z);
+        m_TargetEuler = new Vector3(_data.transform.rot.x, _data.transform.rot.y, _data.transform.rot.z);
         transform.position = m_TargetPos;
 
         foreach (ArmorItemData _item in _data.equipment.armor) {
@@ -139,13 +139,25 @@ public class NetworkPlayer : Selectable
         foreach (WeaponItemData _item in _data.equipment.weapons) {
             equipmentController.Equip(_item);
         }
+
+        m_InitialRunning = m_Running;
+        m_TargetRunning = _data.anim.running.val;
+        m_Grounded = _data.anim.grounded.val;
+        m_Attacking = _data.anim.attacking.val;
+        m_AttackCycle = _data.anim.cycle.val;
+        m_AttackSpeed = 1;
+        m_SpecialInput = _data.anim.special.val;
+        m_Weapon = _data.anim.attacking.anim;
+        m_Special = _data.anim.special.anim;
+        m_UpdateTimer = 0;
+        m_LastFrameData = _data;
+        UpdateNameplate(_data.name, _data.health, _data.maxHealth, _data.lvl);
     }
 
     public void Init(PlayerData _data) {
         m_ClientData = new NetworkPlayerData();
         m_ClientData.id = _data.player.ID;
         m_ClientData.name = _data.player.name;
-        m_ClientData.weaponName = Player.Weapon.oneHandRanged.ToString(); // ???
         m_ClientData.tix = _data.player.tix;
     }
 
@@ -154,47 +166,106 @@ public class NetworkPlayer : Selectable
         NameplateController.instance.ForgetSelectable(this);
     }
 
-    public void UpdateServerPlayer(NetworkPlayerData _data) {
+    public void UpdatePlayerHealth(NetworkPlayerHitInfo _data) {
+        if (!isClient) return;
+        m_Player.data.player.health = _data.health;
+    }
+
+#region Network Readers
+    public void Network_ReadTransform(NetworkTransform _data) {
         if (isClient) return;
 
-        if (network.usePredictiveSmoothing && _data.timestamp != null && m_LastFrameData != null && m_LastFrameData.timestamp != null) {
-            if (m_LastFrameData == null) {
-                m_LastFrameData = _data;
-            }
-            long _diff = long.Parse(_data.timestamp) - long.Parse(m_LastFrameData.timestamp);
-            //Log(_data.timestamp+" Latency: "+_diff+"ms");
-            m_Smooth = _diff / 1000.0F;
-        } else {
-            m_Smooth = moveSmooth;
-        }
+        // if (network.usePredictiveSmoothing && _data.timestamp != null && m_LastFrameData != null && m_LastFrameData.timestamp != null) {
+        //     if (m_LastFrameData == null) {
+        //         m_LastFrameData = _data;
+        //     }
+        //     long _diff = long.Parse(_data.timestamp) - long.Parse(m_LastFrameData.timestamp);
+        //     //Log(_data.timestamp+" Latency: "+_diff+"ms");
+        //     m_Smooth = _diff / 1000.0F;
+        // } else {
+        //     m_Smooth = moveSmooth;
+        // }
 
         m_InitialPos = transform.position;
         m_TargetPos = new Vector3(_data.pos.x, _data.pos.y, _data.pos.z);
         m_InitialEuler = transform.eulerAngles;
         m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
-        m_InitialRunning = m_Running;
-        m_TargetRunning = _data.input.running;
-        m_InitialStrafing = m_Strafing;
-        m_TargetStrafing = _data.input.strafing;
-        m_Grounded = _data.input.grounded;
-        m_Attacking = _data.input.attacking;
-        m_AttackCycle = _data.input.cycle;
-        m_AttackSpeed = _data.input.attackSpeed;
-        m_SpecialInput = _data.input.special;
-        m_Weapon = _data.weaponName;
-        m_Special = _data.specialName;
-        
         m_UpdateTimer = 0;
+        m_Smooth = moveSmooth;
 
-        UpdateNameplate(_data.name, _data.health, _data.maxHealth, _data.lvl);
+        // m_InitialRunning = m_Running;
+        // m_TargetRunning = _data.input.running;
+        // m_InitialStrafing = m_Strafing;
+        // m_TargetStrafing = _data.input.strafing;
+        // m_Grounded = _data.input.grounded;
+        // m_Attacking = _data.input.attacking;
+        // m_AttackCycle = _data.input.cycle;
+        // m_AttackSpeed = _data.input.attackSpeed;
+        // m_SpecialInput = _data.input.special;
+        // m_Weapon = _data.weaponName;
+        // m_Special = _data.specialName;
         
-        m_LastFrameData = _data;
+        // m_UpdateTimer = 0;
+
+        // UpdateNameplate(_data.name, _data.health, _data.maxHealth, _data.lvl);
+        
+        // m_LastFrameData = _data;
+    }
+    
+    public void Network_ReadHealth(NetworkPlayerHealth _data) {
+        
+    }
+    
+    public void Network_ReadLevel(NetworkPlayerLvl _data) {
+        
+    }
+    
+    public void Network_ReadStartAttack(NetworkPlayerAttackStart _data) {
+        
+    }
+    
+    public void Network_ReadStopAttack(NetworkPlayerAttackStop _data) {
+        
+    }
+    
+    public void Network_ReadUseSpecial(NetworkPlayerUseSpecial _data) {
+        
+    }
+#endregion
+
+#region Network Writers
+    public void Network_WriteTransform() {
+        network.SendPlayerTransform(m_ClientData.transform);
+    }
+    
+    public void Network_WriteHealth() {
+        
+    }
+    
+    public void Network_WriteLevel() {
+        
+    }
+    
+    public void Network_WriteStartAttack() {
+        
+    }
+    
+    public void Network_WriteStopAttack() {
+        
+    }
+    
+    public void Network_WriteUseSpecial() {
+        
     }
 
-    public void UpdatePlayerHealth(NetworkPlayerHitInfo _data) {
-        if (!isClient) return;
-        m_Player.data.player.health = _data.health;
+    public void Network_WriteJumpAnim() {
+
     }
+
+    public void Network_WriteForwardAnim() {
+
+    }
+#endregion
 #endregion
 
 #region Private Functions
@@ -209,21 +280,16 @@ public class NetworkPlayer : Selectable
         }
 
         m_ClientData.name = session.playerData.player.name;
-        m_ClientData.pos.x = transform.position.x;
-        m_ClientData.pos.y = transform.position.y;
-        m_ClientData.pos.z = transform.position.z;
-        m_ClientData.rot.x = transform.eulerAngles.x;
-        m_ClientData.rot.y = transform.eulerAngles.y;
-        m_ClientData.rot.z = transform.eulerAngles.z;
-        m_ClientData.input.running = m_PlayerController.runInput;
-        m_ClientData.input.grounded = m_PlayerController.grounded;
-        m_ClientData.input.attacking = m_PlayerCombat.attacking;
-        m_ClientData.input.cycle = m_Animator.GetBool("cycle");
-        m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");
+        m_ClientData.UpdatePos(transform.position);
+        m_ClientData.UpdateRot(transform.eulerAngles);
+        m_ClientData.UpdateRunning(m_PlayerController.runInput);
+        m_ClientData.UpdateGrounded(m_PlayerController.grounded);
+        m_ClientData.UpdateCycle(m_Animator.GetBool("cycle"));
+        m_ClientData.UpdateAttacking(m_Player.weapon.ToString(), m_PlayerCombat.attacking);
         if (m_PlayerCombat.special != "")
-            m_ClientData.input.special = m_Animator.GetBool(m_PlayerCombat.special);
-        m_ClientData.specialName = m_PlayerCombat.special; 
-        m_ClientData.weaponName = m_Player.weapon.ToString();
+            m_ClientData.UpdateSpecial(m_PlayerCombat.special, m_Animator.GetBool(m_PlayerCombat.special));
+       
+       
         m_ClientData.maxHealth = m_Player.MaxHealth();
         m_ClientData.health = m_Player.data.player.health;
         m_ClientData.lvl = m_Player.data.player.level;
@@ -233,19 +299,19 @@ public class NetworkPlayer : Selectable
       
         m_UpdateTimer += Time.deltaTime;
         if (m_UpdateTimer >= sendRate && m_IdleTimer < idleDetectionSeconds) {
-            network.SendNetworkPlayer(m_ClientData);
+            Network_WriteTransform();
             m_UpdateTimer = 0;
         }
     }
 
     private bool ClientHasNotChanged() {
-        return  m_ClientData.pos.x == transform.position.x && 
-                m_ClientData.pos.y == transform.position.y && 
-                m_ClientData.pos.z == transform.position.z &&
-                m_ClientData.rot.x == transform.eulerAngles.x && 
-                m_ClientData.rot.y == transform.eulerAngles.y && 
-                m_ClientData.rot.z == transform.eulerAngles.z &&
-                m_ClientData.input.attacking == false;   
+        return  m_ClientData.transform.pos.x == transform.position.x && 
+                m_ClientData.transform.pos.y == transform.position.y && 
+                m_ClientData.transform.pos.z == transform.position.z &&
+                m_ClientData.transform.rot.x == transform.eulerAngles.x && 
+                m_ClientData.transform.rot.y == transform.eulerAngles.y && 
+                m_ClientData.transform.rot.z == transform.eulerAngles.z &&
+                m_ClientData.anim.attacking.val == false;   
     }
 
     // Player not controlled by this client
