@@ -7,36 +7,34 @@ public class NetworkPlayerHitInfo : NetworkModel {
     public int health;
 }
 
-/// <summary>
-/// Data for individual players
-/// Each player will send this info up for..
-/// ..other players to receive
-///
-/// Ideally the client sends up their NetworkPlayerData..
-/// ..and receives NetworkInstanceData
-/// </summary>
+/*
+ *
+ */
 public class NetworkPlayerData : NetworkModel
 {
     public int id;
     public string name;
-    public string weaponName;
-    public string specialName;
-    public NetworkPlayerInput input;
-    public NetworkTransform transform;
     public int health;
     public int maxHealth;
-    public int energy;
-    public int maxEnergy;
     public int lvl;
     public int tix;
+    public NetworkPlayerAnimation anim;
+    public NetworkTransform transform;
     public PlayerEquipmentData equipment;
 
     public NetworkPlayerData() {
-        input = new NetworkPlayerInput();
         transform = new NetworkTransform();
         equipment = new PlayerEquipmentData();
+        anim = new NetworkPlayerAnimation();
     }
 
+    /*
+     * Each of the updaters below need to ensure..
+     * ..id is set to the player name so the receiver..
+     * ..of the data knows who to direct information to
+     */
+
+#region Transform Updaters
     public void UpdatePos(UnityEngine.Vector3 _pos) {
         transform.id = name;
         transform.pos.x = _pos.x;
@@ -50,16 +48,51 @@ public class NetworkPlayerData : NetworkModel
         transform.rot.y = _rot.y;
         transform.rot.z = _rot.z;
     }
+#endregion
+
+#region Animation Updaters
+    public void UpdateRunning(float _val) {
+        anim.running.id = name;
+        anim.running.val = _val;
+    }
+
+    public void UpdateGrounded(bool _val) {
+        anim.grounded.id = name;
+        anim.grounded.val = _val;
+    }
+
+    public void UpdateCycle(bool _val) {
+        anim.cycle.id = name;
+        anim.cycle.val = _val;
+    }
+
+    public void UpdateAttacking(string _weapon, bool _val) {
+        anim.attacking.id = name;
+        anim.attacking.anim = _weapon;
+        anim.attacking.val = _val;
+    }
+
+    public void UpdateSpecial(string _special, bool _val) {
+        anim.special.id = name;
+        anim.special.anim = _special;
+        anim.special.val = _val;
+    }
+#endregion
 }
 
-
 public class NetworkPlayerAnimation : NetworkModel {
-    public float running;
-    public float attackSpeed;
-    public bool grounded;
-    public bool attacking;
-    public bool cycle;
-    public bool special;   
+    public NetworkAnimFloat running;
+    public NetworkAnimBool grounded;
+    public NetworkAnimBool attacking;
+    public NetworkAnimBool cycle;
+    public NetworkAnimBool special;
+    public NetworkPlayerAnimation() {
+        running = new NetworkAnimFloat("running");
+        grounded = new NetworkAnimBool("grounded");
+        attacking = new NetworkAnimBool("");
+        cycle = new NetworkAnimBool("cycle");
+        special = new NetworkAnimBool("");;
+    }
 }
 
 public class NetworkPlayerEvent : NetworkModel {

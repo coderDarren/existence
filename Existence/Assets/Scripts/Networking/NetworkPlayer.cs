@@ -141,16 +141,14 @@ public class NetworkPlayer : Selectable
         }
 
         m_InitialRunning = m_Running;
-        m_TargetRunning = _data.input.running;
-        m_InitialStrafing = m_Strafing;
-        m_TargetStrafing = _data.input.strafing;
-        m_Grounded = _data.input.grounded;
-        m_Attacking = _data.input.attacking;
-        m_AttackCycle = _data.input.cycle;
-        m_AttackSpeed = _data.input.attackSpeed;
-        m_SpecialInput = _data.input.special;
-        m_Weapon = _data.weaponName;
-        m_Special = _data.specialName;
+        m_TargetRunning = _data.anim.running.val;
+        m_Grounded = _data.anim.grounded.val;
+        m_Attacking = _data.anim.attacking.val;
+        m_AttackCycle = _data.anim.cycle.val;
+        m_AttackSpeed = 1;
+        m_SpecialInput = _data.anim.special.val;
+        m_Weapon = _data.anim.attacking.anim;
+        m_Special = _data.anim.special.anim;
         m_UpdateTimer = 0;
         m_LastFrameData = _data;
         UpdateNameplate(_data.name, _data.health, _data.maxHealth, _data.lvl);
@@ -160,7 +158,6 @@ public class NetworkPlayer : Selectable
         m_ClientData = new NetworkPlayerData();
         m_ClientData.id = _data.player.ID;
         m_ClientData.name = _data.player.name;
-        m_ClientData.weaponName = Player.Weapon.oneHandRanged.ToString(); // ???
         m_ClientData.tix = _data.player.tix;
     }
 
@@ -260,6 +257,14 @@ public class NetworkPlayer : Selectable
     public void Network_WriteUseSpecial() {
         
     }
+
+    public void Network_WriteJumpAnim() {
+
+    }
+
+    public void Network_WriteForwardAnim() {
+
+    }
 #endregion
 #endregion
 
@@ -277,15 +282,14 @@ public class NetworkPlayer : Selectable
         m_ClientData.name = session.playerData.player.name;
         m_ClientData.UpdatePos(transform.position);
         m_ClientData.UpdateRot(transform.eulerAngles);
-        m_ClientData.input.running = m_PlayerController.runInput;
-        m_ClientData.input.grounded = m_PlayerController.grounded;
-        m_ClientData.input.attacking = m_PlayerCombat.attacking;
-        m_ClientData.input.cycle = m_Animator.GetBool("cycle");
-        m_ClientData.input.attackSpeed = m_Animator.GetFloat("totalSpeed");
+        m_ClientData.UpdateRunning(m_PlayerController.runInput);
+        m_ClientData.UpdateGrounded(m_PlayerController.grounded);
+        m_ClientData.UpdateCycle(m_Animator.GetBool("cycle"));
+        m_ClientData.UpdateAttacking(m_Player.weapon.ToString(), m_PlayerCombat.attacking);
         if (m_PlayerCombat.special != "")
-            m_ClientData.input.special = m_Animator.GetBool(m_PlayerCombat.special);
-        m_ClientData.specialName = m_PlayerCombat.special; 
-        m_ClientData.weaponName = m_Player.weapon.ToString();
+            m_ClientData.UpdateSpecial(m_PlayerCombat.special, m_Animator.GetBool(m_PlayerCombat.special));
+       
+       
         m_ClientData.maxHealth = m_Player.MaxHealth();
         m_ClientData.health = m_Player.data.player.health;
         m_ClientData.lvl = m_Player.data.player.level;
@@ -307,7 +311,7 @@ public class NetworkPlayer : Selectable
                 m_ClientData.transform.rot.x == transform.eulerAngles.x && 
                 m_ClientData.transform.rot.y == transform.eulerAngles.y && 
                 m_ClientData.transform.rot.z == transform.eulerAngles.z &&
-                m_ClientData.input.attacking == false;   
+                m_ClientData.anim.attacking.val == false;   
     }
 
     // Player not controlled by this client
