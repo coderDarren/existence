@@ -11,6 +11,7 @@ public class EquipmentData : ScriptableObject
         public Race race;
         public GearType location; 
         public GameObject prefab;
+        public Texture2D skin;
     }
 
     [System.Serializable]
