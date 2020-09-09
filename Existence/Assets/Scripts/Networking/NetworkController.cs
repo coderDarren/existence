@@ -23,9 +23,6 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_HANDSHAKE = "HANDSHAKE";
     private static readonly string NETMSG_PLAYER_DATA = "PLAYER";
     private static readonly string NETMSG_PLAYER_TRANSFORM_CHANGE = "PLAYER_TRANSFORM_CHANGE";
-    private static readonly string NETMSG_PLAYER_ATTACK_START = "PLAYER_ATTACK_START";
-    private static readonly string NETMSG_PLAYER_ATTACK_STOP = "PLAYER_ATTACK_STOP";
-    private static readonly string NETMSG_PLAYER_USE_SPECIAL = "PLAYER_USE_SPECIAL";
     private static readonly string NETMSG_PLAYER_HEALTH_CHANGE = "PLAYER_HEALTH_CHANGE";
     private static readonly string NETMSG_PLAYER_LVL_CHANGE = "PLAYER_LVL_CHANGE";
     private static readonly string NETMSG_PLAYER_LEFT = "PLAYER_LEFT";
@@ -89,9 +86,6 @@ public class NetworkController : GameSystem
     public NetworkEventHandler<NetworkTransform> playerTransformEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerLvl> playerLvlEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerHealth> playerHealthEvt {get; private set;}
-    public NetworkEventHandler<NetworkPlayerUseSpecial> playerUseSpecialEvt {get; private set;}
-    public NetworkEventHandler<NetworkPlayerAttackStart> playerAttackStartEvt {get; private set;}
-    public NetworkEventHandler<NetworkPlayerAttackStop> playerAttackStopEvt {get; private set;}
     public NetworkEventHandler<NetworkMobHitInfo> playerHitEvt {get; private set;}
     public NetworkEventHandler<NetworkEquipSuccessData> playerEquipSuccessEvt {get; private set;}
     public NetworkEventHandler<NetworkEquipSuccessData> playerUnequipSuccessEvt {get; private set;}
@@ -167,8 +161,6 @@ public class NetworkController : GameSystem
         playerTransformEvt = new NetworkEventHandler<NetworkTransform>("Player transform changed.", debug);
         playerLvlEvt = new NetworkEventHandler<NetworkPlayerLvl>("Player lvl changed.", debug);
         playerHealthEvt = new NetworkEventHandler<NetworkPlayerHealth>("Player health changed.", debug);
-        playerAttackStartEvt = new NetworkEventHandler<NetworkPlayerAttackStart>("Player started attacking.", debug);
-        playerAttackStopEvt = new NetworkEventHandler<NetworkPlayerAttackStop>("Player stopped attacking.", debug);
         playerHitEvt = new NetworkEventHandler<NetworkMobHitInfo>("Player hit mob.", debug);
         playerEquipSuccessEvt = new NetworkEventHandler<NetworkEquipSuccessData>("Player equipped.", debug);
         playerUnequipSuccessEvt = new NetworkEventHandler<NetworkEquipSuccessData>("Player unequipped.", debug);
@@ -222,8 +214,6 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_PLAYER_TRANSFORM_CHANGE, playerTransformEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_LVL_CHANGE, playerLvlEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_HEALTH_CHANGE, playerHealthEvt.HandleEvt);
-        m_Network.On(NETMSG_PLAYER_ATTACK_START, playerAttackStartEvt.HandleEvt);
-        m_Network.On(NETMSG_PLAYER_ATTACK_STOP, playerAttackStopEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_HIT_MOB_CONFIRMATION, playerHitEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_EQUIP_SUCCESS, playerEquipSuccessEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_UNEQUIP_SUCCESS, playerUnequipSuccessEvt.HandleEvt);
@@ -304,22 +294,6 @@ public class NetworkController : GameSystem
         SendNetworkData<NetworkHandshake>(NETMSG_HANDSHAKE, _data);
     }
 
-    public void SendNetworkPlayer(NetworkPlayerData _data) {
-        SendNetworkData<NetworkPlayerData>(NETMSG_PLAYER_DATA, _data);
-    }
-
-    public void SendPlayerStartAttack(NetworkPlayerAttackStart _data) {
-        SendNetworkData<NetworkPlayerAttackStart>(NETMSG_PLAYER_ATTACK_START, _data);
-    }
-
-    public void SendPlayerStopAttack(NetworkPlayerAttackStop _data) {
-        SendNetworkData<NetworkPlayerAttackStop>(NETMSG_PLAYER_ATTACK_STOP, _data);
-    }
-
-    public void SendPlayerUseSpecial(NetworkPlayerUseSpecial _data) {
-        SendNetworkData<NetworkPlayerUseSpecial>(NETMSG_PLAYER_USE_SPECIAL, _data);
-    }
-
     public void SendPlayerHealth(NetworkPlayerHealth _data) {
         SendNetworkData<NetworkPlayerHealth>(NETMSG_PLAYER_HEALTH_CHANGE, _data);
     }
@@ -333,7 +307,7 @@ public class NetworkController : GameSystem
     }
 
     public void SendPlayerAnimBool(NetworkAnimBool _data) {
-        SendNetworkData<NetworkAnimBool>(NETMSG_PLAYER_ANIM_FLOAT, _data);
+        SendNetworkData<NetworkAnimBool>(NETMSG_PLAYER_ANIM_BOOL, _data);
     }
 
     public void SendPlayerTransform(NetworkTransform _data) {

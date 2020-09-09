@@ -13,6 +13,7 @@ public class PlayerCombatController : GameSystem
     public string special;
 
     private Player m_Player;
+    private NetworkPlayer m_NetworkPlayer;
     private Animator m_Animator;
     private GameObject m_Weapon;
     private WeaponItemData m_WepData;
@@ -58,7 +59,7 @@ public class PlayerCombatController : GameSystem
         m_Amount = 0;
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
-        
+        m_NetworkPlayer = GetComponent<NetworkPlayer>();
 
         try{
             m_Charge = transform.FindDeepChild("Charge").GetComponentsInChildren<ParticleSystem>();
@@ -235,11 +236,13 @@ public class PlayerCombatController : GameSystem
     private void StartAutoAttack() {
         m_Attacking = true;
         m_Animator.SetBool(m_Player.weapon.ToString(), true);
+        m_NetworkPlayer.Network_WriteAnimAttack(m_Player.weapon.ToString(), true);
     }
 
     public void StopAutoAttack() {
         m_Attacking = false;
         m_Animator.SetBool(m_Player.weapon.ToString(), false); 
+        m_NetworkPlayer.Network_WriteAnimAttack(m_Player.weapon.ToString(), false);
     }
 
 

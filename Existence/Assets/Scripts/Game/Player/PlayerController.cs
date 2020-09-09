@@ -22,6 +22,7 @@ public class PlayerController : GameSystem
 
     // Components
     private Player m_Player;
+    private NetworkPlayer m_NetworkPlayer;
     private CharacterController m_Character;
     private Vector3 m_MoveDirection;
     private Quaternion m_TargetRotation;
@@ -38,13 +39,23 @@ public class PlayerController : GameSystem
     private float m_VerticalRaw;
     private float m_Vertical;
 
+    // running is a cumulative representation of "forward" which includes strafing and running
+    // value is based on m_RunningAnim
+    // These values are a raw representation which means values belong to the set [-1,0,1]
+    // Why? Because we use this raw value to determine when to send input changes to the network
+    // ..we don't want to send continuous changes from [-1,1]
+    private float m_RunningRaw;
+    private float m_LastRunningRaw;
+
     // Physics
     private bool m_Grounded;
+    private bool m_LastGrounded;
     private float m_GroundBiasTimer;
     private float m_Gravity;
 
     // Animation
     private float m_RunAnimationSpeed;
+    private float m_RunningAnim;
 
     // Player Data
     private StatData m_PlayerStats;
@@ -63,6 +74,7 @@ public class PlayerController : GameSystem
 
 #region Unity Functions
     private void Start() {
+        m_NetworkPlayer = GetComponent<NetworkPlayer>();
         m_Player = GetComponent<Player>();
         m_Animator = GetComponent<Animator>();
         m_TargetRotation = transform.rotation;
@@ -75,6 +87,7 @@ public class PlayerController : GameSystem
         m_PlayerStats = m_Player.GetAggregatedStats();
 
         PollInput();
+        PollInputChange();
         CheckGrounded();
         Jump();
         Move();
@@ -136,6 +149,22 @@ public class PlayerController : GameSystem
         m_Vertical = Input.GetAxis("Vertical");
     }
 
+    /* 
+     * Input changes used to determine what to send up the network
+     */
+    private void PollInputChange() {
+        if (m_LastGrounded != m_Grounded) {
+            m_NetworkPlayer.Network_WriteAnimBool("grounded", m_Grounded);
+        }
+
+        if (m_LastRunningRaw != m_RunningRaw) {
+            m_NetworkPlayer.Network_WriteAnimFloat("running", m_RunningRaw);
+        }
+
+        m_LastGrounded = m_Grounded;
+        m_LastRunningRaw = m_RunningRaw;
+    }
+
     private void Jump() {
         if (m_Grounded && m_Jump) {
             m_MoveDirection.y = jumpForce + 0.01f * (0.01f+m_PlayerStats.strength) * Time.deltaTime;
@@ -159,19 +188,23 @@ public class PlayerController : GameSystem
         m_RunAnimationSpeed = m_Vertical <= 0 || m_Shift ? 1 : (0.75f + 0.00045f * m_PlayerStats.runSpeed);
         m_RunAnimationSpeed = Mathf.Clamp(m_RunAnimationSpeed, 0.25f, 3);
         
-        float _running = 0;
         if (m_RightClick) { // a few different strafing cases to consider to ensure smooth animation.. 
-            if (m_VerticalRaw > 0)
-                _running = Mathf.Abs(m_Horizontal) + Mathf.Abs(m_Vertical);
-            else if (m_VerticalRaw == 0) {
-                _running = Mathf.Abs(m_Horizontal);
+            if (m_VerticalRaw > 0) {
+                m_RunningAnim = Mathf.Abs(m_Horizontal) + Mathf.Abs(m_Vertical);
+                m_RunningRaw = 1;
+            } else if (m_VerticalRaw == 0) {
+                m_RunningAnim = Mathf.Abs(m_Horizontal);
+                m_RunningRaw = Mathf.Abs(m_HorizontalRaw);
             } else if (m_VerticalRaw < 0) {
-                _running = m_Vertical;
+                m_RunningAnim = m_Vertical;
+                m_RunningRaw = m_VerticalRaw;
             }
         } else {
-            _running = m_Vertical;
+            m_RunningAnim = m_Vertical;
+            m_RunningRaw = m_VerticalRaw;
         }
-        m_Animator.SetFloat("running", _running);
+
+        m_Animator.SetFloat("running", m_RunningAnim);
         m_Animator.SetBool("grounded", m_Grounded);
         m_Animator.speed = m_RunAnimationSpeed;
     }

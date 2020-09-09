@@ -8,16 +8,18 @@ public class Attack : StateMachineBehaviour
     private float range;
     private Player m_Player;
     private PlayerCombatController m_PlayerCombat;
+    private NetworkPlayer m_Network;
     private GameObject child;
     private Mob target;
     private bool attacking;
     private float pauseSpeed;
     private float distance;
     
-    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex    ){
+    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
 
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         m_PlayerCombat = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCombatController>();
+        m_Network = GameObject.FindGameObjectWithTag("Player").GetComponent<NetworkPlayer>();
         range = m_Player.attackRange;
     }
     
@@ -29,7 +31,10 @@ public class Attack : StateMachineBehaviour
         #region Cancel/Pause Animaton
         if(!attacking){//Cancel animation
             animator.SetFloat("totalSpeed", pauseSpeed);
-            animator.SetBool("cycle", true);
+            if (animator.GetBool("cycle") == false) {
+                animator.SetBool("cycle", true);
+                m_Network.Network_WriteAnimBool("cycle", true);
+            }
         }
         if(m_PlayerCombat.target){            //set animation weights to 0     
             range = m_Player.attackRange;         

@@ -21,6 +21,7 @@ public class Player : GameSystem
 #endregion
 
     private PlayerData m_Data;
+    private NetworkPlayer m_NetworkPlayer;
     private StatData m_GearStats;
     private StatData m_BuffStats;
     private StatData m_TrickleStats;
@@ -175,6 +176,7 @@ public class Player : GameSystem
 
 #region Unity Functions
     private void Awake() {
+        m_NetworkPlayer = GetComponent<NetworkPlayer>();
         InitializeStats();
     }
     private void Update() {
@@ -189,10 +191,11 @@ public class Player : GameSystem
     public void ConnectWithData(PlayerData _data) {
         Dispose();
         m_Data = _data;
-        m_Data.player.health = MaxHealth();
         InitializeInventory();
         InitializeEquipment();
         //InitializeTestEquipment();
+        m_Data.player.health = MaxHealth();
+        m_Data.player.maxHealth = MaxHealth();
 
         if (session && session.network) {
             session.network.mobDeathEvt.OnEvt += OnMobDeath;
@@ -294,6 +297,7 @@ public class Player : GameSystem
 
     public void TakeHit(NetworkPlayerHitInfo _hitData) {
         m_Data.player.health = _hitData.health;
+
         if (m_Data.player.health <= 0) {
             GetComponent<PlayerController>().PauseUpdates(1000);
             transform.position = new Vector3(619,40,-75);
@@ -475,6 +479,7 @@ public class Player : GameSystem
             m_Data.player.health += GetAggregatedStats().hot;
             m_Data.player.health = Mathf.Clamp(m_Data.player.health, 0, MaxHealth());
             healDeltaTimer = 0;
+            m_NetworkPlayer.Network_WriteHealth();
         }
     }
     
