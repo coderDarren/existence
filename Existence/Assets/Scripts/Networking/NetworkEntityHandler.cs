@@ -99,6 +99,9 @@ public class NetworkEntityHandler : GameSystem
         network.mobHitEvt.OnEvt += OnPlayerHit;
         network.playerEquipSuccessEvt.OnEvt += OnPlayerEquipSuccess;
         network.playerUnequipSuccessEvt.OnEvt += OnPlayerUnequipSuccess;
+        network.playerAnimFloatEvt.OnEvt += OnPlayerAnimFloat;
+        network.playerAnimBoolEvt.OnEvt += OnPlayerAnimBool;
+        network.playerHealthEvt.OnEvt += OnPlayerHealthChanged;
         network.mobSpawnEvt.OnEvt += OnMobSpawn;
         network.mobExitEvt.OnMsg += OnMobExit;
         network.mobAttackRangeStateChangeEvt.OnEvt += OnMobAttackRangeStateChange;
@@ -118,6 +121,9 @@ public class NetworkEntityHandler : GameSystem
         network.mobHitEvt.OnEvt -= OnPlayerHit;
         network.playerEquipSuccessEvt.OnEvt -= OnPlayerEquipSuccess;
         network.playerUnequipSuccessEvt.OnEvt -= OnPlayerUnequipSuccess;
+        network.playerAnimFloatEvt.OnEvt -= OnPlayerAnimFloat;
+        network.playerAnimBoolEvt.OnEvt -= OnPlayerAnimBool;
+        network.playerHealthEvt.OnEvt -= OnPlayerHealthChanged;
         network.mobSpawnEvt.OnEvt -= OnMobSpawn;
         network.mobExitEvt.OnMsg -= OnMobExit;
         network.mobAttackRangeStateChangeEvt.OnEvt -= OnMobAttackRangeStateChange;
@@ -180,6 +186,13 @@ public class NetworkEntityHandler : GameSystem
         }
     }
 
+    private void OnPlayerHealthChanged(NetworkPlayerHealth _data) {
+        if (session.player.data.player.name == _data.id) return;
+        if (!m_PlayersHash.ContainsKey(_data.id)) return; 
+        NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_data.id];
+        _player.Network_ReadHealth(_data);
+    }
+
     private void OnPlayerEquipSuccess(NetworkEquipSuccessData _data) {
         string _name = _data.playerName;
 
@@ -206,12 +219,29 @@ public class NetworkEntityHandler : GameSystem
         }
     }
 
+    private void OnPlayerAnimFloat(NetworkAnimFloat _data) {
+        string _name = _data.id;
+        if (_name == null) return;
+        if (_name == session.playerData.player.name) return; //this is you..
+        if (!m_PlayersHash.ContainsKey(_name)) return; // player does not exist
+        NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_name];
+        _player.Network_ReadAnimFloat(_data);
+    }
+
+    private void OnPlayerAnimBool(NetworkAnimBool _data) {
+        string _name = _data.id;
+        if (_name == null) return;
+        if (_name == session.playerData.player.name) return; //this is you..
+        if (!m_PlayersHash.ContainsKey(_name)) return; // player does not exist
+        NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_name];
+        _player.Network_ReadAnimBool(_data);
+    }
+
     private void SpawnPlayer(NetworkPlayerData _data) {
         string _name = _data.name;
         if (_name == null) return;
         if (_name == session.playerData.player.name) return; //this is you..
         if (m_PlayersHash.ContainsKey(_name)) return; // player already exists
-        Log("Spawning player "+_name);
         GameObject _obj = Instantiate(networkPlayerObject);
         NetworkPlayer _player = _obj.GetComponent<NetworkPlayer>();
         _player.Init(_data);
@@ -222,8 +252,6 @@ public class NetworkEntityHandler : GameSystem
 
     private void MovePlayer(NetworkTransform _data) {
         string _name = _data.id;
-        Log("Looking to move player: "+_name);
-
         if (_name == session.playerData.player.name) return; //this is you..
         if (!m_PlayersHash.ContainsKey(_name)){ Log("Could not find player: "+_name);return;} // could not find player
         NetworkPlayer _player = (NetworkPlayer)m_PlayersHash[_name];

@@ -1,4 +1,4 @@
-﻿
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,12 +25,14 @@ public class NetworkPlayer : Selectable
     private Vector3 m_InitialEuler;
     private Vector3 m_TargetEuler;
     private NetworkPlayerData m_ClientData;
+    private NetworkPlayerData m_NetworkData;
     private NetworkPlayerData m_LastFrameData;
     private PlayerController m_PlayerController;
     private PlayerCombatController m_PlayerCombat;
     private EquipmentController m_EquipmentController;
     private Player m_Player;
     private Animator m_Animator;
+    private Hashtable m_FloatAnimTargets;
     private float m_InitialRunning;
     private float m_TargetRunning;
     private float m_Running;
@@ -111,6 +113,9 @@ public class NetworkPlayer : Selectable
             m_NameplateData = new NameplateData();
             m_NameplateData.name = m_Player.data.player.name;
             NameplateController.instance.TrackSelectable(this);
+        } else {
+            m_FloatAnimTargets = new Hashtable();
+            m_Animator.SetBool("grounded", true);
         }
     }
 
@@ -124,8 +129,13 @@ public class NetworkPlayer : Selectable
 #endregion
 
 #region Public Functions
+    /*
+     * This function called by NetworkEntityHandler when a new..
+     * ..NetworkPlayer enters the scene
+     */ 
     public void Init(NetworkPlayerData _data) {
         if (isClient) return;
+        m_NetworkData = new NetworkPlayerData();
         m_NameplateData = new NameplateData();
         m_NameplateData.name = _data.name;
         m_TargetPos = new Vector3(_data.transform.pos.x, _data.transform.pos.y, _data.transform.pos.z);
@@ -140,35 +150,36 @@ public class NetworkPlayer : Selectable
             equipmentController.Equip(_item);
         }
 
-        m_InitialRunning = m_Running;
-        m_TargetRunning = _data.anim.running.val;
-        m_Grounded = _data.anim.grounded.val;
-        m_Attacking = _data.anim.attacking.val;
-        m_AttackCycle = _data.anim.cycle.val;
-        m_AttackSpeed = 1;
-        m_SpecialInput = _data.anim.special.val;
-        m_Weapon = _data.anim.attacking.anim;
-        m_Special = _data.anim.special.anim;
         m_UpdateTimer = 0;
+        m_NetworkData = _data;
         m_LastFrameData = _data;
-        UpdateNameplate(_data.name, _data.health, _data.maxHealth, _data.lvl);
+        m_Animator = GetComponent<Animator>();
+        m_Animator.SetFloat(_data.anim.running.anim, _data.anim.running.val);
+        m_Animator.SetBool(_data.anim.grounded.anim, _data.anim.grounded.val);
+        m_Animator.SetBool(_data.anim.attacking.anim, _data.anim.attacking.val);
+        m_Animator.SetBool(_data.anim.special.anim, _data.anim.special.val);
+        m_Animator.SetBool(_data.anim.cycle.anim, _data.anim.cycle.val);
+        UpdateNameplate(m_NetworkData.name, m_NetworkData.health.health, m_NetworkData.health.maxHealth, m_NetworkData.lvl);
     }
 
+    /*
+     * This function called by Session when this client loads in with his data
+     */
     public void Init(PlayerData _data) {
         m_ClientData = new NetworkPlayerData();
         m_ClientData.id = _data.player.ID;
         m_ClientData.name = _data.player.name;
         m_ClientData.tix = _data.player.tix;
+        m_ClientData.health.health = _data.player.health;
+        m_ClientData.health.maxHealth = _data.player.maxHealth;
+        m_ClientData.anim.running.val = 0;
+        m_ClientData.anim.grounded.val = false;
+        m_ClientData.equipment = _data.equipment;
     }
 
     public void Dispose() {
         if (!isClient) return;
         NameplateController.instance.ForgetSelectable(this);
-    }
-
-    public void UpdatePlayerHealth(NetworkPlayerHitInfo _data) {
-        if (!isClient) return;
-        m_Player.data.player.health = _data.health;
     }
 
 #region Network Readers
@@ -192,44 +203,29 @@ public class NetworkPlayer : Selectable
         m_TargetEuler = new Vector3(_data.rot.x, _data.rot.y, _data.rot.z);
         m_UpdateTimer = 0;
         m_Smooth = moveSmooth;
-
-        // m_InitialRunning = m_Running;
-        // m_TargetRunning = _data.input.running;
-        // m_InitialStrafing = m_Strafing;
-        // m_TargetStrafing = _data.input.strafing;
-        // m_Grounded = _data.input.grounded;
-        // m_Attacking = _data.input.attacking;
-        // m_AttackCycle = _data.input.cycle;
-        // m_AttackSpeed = _data.input.attackSpeed;
-        // m_SpecialInput = _data.input.special;
-        // m_Weapon = _data.weaponName;
-        // m_Special = _data.specialName;
-        
-        // m_UpdateTimer = 0;
-
-        // UpdateNameplate(_data.name, _data.health, _data.maxHealth, _data.lvl);
         
         // m_LastFrameData = _data;
     }
-    
+
     public void Network_ReadHealth(NetworkPlayerHealth _data) {
-        
+        m_NetworkData.health = _data;
+        UpdateNameplate(m_NetworkData.health.id, m_NetworkData.health.health, m_NetworkData.health.maxHealth, m_NetworkData.lvl);
     }
     
     public void Network_ReadLevel(NetworkPlayerLvl _data) {
         
     }
-    
-    public void Network_ReadStartAttack(NetworkPlayerAttackStart _data) {
-        
+
+    public void Network_ReadAnimFloat(NetworkAnimFloat _data) {
+        if (!m_FloatAnimTargets.ContainsKey(_data.anim)) {
+            m_FloatAnimTargets.Add(_data.anim, _data.val);
+        } else {
+            m_FloatAnimTargets[_data.anim] = _data.val;
+        }
     }
     
-    public void Network_ReadStopAttack(NetworkPlayerAttackStop _data) {
-        
-    }
-    
-    public void Network_ReadUseSpecial(NetworkPlayerUseSpecial _data) {
-        
+    public void Network_ReadAnimBool(NetworkAnimBool _data) {
+        m_Animator.SetBool(_data.anim, _data.val);
     }
 #endregion
 
@@ -239,31 +235,45 @@ public class NetworkPlayer : Selectable
     }
     
     public void Network_WriteHealth() {
-        
+        m_ClientData.health.health = m_Player.data.player.health;
+        m_ClientData.health.maxHealth = m_Player.MaxHealth();
+        network.SendPlayerHealth(m_ClientData.health);
     }
     
     public void Network_WriteLevel() {
         
     }
-    
-    public void Network_WriteStartAttack() {
-        
+
+    public void Network_WriteAnimAttack(string _anim, bool _val) {
+        m_ClientData.anim.attacking = new NetworkAnimBool(m_ClientData.name, _anim, _val);
+        network.SendPlayerAnimBool(m_ClientData.anim.attacking);
+    }
+
+    public void Network_WriteAnimSpecial(string _anim, bool _val) {
+        m_ClientData.anim.special = new NetworkAnimBool(m_ClientData.name, _anim, _val);
+        network.SendPlayerAnimBool(m_ClientData.anim.special);
     }
     
-    public void Network_WriteStopAttack() {
-        
+    public void Network_WriteAnimFloat(string _anim, float _val) {
+        switch (_anim) {
+            case "running":
+                m_ClientData.anim.running = new NetworkAnimFloat(m_ClientData.name, _anim, _val);
+                network.SendPlayerAnimFloat(m_ClientData.anim.running);
+                break;
+        }
     }
     
-    public void Network_WriteUseSpecial() {
-        
-    }
-
-    public void Network_WriteJumpAnim() {
-
-    }
-
-    public void Network_WriteForwardAnim() {
-
+    public void Network_WriteAnimBool(string _anim, bool _val) {
+        switch (_anim) {
+            case "grounded":
+                m_ClientData.anim.grounded = new NetworkAnimBool(m_ClientData.name, _anim, _val);
+                network.SendPlayerAnimBool(m_ClientData.anim.grounded);
+                break;
+            case "cycle":
+                m_ClientData.anim.cycle = new NetworkAnimBool(m_ClientData.name, _anim, _val);
+                network.SendPlayerAnimBool(m_ClientData.anim.cycle);
+                break;
+        }
     }
 #endregion
 #endregion
@@ -282,20 +292,10 @@ public class NetworkPlayer : Selectable
         m_ClientData.name = session.playerData.player.name;
         m_ClientData.UpdatePos(transform.position);
         m_ClientData.UpdateRot(transform.eulerAngles);
-        m_ClientData.UpdateRunning(m_PlayerController.runInput);
-        m_ClientData.UpdateGrounded(m_PlayerController.grounded);
-        m_ClientData.UpdateCycle(m_Animator.GetBool("cycle"));
-        m_ClientData.UpdateAttacking(m_Player.weapon.ToString(), m_PlayerCombat.attacking);
-        if (m_PlayerCombat.special != "")
-            m_ClientData.UpdateSpecial(m_PlayerCombat.special, m_Animator.GetBool(m_PlayerCombat.special));
-       
-       
-        m_ClientData.maxHealth = m_Player.MaxHealth();
-        m_ClientData.health = m_Player.data.player.health;
         m_ClientData.lvl = m_Player.data.player.level;
         m_ClientData.equipment = m_Player.data.equipment;
 
-        UpdateNameplate(m_ClientData.name, m_ClientData.health, m_ClientData.maxHealth, m_ClientData.lvl);
+        UpdateNameplate(m_ClientData.name, m_ClientData.health.health, m_ClientData.health.maxHealth, m_ClientData.lvl);
       
         m_UpdateTimer += Time.deltaTime;
         if (m_UpdateTimer >= sendRate && m_IdleTimer < idleDetectionSeconds) {
@@ -320,15 +320,14 @@ public class NetworkPlayer : Selectable
         m_UpdateTimer += Time.deltaTime;
         transform.position = Vector3.Lerp(m_InitialPos, m_TargetPos, m_UpdateTimer / m_Smooth);
         transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_InitialEuler), Quaternion.Euler(m_TargetEuler), m_UpdateTimer / m_Smooth);
-        m_Running = Mathf.Lerp(m_InitialRunning, m_TargetRunning, m_UpdateTimer / m_Smooth);
-        m_Strafing = Mathf.Lerp(m_InitialStrafing, m_TargetStrafing, m_UpdateTimer / m_Smooth);       
-        m_Animator.SetFloat("running", m_Running);
-        m_Animator.SetFloat("strafing", m_Strafing);
-        m_Animator.SetFloat("totalSpeed", m_AttackSpeed);
-        m_Animator.SetBool("grounded", m_Grounded);
-        m_Animator.SetBool(m_Weapon, m_Attacking);
-        m_Animator.SetBool("cycle", m_AttackCycle);
-        m_Animator.SetBool(m_Special, m_SpecialInput);
+        
+        // animation
+        foreach (DictionaryEntry _entry in m_FloatAnimTargets) {
+            string _key = (string)_entry.Key;
+            float _target = (float)_entry.Value;
+            float _curr = m_Animator.GetFloat(_key);
+            m_Animator.SetFloat(_key, Mathf.Lerp(_curr, _target, 3 * Time.deltaTime));
+        }
        
     }
     
