@@ -380,21 +380,20 @@ public class NetworkEventHandler<T> {
     public void HandleEvt(SocketIOEvent _evt) {
         if (m_Invalid) return;
 
-        if (m_Debug) {
-            Debug.Log(m_EvtLog);
-        }
-
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
 
         if (typeof(NetworkModel).IsAssignableFrom(typeof(T))) {
-            Debug.Log("NETWORK MODEL "+typeof(T)+": "+_msg);
+            if (m_Debug) 
+                Debug.Log(m_EvtLog+" NETWORK MODEL "+typeof(T)+": "+_msg);
             T _netData = NetworkModel.FromJsonStr<T>(_msg);
             TryRunAction(OnEvt, _netData);
         } else if (typeof(T) == typeof(string)) {
-            Debug.Log("NETWORK MODEL STRING: "+_msg);
+            if (m_Debug)
+                Debug.Log(m_EvtLog+" NETWORK MODEL STRING: "+_msg);
             TryRunAction(OnMsg, _msg);
         } else {
-            Debug.LogWarning("NO EVENT EMITTED FOR "+_msg+" "+typeof(T));
+            if (m_Debug)
+                Debug.LogWarning(m_EvtLog+" NO EVENT EMITTED FOR "+_msg+" "+typeof(T));
         }
     }
 
