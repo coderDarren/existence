@@ -171,6 +171,7 @@ public class PlayerCombatController : GameSystem
             m_SpecialInput = true;            
             StartAutoAttack();
             m_Animator.SetBool(special, true);
+            m_Animator.SetBool("attacking", true);
             if (m_Weapon.GetComponent<AudioSource>())
                 m_Weapon.GetComponent<AudioSource>().Play();
             try{
@@ -236,12 +237,12 @@ public class PlayerCombatController : GameSystem
 
     private void StartAutoAttack() {
         m_Attacking = true;
-        m_Animator.SetBool(m_Player.weapon.ToString(), true);
+        m_Animator.SetBool("attacking", true);
     }
 
     public void StopAutoAttack() {
         m_Attacking = false;
-        m_Animator.SetBool(m_Player.weapon.ToString(), false); 
+        m_Animator.SetBool("attacking", false); 
     }
 
 

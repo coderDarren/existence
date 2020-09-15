@@ -11,7 +11,8 @@ public class EquipmentData : ScriptableObject
         public Race race;
         public GearType location; 
         public GameObject prefab;
-        public Texture2D skin;
+        public Texture2D tex;
+        public Utilities.RectBounds bounds;     
     }
 
     [System.Serializable]
@@ -32,6 +33,9 @@ public class EquipmentData : ScriptableObject
         NEWCOMERS_FUNCTIONAL_SHOTGUN=18,
         NEWCOMERS_SHARPENED_BLADE=19,
         BASIC_LEFT_ARM_ARTILLERY=20,
-        BASIC_LEFT_ARM_FORCE=21
+        BASIC_LEFT_ARM_FORCE=21,
+        CHEAP_LEATHER_VEST=26,
+        CHEAP_LEATHER_PANTS=27,
+        CHEAP_LEATHER_SLEEVES=28
     }
 }
