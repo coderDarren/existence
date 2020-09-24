@@ -17,11 +17,11 @@ ModelImporter:
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
-    motionNodeName: 
+    motionNodeName: <Root Transform>
     rigImportErrors: 
     rigImportWarnings: "Copied Avatar Rig Configuration mis-match. Bone length in
       copied configuration does not match position in animation file:\n\t'Bone.009'
-      : position error = 1.263581 mm\n"
+      : position error = 1.261794 mm\n"
     animationImportErrors: 
     animationImportWarnings: "\nClip 'Character_new_running' has import animation
       warnings that might lower retargeting quality:\nNote: Activate translation
@@ -46,8 +46,8 @@ ModelImporter:
       name: Character_new_running
       takeName: Character_new_running
       internalID: 0
-      firstFrame: 1
-      lastFrame: 44
+      firstFrame: 0
+      lastFrame: 46
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -59,7 +59,7 @@ ModelImporter:
       loopBlendOrientation: 0
       loopBlendPositionY: 0
       loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
+      keepOriginalOrientation: 1
       keepOriginalPositionY: 1
       keepOriginalPositionXZ: 0
       heightFromFeet: 0
