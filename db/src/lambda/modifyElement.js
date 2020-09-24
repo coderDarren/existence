@@ -9,6 +9,7 @@ const validateParams = function(_body)
     const _table = _body.table;
     const _element = _body.element;
     const _elementKey = _body.elementKey;
+    const _strictKeys = _body.strictKeys;
 
     if (!_account || !_apiKey || !_method || !_element || !_elementKey || !_table) return -1;
 
@@ -18,7 +19,8 @@ const validateParams = function(_body)
         method: _method,
         element: _element,
         elementKey: _elementKey,
-        table: _table
+        table: _table,
+        strictKeys: _strictKeys
     };
 }
 

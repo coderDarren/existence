@@ -10,9 +10,11 @@ public class ShopTerminalPage : Page
     public Transform shopSlotsParent;
     public Transform sellSlotsParent;
     public Transform tradeSlotsParent;
+    public Text netTransferLabel;
 
     private Session m_Session;
     private ShopManager m_ShopManager;
+    private int m_NetTransfer;
 
     // get Session with integrity
     private Session session {
@@ -43,16 +45,16 @@ public class ShopTerminalPage : Page
 #region Private Functions
     private void Draw() {
         DrawItems(shopSlotsParent, shopManager.shopItems);
-        DrawItems(sellSlotsParent, shopManager.sellItems);
+        DrawItems(sellSlotsParent, shopManager.sellItems, false);
         DrawItems(tradeSlotsParent, shopManager.tradeItems);
     }
 
-    private void DrawItems(Transform _slotContainer, List<IItem> _items) {
+    private void DrawItems(Transform _slotContainer, List<IItem> _items, bool _buy=true) {
         int _index = 0;
         if (_items == null) return;
         foreach (IItem _item in _items) {
             ShopTerminalSlot _slot = _slotContainer.transform.GetChild(_index).GetComponent<ShopTerminalSlot>();
-            _slot.AssignItem(_item);
+            _slot.AssignItem(_item, _buy);
             _index++;
         }
     }
@@ -72,6 +74,18 @@ public class ShopTerminalPage : Page
 #endregion
 
 #region Public Functions
+    public void AddPrice(int _added) {
+        m_NetTransfer += _added;
+
+        if (m_NetTransfer < 0) {
+            netTransferLabel.text = "<color=#f00>"+m_NetTransfer.ToString()+"</color>";
+        } else if (m_NetTransfer > 0) {
+            netTransferLabel.text = "<color=#0f0>"+m_NetTransfer.ToString()+"</color>";
+        } else {
+            netTransferLabel.text = m_NetTransfer.ToString();
+        }
+    }
+
     public void Redraw() {
         if (instance != this) return;
         Clear();
@@ -92,6 +106,9 @@ public class ShopTerminalPage : Page
         if (!instance) {
             instance = this;
         }
+
+        m_NetTransfer = 0;
+        netTransferLabel.text = m_NetTransfer.ToString();
 
         Redraw();
     }

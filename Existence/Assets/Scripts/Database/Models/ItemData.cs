@@ -38,6 +38,8 @@ public class ItemData : NetworkModel
     public StatData effects;
     public int level;
     public int rarity;
+    public int price;
+    public int sellPrice;
     public bool shopBuyable;
     public bool stackable;
     public bool tradeskillable;

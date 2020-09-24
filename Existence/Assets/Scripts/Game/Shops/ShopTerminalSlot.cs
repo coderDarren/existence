@@ -11,6 +11,7 @@ public class ShopTerminalSlot : InspectableItem
     }
 
     public Image icon;
+    public Text price;
     public SlotType slotType;
 
     private ShopManager m_ShopManager;
@@ -41,7 +42,7 @@ public class ShopTerminalSlot : InspectableItem
     }
 
 #region Public Functions
-    public void AssignItem(IItem _item) {
+    public void AssignItem(IItem _item, bool _buy=true) {
         m_Item = _item;
 
         Sprite _s = Utilities.LoadStreamingAssetsSprite(m_Item.def.icon);
@@ -50,6 +51,7 @@ public class ShopTerminalSlot : InspectableItem
             return;
         }
 
+        price.text = _buy ? _item.def.price.ToString() : (_item.def.sellPrice*_item.def.level).ToString();
         icon.sprite = _s;
         UpdateAlpha(1);
     }
@@ -57,6 +59,7 @@ public class ShopTerminalSlot : InspectableItem
     public void ClearItem() {
         m_Item = null;
         icon.sprite = null;
+        price.text = "";
         UpdateAlpha(0);
     }
 
