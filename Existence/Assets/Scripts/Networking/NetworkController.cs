@@ -63,6 +63,13 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_INTERACT_SHOP_SUCCESS = "NETMSG_INTERACT_SHOP_SUCCESS";
     private static readonly string NETMSG_TRADE_SHOP = "NETMSG_TRADE_SHOP";
     private static readonly string NETMSG_TRADE_SHOP_SUCCESS = "NETMSG_TRADE_SHOP_SUCCESS";
+    private static readonly string NETMSG_REQUEST_P2P_TRADE = "REQUEST_P2P_TRADE";
+    private static readonly string NETMSG_REJECT_P2P_TRADE = "REJECT_P2P_TRADE";
+    private static readonly string NETMSG_START_P2P_TRADE = "START_P2P_TRADE";
+    private static readonly string NETMSG_P2P_TRADE_ADD_ITEM = "P2P_TRADE_ADD_ITEM";
+    private static readonly string NETMSG_P2P_TRADE_RM_ITEM = "P2P_TRADE_RM_ITEM";
+    private static readonly string NETMSG_ACCEPT_P2P_TRADE = "ACCEPT_P2P_TRADE";
+    private static readonly string NETMSG_CANCEL_P2P_TRADE = "CANCEL_P2P_TRADE";
 
     /*
      * Some helpful events to subscribe to..
@@ -122,6 +129,16 @@ public class NetworkController : GameSystem
 #region SHOP TERMINAL EVENTS
     public NetworkEventHandler<NetworkShopTerminalData> shopTerminalInteractEvt;
     public NetworkEventHandler<NetworkShopTerminalTradeSuccessData> shopTerminalTradeSuccessEvt;
+#endregion
+
+#region P2P TRADE EVENTS
+    public NetworkEventHandler<string> p2pTradeRequestEvt;
+    public NetworkEventHandler<string> p2pTradeRequestRejectEvt;
+    public NetworkEventHandler<string> p2pTradeStartEvt;
+    public NetworkEventHandler<string> p2pTradeAcceptEvt;
+    public NetworkEventHandler<string> p2pTradeCancelEvt;
+    public NetworkEventHandler<ItemData> p2pTradeAddItemEvt;
+    public NetworkEventHandler<ItemData> p2pTradeRemoveItemEvt;
 #endregion
 
     public bool usePredictiveSmoothing=true;
@@ -193,6 +210,15 @@ public class NetworkController : GameSystem
         // shop terminal events
         shopTerminalInteractEvt = new NetworkEventHandler<NetworkShopTerminalData>("Shop terminal was interacted with.", debug);
         shopTerminalTradeSuccessEvt = new NetworkEventHandler<NetworkShopTerminalTradeSuccessData>("Shop terminal trade was successful.", debug);
+    
+        // p2p trade
+        p2pTradeRequestEvt = new NetworkEventHandler<string>("P2P trade requested.", debug);
+        p2pTradeRequestRejectEvt = new NetworkEventHandler<string>("P2P trade request was rejected.", debug);
+        p2pTradeStartEvt = new NetworkEventHandler<string>("P2P trade request was started.", debug);
+        p2pTradeAcceptEvt = new NetworkEventHandler<string>("P2P trade was accepted.", debug);
+        p2pTradeCancelEvt = new NetworkEventHandler<string>("P2P trade was canceled.", debug);
+        p2pTradeAddItemEvt = new NetworkEventHandler<ItemData>("P2P trade item was added.", debug);
+        p2pTradeRemoveItemEvt = new NetworkEventHandler<ItemData>("P2P trade item was removed.", debug);
     }
 
     private void SubscribeEventHandlers() {
@@ -245,6 +271,15 @@ public class NetworkController : GameSystem
         // shop terminal events
         m_Network.On(NETMSG_INTERACT_SHOP_SUCCESS, shopTerminalInteractEvt.HandleEvt);
         m_Network.On(NETMSG_TRADE_SHOP_SUCCESS, shopTerminalTradeSuccessEvt.HandleEvt);
+
+        // p2p trade events
+        m_Network.On(NETMSG_REQUEST_P2P_TRADE, p2pTradeRequestEvt.HandleEvt);
+        m_Network.On(NETMSG_START_P2P_TRADE, p2pTradeStartEvt.HandleEvt);
+        m_Network.On(NETMSG_REJECT_P2P_TRADE, p2pTradeRequestRejectEvt.HandleEvt);
+        m_Network.On(NETMSG_ACCEPT_P2P_TRADE, p2pTradeAcceptEvt.HandleEvt);
+        m_Network.On(NETMSG_CANCEL_P2P_TRADE, p2pTradeCancelEvt.HandleEvt);
+        m_Network.On(NETMSG_P2P_TRADE_ADD_ITEM, p2pTradeAddItemEvt.HandleEvt);
+        m_Network.On(NETMSG_P2P_TRADE_RM_ITEM, p2pTradeRemoveItemEvt.HandleEvt);
     }
 
     private void OnNetworkConnected(SocketIOEvent _evt) {
@@ -266,7 +301,7 @@ public class NetworkController : GameSystem
     }
 
     private void SendString(string _id, string _data) {
-        //Log("Sending {\"message\":\""+_data+"\"} to "+_id);
+        Log("Sending {\"message\":\""+_data+"\"} to "+_id);
         m_Network.Emit(_id, new JSONObject("{\"message\":\""+_data+"\"}"));
     }
 
@@ -344,6 +379,34 @@ public class NetworkController : GameSystem
 
     public void TradeShop(NetworkShopTerminalTradeData _data) {
         SendNetworkData<NetworkShopTerminalTradeData>(NETMSG_TRADE_SHOP, _data);
+    }
+
+    public void RequestP2PTrade(string _player) {
+        SendString(NETMSG_REQUEST_P2P_TRADE, _player);
+    }
+
+    public void RejectP2PTradeRequest() {
+        SendString(NETMSG_REJECT_P2P_TRADE, "");
+    }
+
+    public void AcceptP2PTradeRequest() {
+        SendString(NETMSG_START_P2P_TRADE, "");
+    }
+
+    public void AcceptP2PTrade() {
+        SendString(NETMSG_ACCEPT_P2P_TRADE, "");
+    }
+
+    public void CancelP2PTrade() {
+        SendString(NETMSG_CANCEL_P2P_TRADE, "");
+    }
+
+    public void AddP2PTradeItem(ItemData _data) {
+        SendNetworkData<ItemData>(NETMSG_P2P_TRADE_ADD_ITEM, _data);
+    }
+
+    public void RemoveP2PTradeItem(ItemData _data) {
+        SendNetworkData<ItemData>(NETMSG_P2P_TRADE_RM_ITEM, _data);
     }
 #endregion
 }
