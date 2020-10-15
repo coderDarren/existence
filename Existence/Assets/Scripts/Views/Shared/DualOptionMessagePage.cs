@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityCore.Menu;
+using ProScripts;
 
 public class DualOptionMessagePage : Page
 {
@@ -12,8 +13,8 @@ public class DualOptionMessagePage : Page
     public Text message;
     public Text option1Label;
     public Text option2Label;
-    public Button option1Button;
-    public Button option2Button;
+    public ProButton option1Button;
+    public ProButton option2Button;
 
     private UnityAction m_Option1Action;
     private UnityAction m_Option2Action;
@@ -28,12 +29,12 @@ public class DualOptionMessagePage : Page
 
     public void OnOption1(UnityAction _action) {
         m_Option1Action = _action;
-        option1Button.onClick.AddListener(m_Option1Action);
+        option1Button.upSettings.eventAction.AddListener(m_Option1Action);
     }
 
     public void OnOption2(UnityAction _action) {
         m_Option2Action = _action;
-        option2Button.onClick.AddListener(m_Option2Action);
+        option2Button.upSettings.eventAction.AddListener(m_Option2Action);
     }
 #endregion
 
@@ -49,8 +50,8 @@ public class DualOptionMessagePage : Page
     protected override void OnPageDisabled() {
         base.OnPageDisabled();
         instance = null;
-        option1Button.onClick.RemoveListener(m_Option1Action);
-        option2Button.onClick.RemoveListener(m_Option2Action);
+        option1Button.upSettings.eventAction.RemoveListener(m_Option1Action);
+        option2Button.upSettings.eventAction.RemoveListener(m_Option2Action);
     }
 #endregion
 }

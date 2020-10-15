@@ -6,11 +6,19 @@ public class P2PTradeItemSlot : InspectableItem
 {
     public Image icon;
 
-#region Public Functions
-    public void AssignItem(ItemData _item) {
-        m_Item.def = _item;
+#region Unity Functions
+    private void Update() {
+        if (Input.GetMouseButtonDown(0)) {
+            Interact();
+        }
+    }
+#endregion
 
-        Sprite _s = Utilities.LoadStreamingAssetsSprite(m_Item.def.icon);1
+#region Public Functions
+    public void AssignItem(IItem _item) {
+        m_Item = _item;
+
+        Sprite _s = Utilities.LoadStreamingAssetsSprite(m_Item.def.icon);
         if (_s == null) {
             UpdateAlpha(0);
             return;
@@ -25,16 +33,21 @@ public class P2PTradeItemSlot : InspectableItem
         icon.sprite = null;
         UpdateAlpha(0);
     }
-
-    public void Interact() {
-        if (!m_Hovering) return;
-        if (m_Item == null) return;
-        
-        OnPointerExit(null);
-    }
 #endregion
 
 #region Private Functions
+    public void Interact() {
+        if (!m_Hovering) return;
+        if (!P2PTradePage.instance) return;
+        if (!CursorController.instance) return;
+        if (CursorController.instance.selectedItem != null) {
+            P2PTradePage.instance.SendAddOutgoingItem(CursorController.instance.selectedItem);
+        } else if (m_Item != null) {
+            P2PTradePage.instance.SendRemoveOutgoingItem(m_Item);
+        }
+        OnPointerExit(null);
+    }
+
     private void UpdateAlpha(float _alpha) {
         Color _c = icon.color;
         _c.a = _alpha;

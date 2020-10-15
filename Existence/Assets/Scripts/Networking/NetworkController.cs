@@ -135,10 +135,10 @@ public class NetworkController : GameSystem
     public NetworkEventHandler<string> p2pTradeRequestEvt;
     public NetworkEventHandler<string> p2pTradeRequestRejectEvt;
     public NetworkEventHandler<string> p2pTradeStartEvt;
-    public NetworkEventHandler<string> p2pTradeAcceptEvt;
+    public NetworkEventHandler<NetworkP2PTradeData> p2pTradeAcceptEvt;
     public NetworkEventHandler<string> p2pTradeCancelEvt;
-    public NetworkEventHandler<ItemData> p2pTradeAddItemEvt;
-    public NetworkEventHandler<ItemData> p2pTradeRemoveItemEvt;
+    public NetworkEventHandler<NetworkP2PTradeItemData> p2pTradeAddItemEvt;
+    public NetworkEventHandler<NetworkP2PTradeItemData> p2pTradeRemoveItemEvt;
 #endregion
 
     public bool usePredictiveSmoothing=true;
@@ -215,10 +215,10 @@ public class NetworkController : GameSystem
         p2pTradeRequestEvt = new NetworkEventHandler<string>("P2P trade requested.", debug);
         p2pTradeRequestRejectEvt = new NetworkEventHandler<string>("P2P trade request was rejected.", debug);
         p2pTradeStartEvt = new NetworkEventHandler<string>("P2P trade request was started.", debug);
-        p2pTradeAcceptEvt = new NetworkEventHandler<string>("P2P trade was accepted.", debug);
+        p2pTradeAcceptEvt = new NetworkEventHandler<NetworkP2PTradeData>("P2P trade was accepted.", debug);
         p2pTradeCancelEvt = new NetworkEventHandler<string>("P2P trade was canceled.", debug);
-        p2pTradeAddItemEvt = new NetworkEventHandler<ItemData>("P2P trade item was added.", debug);
-        p2pTradeRemoveItemEvt = new NetworkEventHandler<ItemData>("P2P trade item was removed.", debug);
+        p2pTradeAddItemEvt = new NetworkEventHandler<NetworkP2PTradeItemData>("P2P trade item was added.", debug);
+        p2pTradeRemoveItemEvt = new NetworkEventHandler<NetworkP2PTradeItemData>("P2P trade item was removed.", debug);
     }
 
     private void SubscribeEventHandlers() {
@@ -401,12 +401,12 @@ public class NetworkController : GameSystem
         SendString(NETMSG_CANCEL_P2P_TRADE, "");
     }
 
-    public void AddP2PTradeItem(ItemData _data) {
-        SendNetworkData<ItemData>(NETMSG_P2P_TRADE_ADD_ITEM, _data);
+    public void AddP2PTradeItem(NetworkP2PTradeItemData _data) {
+        SendNetworkData<NetworkP2PTradeItemData>(NETMSG_P2P_TRADE_ADD_ITEM, _data);
     }
 
-    public void RemoveP2PTradeItem(ItemData _data) {
-        SendNetworkData<ItemData>(NETMSG_P2P_TRADE_RM_ITEM, _data);
+    public void RemoveP2PTradeItem(NetworkP2PTradeItemData _data) {
+        SendNetworkData<NetworkP2PTradeItemData>(NETMSG_P2P_TRADE_RM_ITEM, _data);
     }
 #endregion
 }

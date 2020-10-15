@@ -12,8 +12,8 @@ public class P2PTradePage : Page
     public Transform outgoingItemsContainer;
 
     private P2PTradeManager m_TradeManager;
-    private List<ItemData> incomingItems;
-    private List<ItemData> outgoingItems;
+    private List<IItem> incomingItems;
+    private List<IItem> outgoingItems;
 
     // get P2PTradeManager with integrity
     private P2PTradeManager tradeManager {
@@ -29,24 +29,56 @@ public class P2PTradePage : Page
     }
 
 #region Public Functions
-    public void AddIncomingItem(ItemData _item) {
+    public void AddIncomingItem(IItem _item) {
         incomingItems.Add(_item);
         Draw();
     }
 
-    public void RemoveIncomingItem(ItemData _item) {
-        incomingItems.Remove(_item);
+    public void RemoveIncomingItem(IItem _item) {
+        for (int i = incomingItems.Count - 1; i >= 0; i--) {
+            IItem _i = incomingItems[i];
+            if (_i.def.id == _item.def.id && _i.def.level == _item.def.level) {
+                incomingItems.RemoveAt(i);
+                break;
+            }
+        }
         Draw();
     }
 
-    public void AddOutgoingItem(ItemData _item) {
+    public void AddOutgoingItem(IItem _item) {
         outgoingItems.Add(_item);
         Draw();
     }
 
-    public void RemoveOutgoingItem(ItemData _item) {
-        outgoingItems.Remove(_item);
+    public void RemoveOutgoingItem(IItem _item) {
+        for (int i = outgoingItems.Count - 1; i >= 0; i--) {
+            IItem _i = outgoingItems[i];
+            if (_i.def.id == _item.def.id && _i.def.level == _item.def.level) {
+                outgoingItems.RemoveAt(i);
+                break;
+            }
+        }
         Draw();
+    }
+
+    public void SendAddOutgoingItem(IItem _item) {
+        if (!tradeManager) return;
+        tradeManager.AddTradeItem(_item);
+    }
+
+    public void SendRemoveOutgoingItem(IItem _item) {
+        if (!tradeManager) return;
+        tradeManager.RemoveTradeItem(_item);
+    }
+
+    public void AcceptTrade() {
+        if (!tradeManager) return;
+        tradeManager.AcceptTrade();
+    }
+
+    public void CancelTrade() {
+        if (!tradeManager) return;
+        tradeManager.CancelTrade();
     }
 #endregion
 
@@ -57,10 +89,10 @@ public class P2PTradePage : Page
         DrawItems(outgoingItemsContainer, outgoingItems);
     }
 
-    private void DrawItems(Transform _slotContainer, List<ItemData> _items) {
+    private void DrawItems(Transform _slotContainer, List<IItem> _items) {
         int _index = 0;
         if (_items == null) return;
-        foreach (ItemData _item in _items) {
+        foreach (IItem _item in _items) {
             P2PTradeItemSlot _slot = _slotContainer.transform.GetChild(_index).GetComponent<P2PTradeItemSlot>();
             _slot.AssignItem(_item);
             _index++;
@@ -75,7 +107,7 @@ public class P2PTradePage : Page
     private void ClearChildren(Transform _parent) {
         foreach (Transform _t in _parent) {
             if (_t == _parent) continue;
-            _t.GetComponent<ShopTerminalSlot>().ClearItem();
+            _t.GetComponent<P2PTradeItemSlot>().ClearItem();
         }
     }
 #endregion
@@ -87,11 +119,14 @@ public class P2PTradePage : Page
         if (instance != null) return;
         if (!instance) {
             instance = this;
+            incomingItems = new List<IItem>();
+            outgoingItems = new List<IItem>();
         }
     }
 
     protected override void OnPageDisabled() {
         base.OnPageDisabled();
+        Clear();
         instance = null;
     }
 #endregion

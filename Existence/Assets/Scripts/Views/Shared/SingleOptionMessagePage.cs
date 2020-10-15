@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityCore.Menu;
+using ProScripts;
 
 public class SingleOptionMessagePage : Page
 {
@@ -11,7 +12,7 @@ public class SingleOptionMessagePage : Page
     public Text title;
     public Text message;
     public Text optionLabel;
-    public Button optionButton;
+    public ProButton optionButton;
 
     private UnityAction m_OptionAction;
 
@@ -24,7 +25,7 @@ public class SingleOptionMessagePage : Page
 
     public void OnOption(UnityAction _action) {
         m_OptionAction = _action;
-        optionButton.onClick.AddListener(m_OptionAction);
+        optionButton.upSettings.eventAction.AddListener(_action);
     }
 #endregion
 
@@ -40,7 +41,7 @@ public class SingleOptionMessagePage : Page
     protected override void OnPageDisabled() {
         base.OnPageDisabled();
         instance = null;
-        optionButton.onClick.RemoveListener(m_OptionAction);
+        optionButton.upSettings.eventAction.RemoveListener(m_OptionAction);
     }
 #endregion
 }

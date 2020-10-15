@@ -74,6 +74,7 @@ public class ItemData : NetworkModel
 
 public interface IItem {
     ItemData def {get;set;}
+    string ToJsonString();
 }
 
 public class BasicItemData : NetworkModel, IItem 

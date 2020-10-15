@@ -94,6 +94,12 @@ public class NetworkPlayer : Selectable
         }
     }
 
+    public NetworkPlayerData networkData {
+        get {
+            return m_NetworkData;
+        }
+    }
+
     public string name {
         get {
             if (m_LastFrameData == null) {
