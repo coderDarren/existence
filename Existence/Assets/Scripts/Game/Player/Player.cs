@@ -202,6 +202,7 @@ public class Player : GameSystem
             session.network.shopTerminalTradeSuccessEvt.OnEvt += OnShopTerminalTradeSuccess;
             session.network.addInventoryEvt.OnMsg += OnInventoryAdd;
             session.network.rmInventorySuccessEvt.OnEvt += OnInventoryRemove;
+            session.network.playerTixChangeEvt.OnMsg += OnTixChanged;
         } 
     }
 
@@ -213,6 +214,7 @@ public class Player : GameSystem
             session.network.shopTerminalTradeSuccessEvt.OnEvt -= OnShopTerminalTradeSuccess;
             session.network.addInventoryEvt.OnMsg -= OnInventoryAdd;
             session.network.rmInventorySuccessEvt.OnEvt -= OnInventoryRemove;
+            session.network.playerTixChangeEvt.OnMsg -= OnTixChanged;
         }
     }
 
@@ -495,6 +497,13 @@ public class Player : GameSystem
     
     private void OnShopTerminalTradeSuccess(NetworkShopTerminalTradeSuccessData _data) {
         m_Data.player.tix = _data.tix;
+    }
+
+    private void OnTixChanged(string _tix) {
+        int _validTix = 0;
+        if (int.TryParse(_tix, out _validTix)) {
+            m_Data.player.tix = _validTix;
+        }
     }
 
     private void OnMobDeath(NetworkMobDeathData _data) {

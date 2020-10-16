@@ -10,6 +10,8 @@ public class P2PTradePage : Page
 
     public Transform incomingItemsContainer;
     public Transform outgoingItemsContainer;
+    public InputField tixField;
+    public Text incomingTix;
 
     private P2PTradeManager m_TradeManager;
     private List<IItem> incomingItems;
@@ -71,6 +73,19 @@ public class P2PTradePage : Page
         tradeManager.RemoveTradeItem(_item);
     }
 
+    public void ChangeTix() {
+        if (!tradeManager) return;
+        tradeManager.ChangeTix(int.Parse(tixField.text));
+    }
+
+    public void ChangeIncomingTix(int _tix) {
+        incomingTix.text = _tix.ToString();
+    }
+
+    public void ChangeOutgoingTix(int _tix) {
+        tixField.text = _tix.ToString();
+    }
+
     public void AcceptTrade() {
         if (!tradeManager) return;
         tradeManager.AcceptTrade();
@@ -100,6 +115,8 @@ public class P2PTradePage : Page
     }
 
     private void Clear() {
+        tixField.text = "0";
+        incomingTix.text = "0";
         ClearChildren(incomingItemsContainer);
         ClearChildren(outgoingItemsContainer);
     }

@@ -1,8 +1,6 @@
 ﻿
 public class NetworkP2PTradeData : NetworkModel {
-    public bool accepted;
-    public string[] outgoingItems;
-    public string[] incomingItems;
+    public string playersAccepted;
 }
 
 public class NetworkP2PTradeItemData : NetworkModel {
@@ -11,5 +9,14 @@ public class NetworkP2PTradeItemData : NetworkModel {
     public NetworkP2PTradeItemData(string _playerName, string _itemJson) {
         playerName = _playerName;
         itemJson = _itemJson;
+    }
+}
+
+public class NetworkP2PTradeTixData : NetworkModel {
+    public string playerName;
+    public int tix;
+    public NetworkP2PTradeTixData(string _playerName, int _tix) {
+        playerName = _playerName;
+        tix = _tix;
     }
 }

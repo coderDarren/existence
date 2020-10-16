@@ -1,4 +1,4 @@
-﻿
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityCore.Menu;
 
@@ -16,6 +16,7 @@ public class P2PTradeManager : GameSystem
     private Session m_Session;
     private TargetController m_TargetController;
     private string m_TradePlayer;
+    private bool m_TradeLocked;
 
     // get Session with integrity
     private Session session {
@@ -63,6 +64,7 @@ public class P2PTradeManager : GameSystem
         session.network.p2pTradeCancelEvt.OnMsg += OnTradeCancel;
         session.network.p2pTradeAddItemEvt.OnEvt += OnTradeItemAdd;
         session.network.p2pTradeRemoveItemEvt.OnEvt += OnTradeItemRemove;
+        session.network.p2pTradeTixEvt.OnEvt += OnTradeTixChanged;
     }
 
     private void OnDisable() {
@@ -76,6 +78,7 @@ public class P2PTradeManager : GameSystem
         session.network.p2pTradeAddItemEvt.OnEvt -= OnTradeItemAdd;
         session.network.p2pTradeRemoveItemEvt.OnEvt -= OnTradeItemRemove;
         targetController.OnTargetInteracted -= OnTargetInteracted;
+        session.network.p2pTradeTixEvt.OnEvt -= OnTradeTixChanged;
     }
 #endregion
 
@@ -119,6 +122,11 @@ public class P2PTradeManager : GameSystem
         if (!session.network) return;
         session.network.RemoveP2PTradeItem(new NetworkP2PTradeItemData(session.player.data.player.name, _item.ToJsonString()));
     }
+
+    public void ChangeTix(int _tix) {
+        if (!session.network) return;
+        session.network.ChangeP2PTradeTix(new NetworkP2PTradeTixData(session.player.data.player.name, _tix));
+    }
 #endregion
 #endregion
 
@@ -126,6 +134,7 @@ public class P2PTradeManager : GameSystem
 #region OTHER PLAYER EVENTS
     private void OnTradeRequest(string _player) {
         m_TradePlayer = _player;
+        m_TradeLocked = false;
         pageController.TurnPageOn(PageType.DualOptionMessage);
         DualOptionMessagePage.instance.Redraw("Incoming Trade Transmission.", _player+" wants to trade with you.", "Reject", "Accept");
         DualOptionMessagePage.instance.OnOption1(() => {RejectTrade(); pageController.TurnPageOff(PageType.DualOptionMessage);});
@@ -145,15 +154,21 @@ public class P2PTradeManager : GameSystem
     }
 
     private void OnTradeAccept(NetworkP2PTradeData _data) {
-        if (_data.accepted) {
+        m_TradeLocked = true;
+        List<string> _playersAccepted = new List<string>(_data.playersAccepted.Split(','));
+        if (_playersAccepted.Count == 2) {
             pageController.TurnPageOff(PageType.P2PTrade);
             Chatbox.instance.EmitMessageLocal("Trade transmission complete.");
+            m_TradeLocked = false;
+        } else if (_playersAccepted.Contains(session.player.data.player.name)) {
+            Chatbox.instance.EmitMessageLocal("You accepted the trade. Transmission locked.");
         } else {
-            Chatbox.instance.EmitMessageLocal("Trade transmission accepted by "+m_TradePlayer);
+            Chatbox.instance.EmitMessageLocal(m_TradePlayer+" accepted the trade. Transmission locked.");
         }
     }
 
     private void OnTradeCancel(string _data) {
+        m_TradeLocked = false;
         pageController.TurnPageOff(PageType.P2PTrade);
         pageController.TurnPageOff(PageType.SingleOptionMessage);
         pageController.TurnPageOff(PageType.DualOptionMessage);
@@ -179,6 +194,15 @@ public class P2PTradeManager : GameSystem
             CursorController.instance.DropItem();
         } else {
             P2PTradePage.instance.RemoveIncomingItem(_item);
+        }
+    }
+
+    private void OnTradeTixChanged(NetworkP2PTradeTixData _data) {
+        if (!P2PTradePage.instance) return;
+        if (_data.playerName == session.player.data.player.name) {
+            P2PTradePage.instance.ChangeOutgoingTix(_data.tix);
+        } else {
+            P2PTradePage.instance.ChangeIncomingTix(_data.tix);
         }
     }
 #endregion

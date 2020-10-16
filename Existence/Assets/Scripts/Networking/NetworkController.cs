@@ -68,8 +68,10 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_START_P2P_TRADE = "START_P2P_TRADE";
     private static readonly string NETMSG_P2P_TRADE_ADD_ITEM = "P2P_TRADE_ADD_ITEM";
     private static readonly string NETMSG_P2P_TRADE_RM_ITEM = "P2P_TRADE_RM_ITEM";
+    private static readonly string NETMSG_P2P_TRADE_CHNG_TIX = "NETMSG_P2P_TRADE_CHNG_TIX";
     private static readonly string NETMSG_ACCEPT_P2P_TRADE = "ACCEPT_P2P_TRADE";
     private static readonly string NETMSG_CANCEL_P2P_TRADE = "CANCEL_P2P_TRADE";
+    private static readonly string NETMSG_TIX_CHANGED = "NETMSG_TIX_CHANGED";
 
     /*
      * Some helpful events to subscribe to..
@@ -98,6 +100,7 @@ public class NetworkController : GameSystem
     public NetworkEventHandler<NetworkEquipSuccessData> playerUnequipSuccessEvt {get; private set;}
     public NetworkEventHandler<NetworkAnimFloat> playerAnimFloatEvt {get; private set;}
     public NetworkEventHandler<NetworkAnimBool> playerAnimBoolEvt {get; private set;}
+    public NetworkEventHandler<string> playerTixChangeEvt {get; private set;}
     public NetworkEventHandler<string> playerEquipFailEvt {get; private set;}
     public NetworkEventHandler<string> playerUnequipFailEvt {get; private set;}
     public NetworkEventHandler<string> playerExitEvt {get; private set;}
@@ -111,34 +114,35 @@ public class NetworkController : GameSystem
 #endregion
 
 #region MOB NETWORK EVENTS
-    public NetworkEventHandler<NetworkMobData> mobSpawnEvt;
-    public NetworkEventHandler<NetworkMobData> mobAttackRangeStateChangeEvt;
-    public NetworkEventHandler<NetworkMobData> mobCombatStateChangeEvt;
-    public NetworkEventHandler<NetworkMobData> mobHealthChangeEvt;
-    public NetworkEventHandler<string> mobExitEvt;
-    public NetworkEventHandler<NetworkMobAttackData> mobAttackEvt;
-    public NetworkEventHandler<NetworkMobAttackData> mobAttackStartEvt;
-    public NetworkEventHandler<NetworkPlayerHitInfo> mobHitEvt;
-    public NetworkEventHandler<NetworkMobDeathData> mobDeathEvt;
+    public NetworkEventHandler<NetworkMobData> mobSpawnEvt {get; private set;}
+    public NetworkEventHandler<NetworkMobData> mobAttackRangeStateChangeEvt {get; private set;}
+    public NetworkEventHandler<NetworkMobData> mobCombatStateChangeEvt {get; private set;}
+    public NetworkEventHandler<NetworkMobData> mobHealthChangeEvt {get; private set;}
+    public NetworkEventHandler<string> mobExitEvt {get; private set;}
+    public NetworkEventHandler<NetworkMobAttackData> mobAttackEvt {get; private set;}
+    public NetworkEventHandler<NetworkMobAttackData> mobAttackStartEvt {get; private set;}
+    public NetworkEventHandler<NetworkPlayerHitInfo> mobHitEvt {get; private set;}
+    public NetworkEventHandler<NetworkMobDeathData> mobDeathEvt {get; private set;}
 #endregion
 
 #region LOOT NETWORK EVENTS
-    public NetworkEventHandler<NetworkMobLootData> mobLootEvt;
+    public NetworkEventHandler<NetworkMobLootData> mobLootEvt {get; private set;}
 #endregion
 
 #region SHOP TERMINAL EVENTS
-    public NetworkEventHandler<NetworkShopTerminalData> shopTerminalInteractEvt;
-    public NetworkEventHandler<NetworkShopTerminalTradeSuccessData> shopTerminalTradeSuccessEvt;
+    public NetworkEventHandler<NetworkShopTerminalData> shopTerminalInteractEvt {get; private set;}
+    public NetworkEventHandler<NetworkShopTerminalTradeSuccessData> shopTerminalTradeSuccessEvt {get; private set;}
 #endregion
 
 #region P2P TRADE EVENTS
-    public NetworkEventHandler<string> p2pTradeRequestEvt;
-    public NetworkEventHandler<string> p2pTradeRequestRejectEvt;
-    public NetworkEventHandler<string> p2pTradeStartEvt;
-    public NetworkEventHandler<NetworkP2PTradeData> p2pTradeAcceptEvt;
-    public NetworkEventHandler<string> p2pTradeCancelEvt;
-    public NetworkEventHandler<NetworkP2PTradeItemData> p2pTradeAddItemEvt;
-    public NetworkEventHandler<NetworkP2PTradeItemData> p2pTradeRemoveItemEvt;
+    public NetworkEventHandler<string> p2pTradeRequestEvt {get; private set;}
+    public NetworkEventHandler<string> p2pTradeRequestRejectEvt {get; private set;}
+    public NetworkEventHandler<string> p2pTradeStartEvt {get; private set;}
+    public NetworkEventHandler<string> p2pTradeCancelEvt {get; private set;}
+    public NetworkEventHandler<NetworkP2PTradeData> p2pTradeAcceptEvt {get; private set;}
+    public NetworkEventHandler<NetworkP2PTradeItemData> p2pTradeAddItemEvt {get; private set;}
+    public NetworkEventHandler<NetworkP2PTradeItemData> p2pTradeRemoveItemEvt {get; private set;}
+    public NetworkEventHandler<NetworkP2PTradeTixData> p2pTradeTixEvt {get; private set;}
 #endregion
 
     public bool usePredictiveSmoothing=true;
@@ -186,6 +190,7 @@ public class NetworkController : GameSystem
         playerExitEvt = new NetworkEventHandler<string>("Player exited range.", debug);
         playerAnimFloatEvt = new NetworkEventHandler<NetworkAnimFloat>("Player float animation changed.", debug);
         playerAnimBoolEvt = new NetworkEventHandler<NetworkAnimBool>("Player bool animation changed.", debug);
+        playerTixChangeEvt = new NetworkEventHandler<string>("Player tix changed.", debug);
 
         // inventory events
         rmInventorySuccessEvt = new NetworkEventHandler<NetworkInventoryRemoveData>("Successfully removed inventory.", debug);
@@ -219,6 +224,7 @@ public class NetworkController : GameSystem
         p2pTradeCancelEvt = new NetworkEventHandler<string>("P2P trade was canceled.", debug);
         p2pTradeAddItemEvt = new NetworkEventHandler<NetworkP2PTradeItemData>("P2P trade item was added.", debug);
         p2pTradeRemoveItemEvt = new NetworkEventHandler<NetworkP2PTradeItemData>("P2P trade item was removed.", debug);
+        p2pTradeTixEvt = new NetworkEventHandler<NetworkP2PTradeTixData>("P2P trade tix changed.", debug);
     }
 
     private void SubscribeEventHandlers() {
@@ -247,6 +253,7 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_PLAYER_UNEQUIP_FAILURE, playerUnequipFailEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_ANIM_FLOAT, playerAnimFloatEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_ANIM_BOOL, playerAnimBoolEvt.HandleEvt);
+        m_Network.On(NETMSG_TIX_CHANGED, playerTixChangeEvt.HandleEvt);
 
         // inventory events
         m_Network.On(NETMSG_ADD_INVENTORY_SUCCESS, addInventoryEvt.HandleEvt);
@@ -278,6 +285,7 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_REJECT_P2P_TRADE, p2pTradeRequestRejectEvt.HandleEvt);
         m_Network.On(NETMSG_ACCEPT_P2P_TRADE, p2pTradeAcceptEvt.HandleEvt);
         m_Network.On(NETMSG_CANCEL_P2P_TRADE, p2pTradeCancelEvt.HandleEvt);
+        m_Network.On(NETMSG_P2P_TRADE_CHNG_TIX, p2pTradeTixEvt.HandleEvt);
         m_Network.On(NETMSG_P2P_TRADE_ADD_ITEM, p2pTradeAddItemEvt.HandleEvt);
         m_Network.On(NETMSG_P2P_TRADE_RM_ITEM, p2pTradeRemoveItemEvt.HandleEvt);
     }
@@ -407,6 +415,10 @@ public class NetworkController : GameSystem
 
     public void RemoveP2PTradeItem(NetworkP2PTradeItemData _data) {
         SendNetworkData<NetworkP2PTradeItemData>(NETMSG_P2P_TRADE_RM_ITEM, _data);
+    }
+
+    public void ChangeP2PTradeTix(NetworkP2PTradeTixData _data) {
+        SendNetworkData<NetworkP2PTradeTixData>(NETMSG_P2P_TRADE_CHNG_TIX, _data);
     }
 #endregion
 }
