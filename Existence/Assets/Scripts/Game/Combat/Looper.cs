@@ -7,25 +7,27 @@ public class Looper : StateMachineBehaviour
     public float buffSpeed;
 
     private Player m_Player;
+    private NetworkPlayer m_Network;
     private bool attacking;
     private float totalSpeed;
-    
-
 
     // Need to reference weapon attack speed and create a parameter in <Player> that handles debuffs applied to the character.
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
         //animator.SetBool("cycle", false);
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        
+        m_Network = GameObject.FindGameObjectWithTag("Player").GetComponent<NetworkPlayer>();
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-        attacking = animator.GetBool(m_Player.weapon.ToString());        // Move this to inside of attack and recharge scripts
+        attacking = animator.GetBool(m_Player.weapon.ToString());  // Move this to inside of attack and recharge scripts
         if(attacking){
             animator.SetFloat("totalSpeed", totalSpeed);
         }
-        animator.SetBool("cycle", false);
+        if (animator.GetBool("cycle") == true) {
+            animator.SetBool("cycle", false);
+            m_Network.Network_WriteAnimBool("cycle", false);
+        }
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state

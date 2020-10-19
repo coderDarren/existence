@@ -232,6 +232,7 @@ public class CameraController : GameSystem
      */
     private void RotateAroundTargetWithClick() {
         Log("RotateAroundTargetWithClick");
+        if (UIEventManager.Instance().hovering) return;
         m_StrafeLockAngle = transform.eulerAngles.y;
 
         m_MouseRotationOffset.x -= m_MouseY * mouseClickTurnSpeed * Time.deltaTime;
@@ -287,6 +288,7 @@ public class CameraController : GameSystem
     }
 
     private void Zoom() {
+        if (UIEventManager.Instance().hovering) return;
         m_TargetZoom = m_TargetZoom - m_Scroll * zoomSpeed;
         m_TargetZoom = Mathf.Clamp(m_TargetZoom, 1, maxZoom);
         m_Zoom = Mathf.Lerp(m_Zoom, m_TargetZoom, 4 * Time.deltaTime);

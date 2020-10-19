@@ -23,13 +23,12 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_HANDSHAKE = "HANDSHAKE";
     private static readonly string NETMSG_PLAYER_DATA = "PLAYER";
     private static readonly string NETMSG_PLAYER_TRANSFORM_CHANGE = "PLAYER_TRANSFORM_CHANGE";
-    private static readonly string NETMSG_PLAYER_ATTACK_START = "PLAYER_ATTACK_START";
-    private static readonly string NETMSG_PLAYER_ATTACK_STOP = "PLAYER_ATTACK_STOP";
-    private static readonly string NETMSG_PLAYER_USE_SPECIAL = "PLAYER_USE_SPECIAL";
     private static readonly string NETMSG_PLAYER_HEALTH_CHANGE = "PLAYER_HEALTH_CHANGE";
     private static readonly string NETMSG_PLAYER_LVL_CHANGE = "PLAYER_LVL_CHANGE";
     private static readonly string NETMSG_PLAYER_LEFT = "PLAYER_LEFT";
     private static readonly string NETMSG_PLAYER_JOINED = "PLAYER_JOINED";
+    private static readonly string NETMSG_PLAYER_ANIM_FLOAT = "NETMSG_PLAYER_ANIM_FLOAT";
+    private static readonly string NETMSG_PLAYER_ANIM_BOOL = "NETMSG_PLAYER_ANIM_BOOL";
     private static readonly string NETMSG_CHAT = "CHAT";
     private static readonly string NETMSG_INSTANCE = "INSTANCE";
     private static readonly string NETMSG_HIT_MOB = "HIT_MOB";
@@ -84,15 +83,14 @@ public class NetworkController : GameSystem
     public NetworkEventHandler<NetworkPlayerData> playerJoinEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerData> playerLeaveEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerData> playerSpawnEvt {get; private set;}
-    public NetworkEventHandler<NetworkPlayerTransform> playerTransformEvt {get; private set;}
+    public NetworkEventHandler<NetworkTransform> playerTransformEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerLvl> playerLvlEvt {get; private set;}
     public NetworkEventHandler<NetworkPlayerHealth> playerHealthEvt {get; private set;}
-    public NetworkEventHandler<NetworkPlayerUseSpecial> playerUseSpecialEvt {get; private set;}
-    public NetworkEventHandler<NetworkPlayerAttackStart> playerAttackStartEvt {get; private set;}
-    public NetworkEventHandler<NetworkPlayerAttackStop> playerAttackStopEvt {get; private set;}
-    public NetworkEventHandler<NetworkPlayerHitInfo> playerHitEvt {get; private set;}
+    public NetworkEventHandler<NetworkMobHitInfo> playerHitEvt {get; private set;}
     public NetworkEventHandler<NetworkEquipSuccessData> playerEquipSuccessEvt {get; private set;}
     public NetworkEventHandler<NetworkEquipSuccessData> playerUnequipSuccessEvt {get; private set;}
+    public NetworkEventHandler<NetworkAnimFloat> playerAnimFloatEvt {get; private set;}
+    public NetworkEventHandler<NetworkAnimBool> playerAnimBoolEvt {get; private set;}
     public NetworkEventHandler<string> playerEquipFailEvt {get; private set;}
     public NetworkEventHandler<string> playerUnequipFailEvt {get; private set;}
     public NetworkEventHandler<string> playerExitEvt {get; private set;}
@@ -113,7 +111,7 @@ public class NetworkController : GameSystem
     public NetworkEventHandler<string> mobExitEvt;
     public NetworkEventHandler<NetworkMobAttackData> mobAttackEvt;
     public NetworkEventHandler<NetworkMobAttackData> mobAttackStartEvt;
-    public NetworkEventHandler<NetworkMobHitInfo> mobHitEvt;
+    public NetworkEventHandler<NetworkPlayerHitInfo> mobHitEvt;
     public NetworkEventHandler<NetworkMobDeathData> mobDeathEvt;
 #endregion
 
@@ -133,13 +131,18 @@ public class NetworkController : GameSystem
 #region Unity Functions
     private void Awake() {
         if (instance == null) {
-            ConfigureEventHandlers();
-            SubscribeEventHandlers();
             instance = this;
+            ConfigureEventHandlers();
         }
     }
 
+    private void Start() {
+        if (instance != this) return;
+        SubscribeEventHandlers();
+    }
+
     private void OnDisable() {
+        if (instance != this) return;
         if (!m_Network) return;
         m_Network.Close();
     }
@@ -155,17 +158,17 @@ public class NetworkController : GameSystem
         playerJoinEvt = new NetworkEventHandler<NetworkPlayerData>("Player joined.", debug);
         playerLeaveEvt = new NetworkEventHandler<NetworkPlayerData>("Player left.", debug);
         playerSpawnEvt = new NetworkEventHandler<NetworkPlayerData>("Player entered range.", debug);
-        playerTransformEvt = new NetworkEventHandler<NetworkPlayerTransform>("Player transform changed.", debug);
+        playerTransformEvt = new NetworkEventHandler<NetworkTransform>("Player transform changed.", debug);
         playerLvlEvt = new NetworkEventHandler<NetworkPlayerLvl>("Player lvl changed.", debug);
         playerHealthEvt = new NetworkEventHandler<NetworkPlayerHealth>("Player health changed.", debug);
-        playerAttackStartEvt = new NetworkEventHandler<NetworkPlayerAttackStart>("Player started attacking.", debug);
-        playerAttackStopEvt = new NetworkEventHandler<NetworkPlayerAttackStop>("Player stopped attacking.", debug);
-        playerHitEvt = new NetworkEventHandler<NetworkPlayerHitInfo>("Player hit mob.", debug);
+        playerHitEvt = new NetworkEventHandler<NetworkMobHitInfo>("Player hit mob.", debug);
         playerEquipSuccessEvt = new NetworkEventHandler<NetworkEquipSuccessData>("Player equipped.", debug);
         playerUnequipSuccessEvt = new NetworkEventHandler<NetworkEquipSuccessData>("Player unequipped.", debug);
         playerEquipFailEvt = new NetworkEventHandler<string>("Player failed to equip.", debug);
         playerUnequipFailEvt = new NetworkEventHandler<string>("Player failed to unequip.", debug);
         playerExitEvt = new NetworkEventHandler<string>("Player exited range.", debug);
+        playerAnimFloatEvt = new NetworkEventHandler<NetworkAnimFloat>("Player float animation changed.", debug);
+        playerAnimBoolEvt = new NetworkEventHandler<NetworkAnimBool>("Player bool animation changed.", debug);
 
         // inventory events
         rmInventorySuccessEvt = new NetworkEventHandler<NetworkInventoryRemoveData>("Successfully removed inventory.", debug);
@@ -181,7 +184,7 @@ public class NetworkController : GameSystem
         mobExitEvt = new NetworkEventHandler<string>("Mob exited range.", debug);
         mobAttackEvt = new NetworkEventHandler<NetworkMobAttackData>("Mob attacked.", debug);
         mobAttackStartEvt = new NetworkEventHandler<NetworkMobAttackData>("Mob started attacking.", debug);
-        mobHitEvt = new NetworkEventHandler<NetworkMobHitInfo>("Mob hit player.", debug);
+        mobHitEvt = new NetworkEventHandler<NetworkPlayerHitInfo>("Mob hit player.", debug);
         mobDeathEvt = new NetworkEventHandler<NetworkMobDeathData>("Mob died.", debug);
 
         // loot events
@@ -199,6 +202,7 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_CONNECT, OnNetworkConnected);
         m_Network.On(NETMSG_DISCONNECT, OnNetworkDisconnected);
         m_Network.On(NETMSG_HANDSHAKE, handshakeEvt.HandleEvt);
+    
         m_Network.On(NETMSG_INSTANCE, instanceDataEvt.HandleEvt);
         m_Network.On(NETMSG_CHAT, chatEvt.HandleEvt);
 
@@ -210,13 +214,13 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_PLAYER_TRANSFORM_CHANGE, playerTransformEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_LVL_CHANGE, playerLvlEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_HEALTH_CHANGE, playerHealthEvt.HandleEvt);
-        m_Network.On(NETMSG_PLAYER_ATTACK_START, playerAttackStartEvt.HandleEvt);
-        m_Network.On(NETMSG_PLAYER_ATTACK_STOP, playerAttackStopEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_HIT_MOB_CONFIRMATION, playerHitEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_EQUIP_SUCCESS, playerEquipSuccessEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_UNEQUIP_SUCCESS, playerUnequipSuccessEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_EQUIP_FAILURE, playerEquipFailEvt.HandleEvt);
         m_Network.On(NETMSG_PLAYER_UNEQUIP_FAILURE, playerUnequipFailEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_ANIM_FLOAT, playerAnimFloatEvt.HandleEvt);
+        m_Network.On(NETMSG_PLAYER_ANIM_BOOL, playerAnimBoolEvt.HandleEvt);
 
         // inventory events
         m_Network.On(NETMSG_ADD_INVENTORY_SUCCESS, addInventoryEvt.HandleEvt);
@@ -290,32 +294,24 @@ public class NetworkController : GameSystem
         SendNetworkData<NetworkHandshake>(NETMSG_HANDSHAKE, _data);
     }
 
-    public void SendNetworkPlayer(NetworkPlayerData _data) {
-        SendNetworkData<NetworkPlayerData>(NETMSG_PLAYER_DATA, _data);
-    }
-
-    public void SendPlayerStartAttack(NetworkPlayerAttackStart _data) {
-        SendNetworkData<NetworkPlayerAttackStart>(NETMSG_PLAYER_ATTACK_START, _data);
-    }
-
-    public void SendPlayerStopAttack(NetworkPlayerAttackStop _data) {
-        SendNetworkData<NetworkPlayerAttackStop>(NETMSG_PLAYER_ATTACK_STOP, _data);
-    }
-
-    public void SendPlayerUseSpecial(NetworkPlayerUseSpecial _data) {
-        SendNetworkData<NetworkPlayerUseSpecial>(NETMSG_PLAYER_USE_SPECIAL, _data);
-    }
-
-    public void SendPlayerHealthChange(NetworkPlayerHealth _data) {
+    public void SendPlayerHealth(NetworkPlayerHealth _data) {
         SendNetworkData<NetworkPlayerHealth>(NETMSG_PLAYER_HEALTH_CHANGE, _data);
     }
 
-    public void SendPlayerLevelChange(NetworkPlayerLvl _data) {
+    public void SendPlayerLevel(NetworkPlayerLvl _data) {
         SendNetworkData<NetworkPlayerLvl>(NETMSG_PLAYER_LVL_CHANGE, _data);
     }
+    
+    public void SendPlayerAnimFloat(NetworkAnimFloat _data) {
+        SendNetworkData<NetworkAnimFloat>(NETMSG_PLAYER_ANIM_FLOAT, _data);
+    }
 
-    public void SendPlayerTransformChange(NetworkPlayerTransform _data) {
-        SendNetworkData<NetworkPlayerTransform>(NETMSG_PLAYER_TRANSFORM_CHANGE, _data);
+    public void SendPlayerAnimBool(NetworkAnimBool _data) {
+        SendNetworkData<NetworkAnimBool>(NETMSG_PLAYER_ANIM_BOOL, _data);
+    }
+
+    public void SendPlayerTransform(NetworkTransform _data) {
+        SendNetworkData<NetworkTransform>(NETMSG_PLAYER_TRANSFORM_CHANGE, _data);
     }
 
     public void HitMob(NetworkMobHitInfo _data) {
@@ -384,17 +380,20 @@ public class NetworkEventHandler<T> {
     public void HandleEvt(SocketIOEvent _evt) {
         if (m_Invalid) return;
 
-        if (m_Debug) {
-            Debug.Log(m_EvtLog);
-        }
-
         string _msg = Regex.Unescape((string)_evt.data.ToDictionary()["message"]);
 
-        if (typeof(T) == typeof(NetworkModel)) {
+        if (typeof(NetworkModel).IsAssignableFrom(typeof(T))) {
+            if (m_Debug) 
+                Debug.Log(m_EvtLog+" NETWORK MODEL "+typeof(T)+": "+_msg);
             T _netData = NetworkModel.FromJsonStr<T>(_msg);
             TryRunAction(OnEvt, _netData);
         } else if (typeof(T) == typeof(string)) {
+            if (m_Debug)
+                Debug.Log(m_EvtLog+" NETWORK MODEL STRING: "+_msg);
             TryRunAction(OnMsg, _msg);
+        } else {
+            if (m_Debug)
+                Debug.LogWarning(m_EvtLog+" NO EVENT EMITTED FOR "+_msg+" "+typeof(T));
         }
     }
 

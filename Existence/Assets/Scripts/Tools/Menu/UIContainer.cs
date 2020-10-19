@@ -1,5 +1,6 @@
 ﻿
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityCore.Menu; 
 
@@ -10,7 +11,7 @@ using UnityCore.Menu;
 ///     2. Drag events initiated by UIHandle
 /// </summary>
 [RequireComponent(typeof(RectTransform))]
-public class UIContainer : GameSystem
+public class UIContainer : GameSystem, IPointerEnterHandler, IPointerExitHandler
 {
     public delegate void SizeDelegate(Vector2 _size);
     public event SizeDelegate OnResize;
@@ -154,6 +155,14 @@ public class UIContainer : GameSystem
         }
 
         PlayerPrefs.SetInt(DATA_MINIMIZED, m_Minimized ? 1 : 0);
+    }
+
+    public void OnPointerEnter(PointerEventData _ped) {
+        UIEventManager.Instance().Hover();
+    }
+
+    public void OnPointerExit(PointerEventData _ped) {
+        UIEventManager.Instance().Exit();
     }
 #endregion
 

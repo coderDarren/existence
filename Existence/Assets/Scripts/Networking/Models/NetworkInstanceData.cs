@@ -12,6 +12,6 @@ using System.Collections;
 [System.Serializable]
 public class NetworkInstanceData : NetworkModel {
     public NetworkGameInfo gameInfo;
-    public NetworkPlayerData[] players;
+    public NetworkTransform[] players;
     public NetworkMobData[] mobs;
 }

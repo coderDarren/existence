@@ -240,8 +240,8 @@ public class Session : GameSystem
         m_Player = _player;
         m_PlayerController = _playerController;
         m_NetworkPlayer = _netPlayer;
-        m_NetworkPlayer.Init(_playerData);
         m_Player.ConnectWithData(_playerData);
+        m_NetworkPlayer.Init(_playerData);
         Camera.main.GetComponent<CameraController>().target = _go.transform;
     }
 

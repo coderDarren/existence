@@ -13,6 +13,7 @@ public class PlayerCombatController : GameSystem
     public string special;
 
     private Player m_Player;
+    private NetworkPlayer m_NetworkPlayer;
     private Animator m_Animator;
     private GameObject m_Weapon;
     private WeaponItemData m_WepData;
@@ -21,7 +22,6 @@ public class PlayerCombatController : GameSystem
     private ParticleSystem[] m_Charge;
     private ParticleSystem[] m_Projectile;
     private ParticleSystem.Particle[] m_CurrentParticle;
-    private Mob m_CurrentTarget;
     private Mob m_Target;
     private Material bladeMat;
     private float specialRecharge;
@@ -59,7 +59,7 @@ public class PlayerCombatController : GameSystem
         m_Amount = 0;
         m_Animator = GetComponent<Animator>();
         m_Player = GetComponent<Player>();
-        
+        m_NetworkPlayer = GetComponent<NetworkPlayer>();
 
         try{
             m_Charge = transform.FindDeepChild("Charge").GetComponentsInChildren<ParticleSystem>();
@@ -131,7 +131,7 @@ public class PlayerCombatController : GameSystem
             _dmg = (int)((float)m_WepData.damageMax * 1.5f) + m_Player.attackRatingBoost;
         }
 
-        m_Target.Hit(_dmg, _crit);         
+        m_Target.Hit(_dmg, _crit);     
     }
 
     public void SelectTarget(Selectable _s, bool _primary) {
@@ -218,7 +218,6 @@ public class PlayerCombatController : GameSystem
     private void GetInput() {
         m_AttackInput = Input.GetKeyDown(attack);
         m_CancelTarget = Input.GetKeyDown(KeyCode.Escape);
-        
     }
 
     private void Attack(){
@@ -237,12 +236,18 @@ public class PlayerCombatController : GameSystem
 
     private void StartAutoAttack() {
         m_Attacking = true;
-        m_Animator.SetBool("attacking", true);
+
+        m_Animator.SetBool(m_Player.weapon.ToString(), true);
+        m_NetworkPlayer.Network_WriteAnimAttack(m_Player.weapon.ToString(), true);
+
     }
 
     public void StopAutoAttack() {
         m_Attacking = false;
-        m_Animator.SetBool("attacking", false); 
+
+        m_Animator.SetBool(m_Player.weapon.ToString(), false); 
+        m_NetworkPlayer.Network_WriteAnimAttack(m_Player.weapon.ToString(), false);
+
     }
 
 
