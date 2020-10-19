@@ -14,7 +14,7 @@ public class TestTextureUpdates : MonoBehaviour
      private void Start() {
         m_Renderer = GetComponentsInChildren<SkinnedMeshRenderer>();
         for(int i=0; i < m_Renderer.Length; i++){
-            if(m_Renderer[i].material.mainTexture == null)
+            if(m_Renderer[i].sharedMaterial.mainTexture == null)
                 m_Renderer[i].material.mainTexture = storedTex;
         }
         m_CopyTex = Instantiate(m_Renderer[0].sharedMaterial.mainTexture) as Texture2D;
