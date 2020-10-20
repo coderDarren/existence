@@ -601,6 +601,7 @@ class SQLController {
             case 'mobs': return this._mob;
             case 'mobLootItems': return this._mobLootItem;
             case 'inventorySlots': return this._inventorySlot;
+            case 'players': return this._player;
             default: return {
                 error: `Unsupported table operation`,
                 code: 1501
@@ -684,10 +685,27 @@ class SQLController {
                         }
                     }
 
-                    const _element = await _table.update(_params.element, {where: _params.elementKey});
+                    await _table.update(_params.element, {where: _params.elementKey});
+                    const _element = await _table.findOne({where: _params.elementKey});
+                    var _obj = {};
+
+                    // Look for strictKeys parameter to search for object keys to return
+                    // 'strictKeys' is a comma-delimited string of property names, which..
+                    // ..is expected to be inside '_obj'
+                    if (_params.strictKeys) {
+                        const _keys = _params.strictKeys.split(',');
+                        for (var i in _keys) {
+                            const _key = _keys[i];
+                            if (_element[_key] || _element[_key] == 0) {
+                                _obj[_key] = _element[_key];    
+                            }
+                        }
+                    } else {
+                        _obj = _element;
+                    }
 
                     return {
-                        data: _element
+                        data: _obj
                     }
                 case "r":
                     if (!_check) {
@@ -1018,7 +1036,9 @@ class SQLController {
             stackable: DataTypes.TINYINT,
             tradeskillable: DataTypes.TINYINT,
             icon: DataTypes.CHAR(255),
-            itemType: DataTypes.INTEGER
+            itemType: DataTypes.INTEGER,
+            price: DataTypes.INTEGER,
+            sellPrice: DataTypes.INTEGER
         }, {
             timestamps: false
         });

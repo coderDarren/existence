@@ -200,6 +200,9 @@ public class Player : GameSystem
         if (session && session.network) {
             session.network.mobDeathEvt.OnEvt += OnMobDeath;
             session.network.shopTerminalTradeSuccessEvt.OnEvt += OnShopTerminalTradeSuccess;
+            session.network.addInventoryEvt.OnMsg += OnInventoryAdd;
+            session.network.rmInventorySuccessEvt.OnEvt += OnInventoryRemove;
+            session.network.playerTixChangeEvt.OnMsg += OnTixChanged;
         } 
     }
 
@@ -209,6 +212,9 @@ public class Player : GameSystem
         if (session && session.network) {
             session.network.mobDeathEvt.OnEvt -= OnMobDeath;
             session.network.shopTerminalTradeSuccessEvt.OnEvt -= OnShopTerminalTradeSuccess;
+            session.network.addInventoryEvt.OnMsg -= OnInventoryAdd;
+            session.network.rmInventorySuccessEvt.OnEvt -= OnInventoryRemove;
+            session.network.playerTixChangeEvt.OnMsg -= OnTixChanged;
         }
     }
 
@@ -287,7 +293,13 @@ public class Player : GameSystem
     }
 
     public void RemoveInventory(IItem _item) {
-        m_Data.inventory.Remove(_item);
+        for (int i = m_Data.inventory.Count - 1; i >= 0; i--) {
+            IItem _i = m_Data.inventory[i];
+            if (_i.def.id == _item.def.id && _i.def.slotLoc == _item.def.slotLoc) {
+                m_Data.inventory.RemoveAt(i);
+                break;
+            }
+        }
 
         // redraw inventory if the window is open
         if (inventoryWindow) {
@@ -487,6 +499,13 @@ public class Player : GameSystem
         m_Data.player.tix = _data.tix;
     }
 
+    private void OnTixChanged(string _tix) {
+        int _validTix = 0;
+        if (int.TryParse(_tix, out _validTix)) {
+            m_Data.player.tix = _validTix;
+        }
+    }
+
     private void OnMobDeath(NetworkMobDeathData _data) {
         foreach (NetworkMobXpAllottment _mxa in _data.xpAllottment) {
             if (m_Data.player.name == _mxa.playerName) {
@@ -494,6 +513,18 @@ public class Player : GameSystem
                 break;
             }
         }
+    }
+
+    private void OnInventoryAdd(string _itemJson) {
+        IItem _item = ItemData.CreateItem(_itemJson);
+        AddInventory(_item);
+    }
+
+    private void OnInventoryRemove(NetworkInventoryRemoveData _data) {
+        IItem _item = NetworkModel.FromJsonStr<BasicItemData>("{}");
+        _item.def = new ItemData(_data.itemID);
+        _item.def.slotLoc = _data.inventoryLoc;
+        RemoveInventory(_item);
     }
 
     private void TryUnequipItem<T>(int _id, int _inventoryID, ref List<T> _arr) where T : IItem {

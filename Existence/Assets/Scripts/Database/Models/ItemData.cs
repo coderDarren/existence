@@ -38,6 +38,8 @@ public class ItemData : NetworkModel
     public StatData effects;
     public int level;
     public int rarity;
+    public int price;
+    public int sellPrice;
     public bool shopBuyable;
     public bool stackable;
     public bool tradeskillable;
@@ -72,6 +74,7 @@ public class ItemData : NetworkModel
 
 public interface IItem {
     ItemData def {get;set;}
+    string ToJsonString();
 }
 
 public class BasicItemData : NetworkModel, IItem 
