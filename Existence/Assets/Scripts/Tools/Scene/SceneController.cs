@@ -144,7 +144,7 @@ namespace UnityCore {
             private string SceneTypeToString(SceneType _scene) {
                 switch (_scene) {
                     case SceneType.Login: return "Login";
-                    case SceneType.Game: return "EnvTest2";
+                    case SceneType.Game: return "Station";
                     default:
                         LogWarning("Scene ["+_scene+"] does not contain a string for a valid scene.");
                         return string.Empty;
@@ -154,7 +154,7 @@ namespace UnityCore {
             private SceneType StringToSceneType(string _scene) {
                 switch (_scene) {
                     case "Login": return SceneType.Login;
-                    case "EnvTest2": return SceneType.Game;
+                    case "Station": return SceneType.Game;
                     default:
                         LogWarning("Scene ["+_scene+"] does not contain a type for a valid scene.");
                         return SceneType.None;
