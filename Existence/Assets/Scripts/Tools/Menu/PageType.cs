@@ -18,7 +18,10 @@
             LootPreview,
             Attacks,
             Equipment,
-            ShopTerminal
+            ShopTerminal,
+            P2PTrade,
+            SingleOptionMessage,
+            DualOptionMessage
         }
     }
 }

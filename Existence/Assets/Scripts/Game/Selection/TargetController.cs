@@ -8,6 +8,7 @@ public class TargetController : GameSystem
     public delegate void TargetDelegate(Selectable _s, bool _primary);
     public event TargetDelegate OnTargetSelected;
     public event TargetDelegate OnTargetDeselected;
+    public event TargetDelegate OnTargetInteracted;
 
     [Header("Cycle Selection")]
     public int maxTargetCycleSize=2;
@@ -50,6 +51,7 @@ public class TargetController : GameSystem
     private KeyCode m_CycleKey = KeyCode.Tab;
     private KeyCode m_CancelKey = KeyCode.Escape;
     private bool m_LMB;
+    private bool m_RMB;
     private bool m_Cycle;
     private bool m_Cancel;
 #endregion
@@ -111,6 +113,7 @@ public class TargetController : GameSystem
         m_Cycle = Input.GetKeyDown(m_CycleKey);
         m_Cancel = Input.GetKeyDown(m_CancelKey);
         m_LMB = Input.GetMouseButtonDown(0);
+        m_RMB = Input.GetMouseButtonDown(1);
     }
 
     private void ProcessInput() {
@@ -120,6 +123,10 @@ public class TargetController : GameSystem
 
         if (m_LMB) {
             MouseSelectTarget();
+        }
+
+        if (m_RMB) {
+            MouseInteractTarget();
         }
 
         if (m_Cancel) {
@@ -165,6 +172,21 @@ public class TargetController : GameSystem
                 }
                 m_OtherTarget = _s;
                 TryAction(OnTargetSelected, m_OtherTarget, false);
+            }
+        }
+    }
+
+    private void MouseInteractTarget() {
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out m_MouseHitInfo)) {
+            Selectable _s = m_MouseHitInfo.collider.gameObject.GetComponent<Selectable>();
+            if (!_s) return;
+
+            // Are you interacting with a player
+            if (_s.GetType().IsAssignableFrom(typeof(NetworkPlayer))) {
+                // !! TODO Check if this player is currently being interacted with
+                // !! TODO Check range to other player
+                Log("Emitting OnTargetInteracted");
+                TryAction(OnTargetInteracted, _s, false);
             }
         }
     }

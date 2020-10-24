@@ -115,7 +115,7 @@ public class ShopManager : GameSystem
     public void PrepareBuyItem(IItem _item) {
         if (!ShopTerminalPage.instance) return;
         m_TradeItems.Add(_item);
-        // add to price
+        ShopTerminalPage.instance.AddPrice(-_item.def.price);
         ShopTerminalPage.instance.Redraw();
     }
 
@@ -123,16 +123,17 @@ public class ShopManager : GameSystem
         if (!cursor) return;
         if (cursor.selectedItem == null) return;
         if (!ShopTerminalPage.instance) return;
-        // check for item in inventory
         m_SellItems.Add(_item);
         session.player.RemoveInventory(_item);
         cursor.DropItem();
+        ShopTerminalPage.instance.AddPrice(_item.def.sellPrice * _item.def.level);
         ShopTerminalPage.instance.Redraw();
     }
 
     public void CancelBuyItem(IItem _item) {
         if (!ShopTerminalPage.instance) return;
         m_TradeItems.Remove(_item);
+        ShopTerminalPage.instance.AddPrice(_item.def.price);
         ShopTerminalPage.instance.Redraw();
     }
 
@@ -140,6 +141,7 @@ public class ShopManager : GameSystem
         if (!ShopTerminalPage.instance) return;
         session.player.AddInventory(_item);
         m_SellItems.Remove(_item);
+        ShopTerminalPage.instance.AddPrice(-_item.def.sellPrice * _item.def.level);
         ShopTerminalPage.instance.Redraw();
     }
 
@@ -149,11 +151,11 @@ public class ShopManager : GameSystem
         if (!session.network) return;
         List<NetworkShopTerminalSellInfo> _sell = new List<NetworkShopTerminalSellInfo>();
         foreach(IItem _item in m_SellItems) {
-            _sell.Add(new NetworkShopTerminalSellInfo(_item.def.id, _item.def.slotLoc, 0));
+            _sell.Add(new NetworkShopTerminalSellInfo(_item.def.id, _item.def.slotLoc, _item.def.sellPrice*_item.def.level));
         }
         List<NetworkShopTerminalBuyInfo> _buy = new List<NetworkShopTerminalBuyInfo>();
         foreach(IItem _item in m_TradeItems) {
-            _buy.Add(new NetworkShopTerminalBuyInfo(_item.def.id, _item.def.level, 0));
+            _buy.Add(new NetworkShopTerminalBuyInfo(_item.def.id, _item.def.level, _item.def.price));
         }
         session.network.TradeShop(new NetworkShopTerminalTradeData(_sell, _buy));
         m_SellItems = new List<IItem>();
@@ -172,7 +174,6 @@ public class ShopManager : GameSystem
 
     private void OnShopTerminalTradeSuccess(NetworkShopTerminalTradeSuccessData _data) {
         pageController.TurnPageOff(PageType.ShopTerminal);
-        Log("Closing shop");
         CloseShop();
     }
     

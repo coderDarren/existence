@@ -271,8 +271,6 @@ public class Chatbox : GameSystem
             case ItemType.ARMOR: CreateMessage("Armor type: "+(((ArmorItemData)_item).slotType.ToString())); break;
             default: break;
         }
-
-        session.player.AddInventory(_item);
     }
 
     private void OnAddInventoryFail(string _msg) {
