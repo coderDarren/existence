@@ -12,7 +12,7 @@ public class ReflectionCulling : MonoBehaviour
 
     private void Start(){
         target = GetComponent<PlanarReflectionsCaster>();
-        m_ReflectDistance = 20.0f;
+        m_ReflectDistance = 75.0f;
     }
     private void Update(){
         if(RenderExtensions.IsVisibleFrom(target.gameObject.GetComponent<Renderer>(), Camera.main) && Vector3.Distance(Camera.main.transform.position, transform.position) < m_ReflectDistance)
