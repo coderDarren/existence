@@ -16,24 +16,27 @@ public class SpecialEntrance : StateMachineBehaviour
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-    //override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    //{
-    //    
-    //}
+    override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
 
-   
-    override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-       animator.SetBool(m_PlayerCombat.special, false);
-       m_Network.Network_WriteAnimSpecial(m_PlayerCombat.special, false);
+        animator.SetBool(m_PlayerCombat.special, false);
+        m_Network.Network_WriteAnimSpecial(m_PlayerCombat.special, false);
 
-       if(animator.GetBool(m_Player.weapon.ToString()) == false){
+        if(animator.GetBool(m_Player.weapon.ToString()) == false){
             animator.SetBool(m_Player.weapon.ToString(), true);
             animator.SetBool("cycle", false); 
             m_Network.Network_WriteAnimAttack(m_Player.weapon.ToString(), true);
             m_Network.Network_WriteAnimBool("cycle", false);
         }
+
     }
+
+   
+    //override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    //{
+       
+
+       
+    //}
 
     // OnStateMove is called right after Animator.OnAnimatorMove()
     //override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
