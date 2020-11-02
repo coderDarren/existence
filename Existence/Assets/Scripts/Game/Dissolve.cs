@@ -4,34 +4,33 @@ using UnityEngine;
 
 public class Dissolve : MonoBehaviour
 {
-    private Collider[] hit;
-    public LayerMask mask;
-    private GameObject child;
-    private Material material;
-    private float dissolve;
+    public bool appear;
     
-    void Update()
-    {
-        hit = Physics.OverlapSphere(transform.position, 4, mask);    
-        child = transform.GetChild(0).gameObject;
-        material = GetComponent<Renderer>().sharedMaterial;
-
-
+    private Material m_Material;
+    private GameObject m_Child;
+    private float m_Dissolve;
+    private float m_Distance;
+    private float m_Timer;
+    
+    private void Start(){
+        m_Child = transform.GetChild(1).gameObject;
+        m_Material = m_Child.GetComponent<SkinnedMeshRenderer>().sharedMaterial;
+        m_Dissolve = 1;        
+        m_Material.SetFloat("Dissolve", m_Dissolve);
         
+    }
+    
+    void Update(){    
+        m_Distance = GetComponent<MobLookAt>().distance;
 
-        if(hit.Length > 0){
-            dissolve += Time.deltaTime;            
-            dissolve = Mathf.Clamp(dissolve, 0, 1);
-            child.GetComponent<Renderer>().sharedMaterial.SetColor("_EmissionColor", Color.green);
-            material.SetFloat("Dissolve", dissolve);
-
+        if(m_Distance <= 45){
+                m_Dissolve -= (Time.deltaTime / 3);            
+                m_Dissolve = Mathf.Clamp(m_Dissolve, 0, 1);
+            if(appear)       
+                m_Material.SetFloat("Dissolve", m_Dissolve);
+            if(!appear)
+                if(m_Dissolve <= 0.2f)
+                    m_Child.GetComponent<SkinnedMeshRenderer>().enabled = false;
         }
-        else{
-            dissolve -= Time.deltaTime;
-            dissolve = Mathf.Clamp(dissolve, 0, 1);
-            child.GetComponent<Renderer>().sharedMaterial.SetColor("_EmissionColor", Color.red);
-            material.SetFloat("Dissolve", dissolve);
-        }
-        
     }
 }

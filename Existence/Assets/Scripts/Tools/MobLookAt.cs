@@ -8,12 +8,20 @@ public class MobLookAt : MonoBehaviour
     
     private Transform m_Player;
     private Animator m_Animator;
+    private AudioSource[] m_Sounds;
     private float m_Distance;
     private bool m_Aggro;
     private bool m_Look;
+
+    public float distance {
+        get {
+            return m_Distance;
+        } 
+    }
     
     private void Start(){
         m_Animator = GetComponent<Animator>();
+        m_Sounds = GetComponents<AudioSource>();
     }
 
     private void Update(){
@@ -22,9 +30,7 @@ public class MobLookAt : MonoBehaviour
 
         m_Distance = Vector3.Distance(transform.position, m_Player.position);
         
-        MobLook();   
-        Debug.Log(m_Distance);
-        Debug.Log(m_Look);             
+        MobLook();                
     }
 
     private void MobLook(){   
@@ -37,15 +43,16 @@ public class MobLookAt : MonoBehaviour
         }
 
         if (m_Look){
+            transform.LookAt(m_Player);
+
             if (!m_Aggro){                        
                 m_Aggro = true;
                 m_Animator.SetTrigger("Aggro");
             }
-            transform.LookAt(m_Player);
         }
     }
 
-    public void PlaySoundEffect(){
-        GetComponent<AudioSource>().Play();
+    public void PlaySoundEffect(int _sound){
+        m_Sounds[_sound].Play();
     }
 }
