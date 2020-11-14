@@ -72,6 +72,8 @@ public class NetworkController : GameSystem
     private static readonly string NETMSG_ACCEPT_P2P_TRADE = "ACCEPT_P2P_TRADE";
     private static readonly string NETMSG_CANCEL_P2P_TRADE = "CANCEL_P2P_TRADE";
     private static readonly string NETMSG_TIX_CHANGED = "NETMSG_TIX_CHANGED";
+    private static readonly string NETMSG_MISSION_INTERACT = "NETMSG_MISSION_INTERACT";
+    private static readonly string NETMSG_MISSION_DATA = "NETMSG_MISSION_DATA";
 
     /*
      * Some helpful events to subscribe to..
@@ -143,6 +145,10 @@ public class NetworkController : GameSystem
     public NetworkEventHandler<NetworkP2PTradeItemData> p2pTradeAddItemEvt {get; private set;}
     public NetworkEventHandler<NetworkP2PTradeItemData> p2pTradeRemoveItemEvt {get; private set;}
     public NetworkEventHandler<NetworkP2PTradeTixData> p2pTradeTixEvt {get; private set;}
+#endregion
+
+#region MISSION EVENTS
+    public NetworkEventHandler<IMissionInteraction> missionResponseEvt {get; private set;}
 #endregion
 
     public bool usePredictiveSmoothing=true;
@@ -225,6 +231,9 @@ public class NetworkController : GameSystem
         p2pTradeAddItemEvt = new NetworkEventHandler<NetworkP2PTradeItemData>("P2P trade item was added.", debug);
         p2pTradeRemoveItemEvt = new NetworkEventHandler<NetworkP2PTradeItemData>("P2P trade item was removed.", debug);
         p2pTradeTixEvt = new NetworkEventHandler<NetworkP2PTradeTixData>("P2P trade tix changed.", debug);
+
+        // missions
+        missionResponseEvt = new NetworkEventHandler<IMissionInteraction>("Mission response received.", debug);
     }
 
     private void SubscribeEventHandlers() {
@@ -288,6 +297,9 @@ public class NetworkController : GameSystem
         m_Network.On(NETMSG_P2P_TRADE_CHNG_TIX, p2pTradeTixEvt.HandleEvt);
         m_Network.On(NETMSG_P2P_TRADE_ADD_ITEM, p2pTradeAddItemEvt.HandleEvt);
         m_Network.On(NETMSG_P2P_TRADE_RM_ITEM, p2pTradeRemoveItemEvt.HandleEvt);
+
+        // mission
+        m_Network.On(NETMSG_MISSION_DATA, missionResponseEvt.HandleEvt);
     }
 
     private void OnNetworkConnected(SocketIOEvent _evt) {
@@ -419,6 +431,10 @@ public class NetworkController : GameSystem
 
     public void ChangeP2PTradeTix(NetworkP2PTradeTixData _data) {
         SendNetworkData<NetworkP2PTradeTixData>(NETMSG_P2P_TRADE_CHNG_TIX, _data);
+    }
+
+    public void InteractMission(IMissionInteraction _data) {
+        SendString(NETMSG_MISSION_INTERACT, _data.ToJsonString());
     }
 #endregion
 }

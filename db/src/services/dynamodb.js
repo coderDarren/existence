@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+AWS.config.update({region:'us-east-1'});
 
 class DynamoDB
 {
@@ -46,7 +47,27 @@ class DynamoDB
             return _res;
         } catch (_err) {
             console.log(_err);
-            return -1;
+            return {
+                error: _err
+            };
+        }
+    }
+
+    async queryTable(_table, _data)
+    {
+        try {
+            var _res = await this._dynamo.query({
+                ExpressionAttributeValues: {':p':{S:_data.player}},
+                ExpressionAttributeNames: {'#p': 'player'},
+                KeyConditionExpression: '#p = :p',
+                TableName: _table
+            }).promise();
+            return _res;
+        } catch (_err) {
+            console.log(_err);
+            return {
+                error: _err
+            };
         }
     }
 
@@ -99,4 +120,4 @@ class DynamoDB
     }
 }
 
-module.exports = new DynamoDB();
+module.exports = DynamoDB;

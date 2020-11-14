@@ -602,6 +602,7 @@ class SQLController {
             case 'mobLootItems': return this._mobLootItem;
             case 'inventorySlots': return this._inventorySlot;
             case 'players': return this._player;
+            case 'missionNodes': return this._missionNode;
             default: return {
                 error: `Unsupported table operation`,
                 code: 1501
@@ -1163,6 +1164,24 @@ class SQLController {
         }, {
             timestamps: false
         });
+
+        this._missionNode = this._sql.define('missionNode', {
+            ID: DataTypes.CHAR(255),
+            nodeType: DataTypes.INTEGER,
+            title: DataTypes.CHAR(255),
+            description: DataTypes.CHAR(255),
+            rewards: DataTypes.CHAR(255),
+            tixReward: DataTypes.INTEGER,
+            nextNodes: DataTypes.CHAR(255),
+            items: DataTypes.CHAR(255),
+            count: DataTypes.CHAR(255),
+            npc: DataTypes.INTEGER,
+            npcs: DataTypes.CHAR(255),
+            mobs: DataTypes.CHAR(255),
+            chatOptionOrder: DataTypes.CHAR(255)
+        }, {
+            timestamps: false
+        })
     }
 }
 

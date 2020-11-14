@@ -21,3 +21,5 @@ Memory:
     - Chips may burn out over time, even in the middle of progress. When a chip burns out, existing progress in that line is lost.
     - Higher quality chips will reduce the changes of burnout.
     - Chips of all levels can vary in quality.
+
+Intelligence Explosion: The point where AI exceeds the intelligence of the sum of humanity

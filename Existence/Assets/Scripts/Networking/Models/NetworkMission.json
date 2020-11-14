@@ -1,0 +1,42 @@
+{
+    "entry": [
+        {
+            "mishId": "killBots_01",
+            "nodeId": "killBots01_00",
+            "title": "Hit Job",
+            "description": "Go kill 10 bots.",
+            "nodeType": "NPC_CHAT",
+            "progress": 0.0,
+            "rewards": "",
+            "tixReward": 0,
+            "chatOptionOrder": "0",
+            "nextNodes": "killBots01_10"
+        }
+    ],
+    "nodes": [
+        {
+            "mishId": "killBots_01",
+            "nodeId": "killBots01_10",
+            "title": "Hit Job",
+            "description": "Go kill 10 bots.",
+            "nodeType": "KILL_MOBS",
+            "progress": 0.0,
+            "rewards": "",
+            "tixReward": 0,
+            "mobs": "0",
+            "count": "10",
+            "nextNodes": "killBots01_20"
+        },
+        {
+            "mishId": "killBots_01",
+            "nodeId": "killBots01_20",
+            "title": "Hit Job",
+            "description": "Return to NPC",
+            "nodeType": "NPC_CHAT",
+            "progress": 0.0,
+            "rewards": "0",
+            "tixReward": 100,
+            "nextNodes": ""
+        }
+    ]
+}
