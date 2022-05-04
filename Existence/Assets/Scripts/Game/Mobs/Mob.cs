@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-[RequireComponent(typeof(CapsuleCollider))]
+// [RequireComponent(typeof(CapsuleCollider))]
 public class Mob : Selectable
 {
     public delegate void MobDelegate(Mob _mob);
@@ -15,7 +15,7 @@ public class Mob : Selectable
     private NetworkMobData m_Data;
     private PlayerController m_Controller;
     private Animator m_Animator;
-    private CapsuleCollider m_Collider;
+    // private CapsuleCollider m_Collider;
     private Vector3 m_InitialPos;
     private Vector3 m_TargetPos;
     private Vector3 m_InitialRot;
@@ -65,7 +65,7 @@ public class Mob : Selectable
 #region Public Functions
     public void Init(NetworkMobData _data) {
         m_Animator = GetComponent<Animator>();
-        m_Collider = GetComponent<CapsuleCollider>();
+        // m_Collider = GetComponent<CapsuleCollider>();
         m_Data = _data;
         m_NameplateData = new NameplateData();
         m_NameplateData.name = m_Data.name;
